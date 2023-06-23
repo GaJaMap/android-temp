@@ -4,6 +4,10 @@ plugins {
     id 'kotlin-kapt'
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def kakaoApiKey = properties.getProperty('kakao_native_key')
+
 android {
     namespace 'com.example.gajamap'
     compileSdk 33
@@ -14,6 +18,10 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
+        // mainfest에서 쓸 수 있도록 지정
+        manifestPlaceholders = [KAKAO_API_KEY : kakaoApiKey]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,4 +64,7 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.6.1"
     // livedata : 옵저버 패턴 => 데이터의 변경 사항을 관찰 후 변경사항 발생 시 알려줌
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    //카카오 로그인
+    implementation 'com.kakao.sdk:v2-user:2.10.0'
 }
