@@ -1,60 +1,49 @@
 package com.example.gajamap.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.gajamap.R
+import androidx.core.view.contains
+import com.example.gajamap.databinding.FragmentMapBinding
+import net.daum.mf.map.api.MapView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [MapFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class MapFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    // 전역 변수로 바인딩 객체 선언
+    private var mBinding: FragmentMapBinding? = null
+    // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
+    private val binding get() = mBinding!!
+    private lateinit var mapView : MapView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        // 바인딩
+        mBinding = FragmentMapBinding.inflate(inflater, container, false)
+        context ?: return binding.root
+        mapView = MapView(context)
+        binding.mapView.addView(mapView)
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MapFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MapFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onResume() {
+        super.onResume()
+        if(binding.mapView.contains(mapView)){
+            try{
+                mapView = MapView(context)
+                binding.mapView.addView(mapView)
+            }catch (re: RuntimeException){
+                Log.e("MapFragment", "onResume: " + re)
             }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.removeView(mapView)
     }
 }
