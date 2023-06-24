@@ -18,20 +18,20 @@
         <activity
             android:name="com.example.gajamap.ui.view.LoginActivity"
             android:exported="true" >
-        <intent-filter>
+        <!--<intent-filter>
             <action android:name="android.intent.action.MAIN" />
 
             <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+        </intent-filter>-->
         </activity>
         <activity
             android:name=".ui.view.MainActivity"
             android:exported="true">
-            <!--<intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
