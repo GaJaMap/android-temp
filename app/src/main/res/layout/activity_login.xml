@@ -6,8 +6,8 @@
     <data>
         <import type="android.view.View"/>
         <variable
-            name="viewModel"
-            type="com.example.gajamap.viewmodel.LoginViewModel" />
+            name="activity"
+            type="com.example.gajamap.ui.view.LoginActivity" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/kakao_login_img"
-        android:onClick="@{() -> viewModel.kakaoLogin()}"
+        android:onClick="@{() -> activity.kakaoLogin()}"
         android:layout_marginBottom="112dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
