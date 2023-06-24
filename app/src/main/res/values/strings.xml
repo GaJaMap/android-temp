@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">GaJaMap</string>
+
+    <!-- BottomNavigation -->
+    <string name="list">List</string>
+    <string name="map">Map</string>
+    <string name="setting">Setting</string>
 </resources>
