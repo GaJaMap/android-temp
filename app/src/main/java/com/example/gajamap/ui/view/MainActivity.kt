@@ -1,8 +1,5 @@
 package com.example.gajamap.ui.view
 
-import android.util.Log
-import android.content.ContentValues.TAG
-import android.widget.FrameLayout
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -14,7 +11,6 @@ import com.example.gajamap.ui.fragment.MapFragment
 import com.example.gajamap.ui.fragment.SettingFragment
 import com.example.gajamap.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kakao.sdk.common.util.Utility
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override val viewModel by viewModels<MainViewModel> {
@@ -33,9 +29,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         // Log.d(TAG, "keyhash : ${Utility.getKeyHash(this)}")
 
         // bottomnavigation
+        bnMain = binding.navBn
+        // 맨 처음 화면을 켰을 때 map 탭이 보여지도록
+        bnMain.selectedItemId = R.id.menu_map
         supportFragmentManager.beginTransaction().add(R.id.nav_fl, MapFragment()).commit()
 
-        bnMain = binding.navBn
         bnMain.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.menu_map -> {
