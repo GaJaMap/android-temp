@@ -28,5 +28,10 @@
     <string name="list_dialog_tv7">앱 사용 중에만 허용</string>
     <string name="list_dialog_tv8">이번만 허용</string>
     <string name="list_dialog_tv9">허용 안함</string>
+    <string name="add_hint">장소를 검색해주세요.</string>
+    <string name="add_search_next">></string>
+    <string name="add_bottom_tv1">지도에 직접 위치 추가하기</string>
+    <string name="add_bottom_tv2">서울 강남구 봉은사로33길 33 양지직매상가</string>
+    <string name="add_bottom_tv3">이 위치로 주소 설정</string>
 
 </resources>
