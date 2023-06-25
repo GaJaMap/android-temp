@@ -7,4 +7,26 @@
     <string name="setting">Setting</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="list_search">고객 찾기</string>
+    <string name="list_search_tv">서울특별시 고객들</string>
+    <string name="list_category1">최신순</string>
+    <string name="list_category2">오래된순</string>
+    <string name="list_category3">거리순</string>
+    <string name="list_item_name">한고객</string>
+    <string name="list_item_address">주소</string>
+    <string name="list_item_address_detail">서울특별시 강남구</string>
+    <string name="list_item_phone">연락처</string>
+    <string name="list_item_phone_detail">010-0000-0000</string>
+    <string name="list_item_distance">5.0km</string>
+    <string name="list_dialog_tv1">가자맵이 사용자의 위치에 액세스하도록</string>
+    <string name="list_dialog_tv2">허용하시겠습니까?</string>
+    <string name="list_dialog_tv3">‘가자맵’이 고객 리스트에 대한 정보를 가져오기 위해</string>
+    <string name="list_dialog_tv4">위치 정보를 사용하도록 허용합니다.</string>
+    <string name="list_dialog_tv5">정확한 위치</string>
+    <string name="list_dialog_tv6">대략적인 위치</string>
+    <string name="list_dialog_tv7">앱 사용 중에만 허용</string>
+    <string name="list_dialog_tv8">이번만 허용</string>
+    <string name="list_dialog_tv9">허용 안함</string>
+
 </resources>
