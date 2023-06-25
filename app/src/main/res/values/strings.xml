@@ -36,5 +36,12 @@
     <string name="info_top">상세 보기</string>
     <string name="info_address1">서울 강남구 봉은사로33길 33 양지직매상가</string>
     <string name="info_address2">논현역, 학동역 근처</string>
+    <string name="direct_top">고객 추가하기</string>
+    <string name="direct_hint1">새 고객의 이름을 입력해주세요.</string>
+    <string name="direct_hint2">상세 주소 입력</string>
+    <string name="direct_hint3">전화번호 입력</string>
+    <string name="direct_warning">*필수 입력사항</string>
+    <string name="direct_address_change">주소 변경</string>
+    <string name="direct_check">확인</string>
 
 </resources>
