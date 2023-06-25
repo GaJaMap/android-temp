@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="fragment"
+            type="com.example.gajamap.ui.fragment.customerAdd.AddFragment" />
+        <variable
+            name="viewModel"
+            type="com.example.gajamap.viewmodel.AddViewModel" />
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/map"
@@ -130,3 +141,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

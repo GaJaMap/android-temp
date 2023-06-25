@@ -33,5 +33,8 @@
     <string name="add_bottom_tv1">지도에 직접 위치 추가하기</string>
     <string name="add_bottom_tv2">서울 강남구 봉은사로33길 33 양지직매상가</string>
     <string name="add_bottom_tv3">이 위치로 주소 설정</string>
+    <string name="info_top">상세 보기</string>
+    <string name="info_address1">서울 강남구 봉은사로33길 33 양지직매상가</string>
+    <string name="info_address2">논현역, 학동역 근처</string>
 
 </resources>

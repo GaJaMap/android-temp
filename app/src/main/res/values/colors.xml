@@ -14,5 +14,6 @@
     <color name="gray">#9D9999</color>
     <color name="et_hint_gray">#ABABAB</color>
     <color name="add_search_next_gray">#C1C1C1</color>
+    <color name="yellow_brown">#C07F00</color>
 
 </resources>
