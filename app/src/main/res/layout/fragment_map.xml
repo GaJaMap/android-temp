@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,5 +9,39 @@
     <RelativeLayout
         android:id="@+id/map_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</FrameLayout>
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/ib_plus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:src="@drawable/ic_plus"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ib_gps"/>
+
+    <ImageButton
+        android:id="@+id/ib_gps"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:src="@drawable/gps"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ib_km"/>
+
+    <ImageButton
+        android:id="@+id/ib_km"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:src="@drawable/ic_km"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
