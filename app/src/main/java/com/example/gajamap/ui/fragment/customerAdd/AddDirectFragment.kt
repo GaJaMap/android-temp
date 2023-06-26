@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
@@ -36,8 +37,6 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         binding.fragment = this@AddDirectFragment
     }
     var imageFile : File? = null
-    private var isNameChk = false      // 이름을 입력했는지
-    private var isPhoneChk = false     // 전화번호를 입력했는지
     private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
 
     companion object {
@@ -49,39 +48,35 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
         }
-
-        binding.infoProfileNameEt.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun afterTextChanged(p0: Editable?) {
-                if (binding.infoProfileNameEt.length() > 0) {
-                    isNameChk = true
-                }
-            }
-        })
-
-        binding.infoProfilePhoneEt.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun afterTextChanged(p0: Editable?) {
-                if (binding.infoProfilePhoneEt.length() > 0) {
-                    isPhoneChk = true
-                }
-            }
-        })
-        binding.btnSubmit.setOnClickListener {
-            // 필수 입력 사항을 적지 않았을 경우 제한 주기
-            if (binding.infoProfileNameEt.text.isNotEmpty() && binding.infoProfilePhoneEt.text.isNotEmpty()){
-                binding.btnSubmit.isEnabled = true
-            }
-            else{
-                binding.btnSubmit.isEnabled = false
-                Toast.makeText(requireActivity(), "필수 입력사항 항목을 작성해주세요!", Toast.LENGTH_SHORT).show()
-            }
-        }
+        chkInputData()
+        onContentAdd()
 
         binding.topBackBtn.setOnClickListener {
 
+        }
+    }
+
+    // 필수 입력사항에 값이 변경될 때 확인 버튼 활성화 시킬 함수 호출
+    private fun onContentAdd(){
+        binding.infoProfileNameEt.addTextChangedListener {
+            chkBtnActivate()
+        }
+        binding.infoProfilePhoneEt.addTextChangedListener{
+            chkBtnActivate()
+        }
+    }
+
+    private fun chkInputData() = binding.infoProfileNameEt.text.isNotEmpty() && binding.infoProfilePhoneEt.text.isNotEmpty()
+
+    // 필수 입력사항을 모두 작성하였을 때 확인 버튼 활성화시키기
+    private fun chkBtnActivate() {
+        // 버튼이 활성화되어 있지 않은 상황에서 확인
+        if (!isBtnActivated && chkInputData()) {
+            isBtnActivated = !isBtnActivated
+            binding.btnSubmit.apply {
+                isEnabled = true
+                setBackgroundResource(R.drawable.fragment_add_bottom_purple)
+            }
         }
     }
 
