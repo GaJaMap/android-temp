@@ -46,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     true
                 }
                 R.id.menu_setting -> {
-                    loadFragment(AddDirectFragment())
+                    loadFragment(SettingFragment())
                     true
                 }
                 else -> false
