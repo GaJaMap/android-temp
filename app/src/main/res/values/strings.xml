@@ -5,8 +5,6 @@
     <string name="list">List</string>
     <string name="map">Map</string>
     <string name="setting">Setting</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
