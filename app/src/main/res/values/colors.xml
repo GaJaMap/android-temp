@@ -17,5 +17,6 @@
     <color name="yellow_brown">#C07F00</color>
     <color name="direct_hint_gray">#C3C2C3</color>
     <color name="direct_blue">#001DB2</color>
-
+    <color name="line">#4C3D3D</color>
+    <color name="inform">#ECE0FF</color>
 </resources>

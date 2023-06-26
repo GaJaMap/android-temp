@@ -6,6 +6,10 @@
     <string name="map">Map</string>
     <string name="setting">Setting</string>
 
+    <!-- Add Group Bottom Sheet -->
+    <string name="addgroup_inform">거래처 수를 터치하면 지도 페이지에 표시됩니다.</string>
+    <string name="addgroup_btn">그룹 추가하기</string>
+
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
     <string name="list_category1">최신순</string>
