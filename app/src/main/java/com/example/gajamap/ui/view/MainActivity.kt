@@ -9,6 +9,7 @@ import com.example.gajamap.databinding.ActivityMainBinding
 import com.example.gajamap.ui.fragment.customerList.ListFragment
 import com.example.gajamap.ui.fragment.MapFragment
 import com.example.gajamap.ui.fragment.SettingFragment
+import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -28,7 +29,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         //카카오 해시키
         // Log.d(TAG, "keyhash : ${Utility.getKeyHash(this)}")
 
-        // bottomnavigation
+        // bottom navigation
         bnMain = binding.navBn
         // 맨 처음 화면을 켰을 때 map 탭이 보여지도록
         bnMain.selectedItemId = R.id.menu_map
@@ -45,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     true
                 }
                 R.id.menu_setting -> {
-                    loadFragment(SettingFragment())
+                    loadFragment(AddDirectFragment())
                     true
                 }
                 else -> false
