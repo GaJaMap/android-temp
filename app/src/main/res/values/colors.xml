@@ -11,5 +11,11 @@
     <color name="check">#0047FF</color>
     <color name="essential">#FF6B18</color>
     <color name="nav_basic">#606060</color>
+    <color name="gray">#9D9999</color>
+    <color name="et_hint_gray">#ABABAB</color>
+    <color name="add_search_next_gray">#C1C1C1</color>
+    <color name="yellow_brown">#C07F00</color>
+    <color name="direct_hint_gray">#C3C2C3</color>
+    <color name="direct_blue">#001DB2</color>
 
 </resources>

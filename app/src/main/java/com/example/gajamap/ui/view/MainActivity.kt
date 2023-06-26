@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.databinding.ActivityMainBinding
-import com.example.gajamap.ui.fragment.ListFragment
+import com.example.gajamap.ui.fragment.customerList.ListFragment
 import com.example.gajamap.ui.fragment.MapFragment
 import com.example.gajamap.ui.fragment.SettingFragment
 import com.example.gajamap.viewmodel.MainViewModel

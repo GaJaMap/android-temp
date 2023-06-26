@@ -14,12 +14,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GaJaMap"
-        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".ui.view.AddCustomerActivity"
@@ -29,35 +29,36 @@
                 android:value="" />
         </activity>
 
-        <meta-data
-            android:name="com.kakao.sdk.AppKey"
-            android:value="${KAKAO_API_KEY}" />
+        <meta-data android:name="com.kakao.sdk.AppKey"
+            android:value="${KAKAO_API_KEY}"/>
 
         <activity
-            android:name=".ui.view.LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:name="com.example.gajamap.ui.view.LoginActivity"
+            android:exported="true" >
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <!--<intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>-->
+
         </activity>
         <activity
             android:name=".ui.view.MainActivity"
             android:exported="true">
 
-            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            -->
-
+          
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
-        </activity> <!-- 카카오 로그인 -->
+        </activity>
+
+        <!-- 카카오 로그인 -->
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
