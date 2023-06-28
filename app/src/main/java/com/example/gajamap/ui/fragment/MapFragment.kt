@@ -1,5 +1,6 @@
 package com.example.gajamap.ui.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,8 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.contains
+import com.example.gajamap.R
+import com.example.gajamap.api.data.remote.GroupListData
+import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.FragmentMapBinding
+import com.example.gajamap.ui.adapter.GroupListAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapView
+import kotlin.random.Random
 
 class MapFragment : Fragment() {
     // 전역 변수로 바인딩 객체 선언
@@ -16,6 +23,10 @@ class MapFragment : Fragment() {
     // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
     private val binding get() = mBinding!!
     private lateinit var mapView : MapView
+
+    // 그룹 리스트 recyclerview
+    lateinit var groupListAdapter: GroupListAdapter
+    val dataList = mutableListOf<GroupListData>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,9 +37,30 @@ class MapFragment : Fragment() {
         context ?: return binding.root
         mapView = MapView(context)
         binding.mapView.addView(mapView)
+        // 그룹 더보기 바텀 다이얼로그 띄우기
+        // todo: 상단 검색창 만들면 왼쪽 dropdown 누르면 띄우기! 일단 plus 버튼으로 해둠
+        binding.ibPlus.setOnClickListener{
+            dataList.clear()
+            groupListAdapter = GroupListAdapter()
+            val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+            val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
+            dataList.apply {
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 1, groupperson = 3))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 2, groupperson = 9))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 3, groupperson = 6))
+            }
+            groupListAdapter.datalist = dataList
+            groupListAdapter.notifyDataSetChanged()
+
+            sheetView.rvAddgroup.adapter = groupListAdapter
+
+            groupDialog.setContentView(sheetView.root)
+            groupDialog.show()
+        }
         return binding.root
     }
+
 
     override fun onResume() {
         super.onResume()
