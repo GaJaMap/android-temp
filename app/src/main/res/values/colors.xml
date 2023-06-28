@@ -19,4 +19,7 @@
     <color name="direct_blue">#001DB2</color>
     <color name="line">#4C3D3D</color>
     <color name="inform">#ECE0FF</color>
+    <color name="group_color1">#00235B</color>
+    <color name="group_color2">#BE6DB7</color>
+
 </resources>
