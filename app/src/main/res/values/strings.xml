@@ -5,8 +5,15 @@
     <string name="list">List</string>
     <string name="map">Map</string>
     <string name="setting">Setting</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Add Group Bottom Sheet -->
+    <string name="addgroup_inform">거래처 수를 터치하면 지도 페이지에 표시됩니다.</string>
+    <string name="addgroup_btn">그룹 추가하기</string>
+    <string name="addgroup_group">그룹</string>
+    <string name="addgroup_groupnumber">1</string>
+    <string name="addgroup_start_parenthesis">(</string>
+    <string name="addgroup_end_parenthesis">)</string>
+    <string name="addgroup_groupperson">5</string>
 
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>

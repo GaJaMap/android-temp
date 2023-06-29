@@ -52,7 +52,7 @@
             android:id="@+id/top_modify_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_info_modify"
+            android:src="@drawable/ic_modify"
             android:layout_marginEnd="15dp"
             app:layout_constraintEnd_toStartOf="@+id/top_delete_btn"
             app:layout_constraintTop_toTopOf="parent"
@@ -63,15 +63,13 @@
             android:id="@+id/top_delete_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_info_delete"
+            android:src="@drawable/ic_delete"
             android:layout_marginEnd="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/info_profile_img"
@@ -86,9 +84,9 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/info_profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_info_name"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_person"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -110,7 +108,7 @@
         android:id="@+id/info_profile_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_info_address"
+        android:src="@drawable/ic_address"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -150,17 +148,15 @@
         app:layout_constraintTop_toTopOf="@+id/info_profile_address_tv2"
         app:layout_constraintBottom_toBottomOf="@+id/info_profile_address_tv2"/>
 
-
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/info_profile_phone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_info_phone"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_phone"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_profile_address_tv2"/>
-
 
     <TextView
         android:id="@+id/info_profile_phone_tv"
