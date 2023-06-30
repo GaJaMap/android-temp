@@ -52,6 +52,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 else -> false
             }
         }
+        // 탭 버튼 재 호출시 이벤트 없이 처리
+        bnMain.setOnItemReselectedListener {
+            when (it.itemId) {
+                R.id.menu_map -> {}
+                R.id.menu_list -> {}
+                R.id.menu_setting -> {}
+            }
+        }
     }
     fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().replace(R.id.nav_fl, fragment).commit()
