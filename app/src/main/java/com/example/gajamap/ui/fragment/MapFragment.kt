@@ -35,7 +35,6 @@ class MapFragment : Fragment() {
     private var mBinding: FragmentMapBinding? = null
     // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
     private val binding get() = mBinding!!
-    // private lateinit var mapView : MapView
 
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
@@ -55,13 +54,8 @@ class MapFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // 바인딩
-        // Log.d("MapFragment", "dd " + mBinding)
         mBinding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        /*
-        mapView = MapView(context)
-        binding.mapView.addView(mapView)*/
 
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -182,22 +176,4 @@ class MapFragment : Fragment() {
     private fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
-
-    /*
-    override fun onResume() {
-        super.onResume()
-        if(binding.mapView.contains(mapView)){
-            try{
-                mapView = MapView(context)
-                binding.mapView.addView(mapView)
-            }catch (re: RuntimeException){
-                Log.e("MapFragment", "onResume: " + re)
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.removeView(mapView)
-    }*/
 }

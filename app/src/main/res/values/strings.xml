@@ -14,6 +14,7 @@
     <string name="addgroup_start_parenthesis">(</string>
     <string name="addgroup_end_parenthesis">)</string>
     <string name="addgroup_groupperson">5</string>
+    <string name="addgroup_total">전체</string>
 
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>

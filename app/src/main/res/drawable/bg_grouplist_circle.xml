@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <corners android:radius="12dp"/>
-    <!-- <solid android:color="@color/group_color1"/> -->
     <padding
         android:bottom="8dp"
         android:left="8dp"
