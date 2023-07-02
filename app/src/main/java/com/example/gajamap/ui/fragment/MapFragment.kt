@@ -40,6 +40,8 @@ class MapFragment : Fragment() {
     lateinit var groupListAdapter: GroupListAdapter
     val dataList = mutableListOf<GroupListData>()
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
+    var groupName: String = ""
+    var pos: Int = 0
 
     // todo: 추후에 수정 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -72,10 +74,28 @@ class MapFragment : Fragment() {
         // todo: 상단 검색창 만들면 왼쪽 dropdown 누르면 띄우기! 일단 plus 버튼으로 해둠
         binding.ibPlus.setOnClickListener{
             dataList.clear()
-            groupListAdapter = GroupListAdapter()
             val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
             val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
+            groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                override fun click(name: String, position: Int) {
+                    // 알림창
+                    val builder = AlertDialog.Builder(requireContext())
+                    builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                        .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                        .setPositiveButton("확인",positiveButtonClick)
+                        .setNegativeButton("취소", negativeButtonClick)
+                    val alertDialog = builder.create()
+                    alertDialog.show()
+                    groupName = name
+                    pos = position
+                }
+            }, object : GroupListAdapter.GroupEditListener{
+                override fun click2(name: String, position: Int) {
+                    // todo: 그룹명 수정하기
+                }
+
+            })
             dataList.apply {
                 add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
                 add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
@@ -89,16 +109,6 @@ class MapFragment : Fragment() {
             groupDialog.setContentView(sheetView.root)
             groupDialog.show()
         }
-
-        // 알림창
-        /*
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("정말 삭제하시겠습니까?")
-            .setMessage("해당 스케줄을 삭제합니다.")
-            .setPositiveButton("확인",positiveButtonClick)
-            .setNegativeButton("취소", negativeButtonClick)
-        val alertDialog = builder.create()
-        alertDialog.show() */
         return root
     }
 

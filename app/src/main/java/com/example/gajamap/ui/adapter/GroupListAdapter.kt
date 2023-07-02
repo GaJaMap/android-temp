@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.gajamap.api.data.remote.GroupListData
 import com.example.gajamap.databinding.ItemGroupListBinding
 
-class GroupListAdapter: RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
+class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     var datalist = mutableListOf<GroupListData>()
 
     inner class ViewHolder(private val binding: ItemGroupListBinding): RecyclerView.ViewHolder(binding.root) {
@@ -18,6 +18,13 @@ class GroupListAdapter: RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
             bgShape.setColor(item.img)
             binding.tvGroup.text = item.name
             binding.tvGroupperson.text = item.person.toString()
+            // 삭제, 수정 버튼 눌렀을 때의 이벤트
+            binding.ivDelete.setOnClickListener {
+                groupDeleteListener.click(datalist[position].name, position)
+            }
+            binding.ivModify.setOnClickListener {
+                groupEditListener.click2(datalist[position].name, position)
+            }
         }
     }
 
@@ -33,5 +40,11 @@ class GroupListAdapter: RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     // 적절한 데이터를 가져와서 그 데이터를 사용하여 뷰홀더의 레이아웃 채움
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
+    }
+    interface GroupDeleteListener{
+        fun click(name: String, position: Int)
+    }
+    interface GroupEditListener{
+        fun click2(name: String, position: Int)
     }
 }
