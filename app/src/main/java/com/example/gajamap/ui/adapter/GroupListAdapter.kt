@@ -16,8 +16,8 @@ class GroupListAdapter: RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
         val bgShape = binding.ivGroup.background as GradientDrawable
         fun bind(item: GroupListData){
             bgShape.setColor(item.img)
-            binding.tvGroupnumber.text = item.groupnumber.toString()
-            binding.tvGroupperson.text = item.groupperson.toString()
+            binding.tvGroup.text = item.name
+            binding.tvGroupperson.text = item.person.toString()
         }
     }
 

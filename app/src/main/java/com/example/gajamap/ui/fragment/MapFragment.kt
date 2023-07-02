@@ -77,9 +77,9 @@ class MapFragment : Fragment() {
             val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
             dataList.apply {
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 1, groupperson = 3))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 2, groupperson = 9))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 3, groupperson = 6))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
             }
             groupListAdapter.datalist = dataList
             groupListAdapter.notifyDataSetChanged()
