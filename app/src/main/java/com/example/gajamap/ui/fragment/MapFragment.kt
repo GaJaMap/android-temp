@@ -22,6 +22,7 @@ import androidx.core.view.contains
 import com.example.gajamap.R
 import com.example.gajamap.api.data.remote.GroupListData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
+import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -35,14 +36,15 @@ class MapFragment : Fragment() {
     private var mBinding: FragmentMapBinding? = null
     // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
     private val binding get() = mBinding!!
-    // private lateinit var mapView : MapView
 
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
     val dataList = mutableListOf<GroupListData>()
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
+    var groupName: String = ""
+    var pos: Int = 0
 
-    // todo: 추후에 수정 예정
+    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
         Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
     }
@@ -55,13 +57,8 @@ class MapFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // 바인딩
-        // Log.d("MapFragment", "dd " + mBinding)
         mBinding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        /*
-        mapView = MapView(context)
-        binding.mapView.addView(mapView)*/
 
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -78,14 +75,36 @@ class MapFragment : Fragment() {
         // todo: 상단 검색창 만들면 왼쪽 dropdown 누르면 띄우기! 일단 plus 버튼으로 해둠
         binding.ibPlus.setOnClickListener{
             dataList.clear()
-            groupListAdapter = GroupListAdapter()
             val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
             val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
+            groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                override fun click(name: String, position: Int) {
+                    // 그룹 삭제 dialog
+                    val builder = AlertDialog.Builder(requireContext())
+                    builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                        .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                        .setPositiveButton("확인",positiveButtonClick)
+                        .setNegativeButton("취소", negativeButtonClick)
+                    val alertDialog = builder.create()
+                    alertDialog.show()
+                    groupName = name
+                    pos = position
+                }
+            }, object : GroupListAdapter.GroupEditListener{
+                override fun click2(name: String, position: Int) {
+                    // 그룹 수정 dialog
+                    val mDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_group, null)
+                    val mBuilder = AlertDialog.Builder(requireContext())
+                        .setView(mDialogView)
+                    mBuilder.show()
+                }
+
+            })
             dataList.apply {
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 1, groupperson = 3))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 2, groupperson = 9))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), groupnumber = 3, groupperson = 6))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
+                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
             }
             groupListAdapter.datalist = dataList
             groupListAdapter.notifyDataSetChanged()
@@ -94,25 +113,17 @@ class MapFragment : Fragment() {
 
             groupDialog.setContentView(sheetView.root)
             groupDialog.show()
+
+            sheetView.btnAddgroup.setOnClickListener {
+                // 그룹 추가 dialog
+                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                mDialogView.tvTitle.text = "그룹 추가하기"
+                val mBuilder = AlertDialog.Builder(requireContext())
+                    .setView(mDialogView.root)
+                mBuilder.show()
+            }
         }
-
-        // 알림창
-        /*
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("정말 삭제하시겠습니까?")
-            .setMessage("해당 스케줄을 삭제합니다.")
-            .setPositiveButton("확인",positiveButtonClick)
-            .setNegativeButton("취소", negativeButtonClick)
-        val alertDialog = builder.create()
-        alertDialog.show() */
         return root
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
     }
 
     // 위치 권한 확인
@@ -182,22 +193,4 @@ class MapFragment : Fragment() {
     private fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
-
-    /*
-    override fun onResume() {
-        super.onResume()
-        if(binding.mapView.contains(mapView)){
-            try{
-                mapView = MapView(context)
-                binding.mapView.addView(mapView)
-            }catch (re: RuntimeException){
-                Log.e("MapFragment", "onResume: " + re)
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.removeView(mapView)
-    }*/
 }
