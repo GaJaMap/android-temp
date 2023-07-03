@@ -43,7 +43,7 @@ class MapFragment : Fragment() {
     var groupName: String = ""
     var pos: Int = 0
 
-    // todo: 추후에 수정 예정
+    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
         Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
     }
@@ -79,7 +79,7 @@ class MapFragment : Fragment() {
 
             groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
                 override fun click(name: String, position: Int) {
-                    // 알림창
+                    // 그룹 삭제 dialog
                     val builder = AlertDialog.Builder(requireContext())
                     builder.setTitle("해당 그룹을 삭제하시겠습니까?")
                         .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
@@ -92,7 +92,11 @@ class MapFragment : Fragment() {
                 }
             }, object : GroupListAdapter.GroupEditListener{
                 override fun click2(name: String, position: Int) {
-                    // todo: 그룹명 수정하기
+                    // 그룹 수정 dialog
+                    val mDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_group, null)
+                    val mBuilder = AlertDialog.Builder(requireContext())
+                        .setView(mDialogView)
+                    mBuilder.show()
                 }
 
             })
@@ -110,13 +114,6 @@ class MapFragment : Fragment() {
             groupDialog.show()
         }
         return root
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
     }
 
     // 위치 권한 확인

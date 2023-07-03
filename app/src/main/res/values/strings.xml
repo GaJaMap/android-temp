@@ -15,6 +15,12 @@
     <string name="addgroup_groupperson">5</string>
     <string name="addgroup_total">전체</string>
 
+    <!-- Group Dialog -->
+    <string name="group_dialog_title1">그룹 수정하기</string>
+    <string name="group_dialog_title2">그룹 추가하기</string>
+    <string name="group_dialog_btn_submit">완료</string>
+    <string name="group_dialog_hint">새 그룹의 이름을 입력해주세요</string>
+
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
     <string name="list_category1">최신순</string>
