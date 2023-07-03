@@ -22,6 +22,7 @@ import androidx.core.view.contains
 import com.example.gajamap.R
 import com.example.gajamap.api.data.remote.GroupListData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
+import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -112,6 +113,15 @@ class MapFragment : Fragment() {
 
             groupDialog.setContentView(sheetView.root)
             groupDialog.show()
+
+            sheetView.btnAddgroup.setOnClickListener {
+                // 그룹 추가 dialog
+                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                mDialogView.tvTitle.text = "그룹 추가하기"
+                val mBuilder = AlertDialog.Builder(requireContext())
+                    .setView(mDialogView.root)
+                mBuilder.show()
+            }
         }
         return root
     }
