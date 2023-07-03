@@ -22,5 +22,9 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
 
     override fun onCreateAction() {
 
+
+        binding.topModifyBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, AddDirectFragment()).addToBackStack(null).commit()
+        }
     }
 }

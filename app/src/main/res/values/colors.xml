@@ -21,5 +21,7 @@
     <color name="inform">#ECE0FF</color>
     <color name="group_color1">#00235B</color>
     <color name="group_color2">#BE6DB7</color>
+    <color name="spinner_gray">#EDEDED</color>
+    <color name="spinner_back">#F8F8F8</color>
 
 </resources>

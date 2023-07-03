@@ -50,5 +50,7 @@
     <string name="direct_warning">*필수 입력사항</string>
     <string name="direct_address_change">주소 변경</string>
     <string name="direct_check">확인</string>
+    <string name="direct_warning_group">*해당 고객을 저장할 그룹 선택</string>
+    <string name="direct_group_select">그룹 선택</string>
 
 </resources>

@@ -9,6 +9,10 @@ import android.os.Build
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -45,6 +49,29 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
     }
 
     override fun onCreateAction() {
+        //스피너
+        val itemList = listOf("서울특별시 고객들", "그룹 2", "그룹 3", "그룹 4")
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
+        binding.infoProfileGroup.adapter = adapter
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        binding.infoProfileGroup.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+                //binding.result.text = data[pos] //배열이라서 []로 된다.
+                //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
+
+                if(pos != 0) Toast.makeText(requireContext(), itemList[pos], Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+
+
+        }
+
+
+
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
         }

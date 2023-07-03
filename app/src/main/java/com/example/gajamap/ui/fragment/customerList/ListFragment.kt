@@ -1,6 +1,7 @@
 package com.example.gajamap.ui.fragment.customerList
 
 
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -8,6 +9,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentListBinding
+import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
 import com.example.gajamap.viewmodel.ListViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
@@ -46,6 +48,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             dialog.isCancelable = false
             dialog.show(requireActivity().supportFragmentManager, "ConfirmDialog")
         }*/
+
+        //리사이클러뷰 클릭
+        customerListAdapter.setOnItemClickListener(object :
+        CustomerListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            }
+        })
 
     }
 
