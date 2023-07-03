@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -43,6 +45,8 @@ class MapFragment : Fragment() {
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var groupName: String = ""
     var pos: Int = 0
+    // 검색창 dropdown list
+    var searchList : Array<String> = emptyArray()
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -71,57 +75,79 @@ class MapFragment : Fragment() {
             }
         }
 
+        // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
+        searchList = searchList.plus("전체")
+        searchList = searchList.plus("서울특별시 고객들")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerSearch.adapter = adapter
+        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                dataList.clear()
+                val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+                val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+                groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                    override fun click(name: String, position: Int) {
+                        // 그룹 삭제 dialog
+                        val builder = AlertDialog.Builder(requireContext())
+                        builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                            .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                            .setPositiveButton("확인",positiveButtonClick)
+                            .setNegativeButton("취소", negativeButtonClick)
+                        val alertDialog = builder.create()
+                        alertDialog.show()
+                        groupName = name
+                        pos = position
+                    }
+                }, object : GroupListAdapter.GroupEditListener{
+                    override fun click2(name: String, position: Int) {
+                        // 그룹 수정 dialog
+                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                        val mBuilder = AlertDialog.Builder(requireContext())
+                        val addDialog = mBuilder.create()
+                        addDialog.setView(mDialogView.root)
+                        addDialog.show()
+                        mDialogView.ivClose.setOnClickListener {
+                            addDialog.dismiss()
+                        }
+                    }
+                })
+                dataList.apply {
+                    add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
+                    add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
+                    add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
+                }
+                groupListAdapter.datalist = dataList
+                groupListAdapter.notifyDataSetChanged()
+
+                sheetView.rvAddgroup.adapter = groupListAdapter
+
+                groupDialog.setContentView(sheetView.root)
+                groupDialog.show()
+
+                sheetView.btnAddgroup.setOnClickListener {
+                    // 그룹 추가 dialog
+                    val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                    mDialogView.tvTitle.text = "그룹 추가하기"
+                    val mBuilder = AlertDialog.Builder(requireContext())
+                    val addDialog = mBuilder.create()
+                    addDialog.setView(mDialogView.root)
+                    addDialog.show()
+                    mDialogView.ivClose.setOnClickListener {
+                        addDialog.dismiss()
+                    }
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
+
         // 그룹 더보기 바텀 다이얼로그 띄우기
         // todo: 상단 검색창 만들면 왼쪽 dropdown 누르면 띄우기! 일단 plus 버튼으로 해둠
         binding.ibPlus.setOnClickListener{
-            dataList.clear()
-            val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
-            val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
-            groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
-                override fun click(name: String, position: Int) {
-                    // 그룹 삭제 dialog
-                    val builder = AlertDialog.Builder(requireContext())
-                    builder.setTitle("해당 그룹을 삭제하시겠습니까?")
-                        .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                        .setPositiveButton("확인",positiveButtonClick)
-                        .setNegativeButton("취소", negativeButtonClick)
-                    val alertDialog = builder.create()
-                    alertDialog.show()
-                    groupName = name
-                    pos = position
-                }
-            }, object : GroupListAdapter.GroupEditListener{
-                override fun click2(name: String, position: Int) {
-                    // 그룹 수정 dialog
-                    val mDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_group, null)
-                    val mBuilder = AlertDialog.Builder(requireContext())
-                        .setView(mDialogView)
-                    mBuilder.show()
-                }
-
-            })
-            dataList.apply {
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
-            }
-            groupListAdapter.datalist = dataList
-            groupListAdapter.notifyDataSetChanged()
-
-            sheetView.rvAddgroup.adapter = groupListAdapter
-
-            groupDialog.setContentView(sheetView.root)
-            groupDialog.show()
-
-            sheetView.btnAddgroup.setOnClickListener {
-                // 그룹 추가 dialog
-                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                mDialogView.tvTitle.text = "그룹 추가하기"
-                val mBuilder = AlertDialog.Builder(requireContext())
-                    .setView(mDialogView.root)
-                mBuilder.show()
-            }
         }
         return root
     }
