@@ -50,7 +50,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
 
     override fun onCreateAction() {
         //스피너
-        val itemList = listOf("서울특별시 고객들", "그룹 2", "그룹 3", "그룹 4")
+        val itemList = listOf("그룹선택", "그룹 2", "그룹 3", "그룹 4")
         val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
         binding.infoProfileGroup.adapter = adapter
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
