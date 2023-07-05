@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.databinding.ItemPhoneBinding
 
-class PhoneListAdapter(private val dataList : ArrayList<Phone>): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
+class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemPhoneBinding):
             RecyclerView.ViewHolder(binding.root){
-                fun bind(data : Phone){
+                fun bind(data : ContactsData){
                     binding.itemPhoneTv.text = data.name
                 }
             }
