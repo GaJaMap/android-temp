@@ -30,19 +30,6 @@
         app:layout_constraintBottom_toBottomOf="@id/iv_group"/>
 
     <TextView
-        android:id="@+id/tv_groupnumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/addgroup_groupnumber"
-        android:fontFamily="@font/nanumsquareneo_bold"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        android:layout_marginStart="4dp"
-        app:layout_constraintStart_toEndOf="@+id/tv_group"
-        app:layout_constraintTop_toTopOf="@id/iv_group"
-        app:layout_constraintBottom_toBottomOf="@id/iv_group"/>
-
-    <TextView
         android:id="@+id/tv_start_parenthesis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -51,7 +38,7 @@
         android:textColor="@color/black"
         android:textSize="12sp"
         android:layout_marginStart="4dp"
-        app:layout_constraintStart_toEndOf="@+id/tv_groupnumber"
+        app:layout_constraintStart_toEndOf="@+id/tv_group"
         app:layout_constraintTop_toTopOf="@id/iv_group"
         app:layout_constraintBottom_toBottomOf="@id/iv_group"/>
 
