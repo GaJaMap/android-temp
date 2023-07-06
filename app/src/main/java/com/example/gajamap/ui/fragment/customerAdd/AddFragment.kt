@@ -2,16 +2,11 @@ package com.example.gajamap.ui.fragment.customerAdd
 
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentAddBinding
-import com.example.gajamap.databinding.FragmentListBinding
-import com.example.gajamap.ui.fragment.customerList.CustomerListAdapter
-import com.example.gajamap.ui.fragment.customerList.CustomerListVerticalItemDecoration
 import com.example.gajamap.viewmodel.AddViewModel
-import com.example.gajamap.viewmodel.ListViewModel
 
 class AddFragment: BaseFragment<FragmentAddBinding>(R.layout.fragment_add) {
 

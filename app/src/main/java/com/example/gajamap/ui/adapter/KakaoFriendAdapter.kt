@@ -1,18 +1,16 @@
-package com.example.gajamap.ui.fragment.setting
+package com.example.gajamap.ui.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.databinding.ItemPhoneBinding
 
-class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
+class KakaoFriendAdapter(private val dataList: List<com.kakao.sdk.talk.model.Friend>): RecyclerView.Adapter<KakaoFriendAdapter.ViewHolder>() {
 
-    inner class ViewHolder(private val binding: ItemPhoneBinding):
+    inner class ViewHolder(private val binding : ItemPhoneBinding ):
             RecyclerView.ViewHolder(binding.root){
-                fun bind(data : ContactsData){
-                    binding.itemPhoneTv.text = data.name
+                fun bind(data: com.kakao.sdk.talk.model.Friend){
+                    binding.itemPhoneTv.text = data.profileNickname
                 }
             }
 
@@ -28,12 +26,12 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(dataList[position])
 
-        holder.itemView.setOnClickListener{
+        /*holder.itemView.setOnClickListener{
             itemClickListener.onClick(it, position)
-        }
+        }*/
     }
 
-    interface OnItemClickListener {
+    /*interface OnItemClickListener {
         fun onClick(v: View, position: Int)
     }
 
@@ -41,5 +39,6 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
         this.itemClickListener = onItemClickListener
     }
 
-    private lateinit var itemClickListener : OnItemClickListener
+    private lateinit var itemClickListener : OnItemClickListener*/
+
 }

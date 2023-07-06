@@ -1,5 +1,7 @@
 package com.example.gajamap.ui.view
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -12,6 +14,7 @@ import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.ui.fragment.setting.SettingFragment
 import com.example.gajamap.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.kakao.sdk.talk.TalkApiClient
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override val viewModel by viewModels<MainViewModel> {

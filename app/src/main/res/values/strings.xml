@@ -93,5 +93,6 @@
     <string name="setting_phone_8">*해당 고객을 저장할 그룹 선택</string>
     <string name="setting_phone_9">전체선택</string>
     <string name="setting_phone_10">홍길동</string>
+    <string name="setting_kakao_1">카카오 프로필 선택</string>
 
 </resources>

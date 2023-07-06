@@ -17,9 +17,9 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentListBinding
+import com.example.gajamap.ui.adapter.CustomerListAdapter
 import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
 import com.example.gajamap.viewmodel.ListViewModel
-import net.daum.mf.map.api.MapView
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
 

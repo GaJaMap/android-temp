@@ -7,13 +7,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import com.example.gajamap.BR
 import android.Manifest
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.AlertDialog
-import android.content.ContentResolver
-import android.content.Context
 import android.content.Intent
-import android.media.audiofx.BassBoost
-import android.net.Uri
 import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -22,8 +17,8 @@ import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.viewmodel.SettingViewModel
 import android.provider.Settings
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.gajamap.ui.adapter.PhoneListAdapter
 
 class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone) {
 
@@ -31,7 +26,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
         const val PERMISSION_REQUEST_CODE = 100
     }
     private var contactsList = ArrayList<ContactsData>()
-    private var phoneListAdapter : PhoneListAdapter ? = null
+    private var phoneListAdapter : PhoneListAdapter? = null
     private val ACCESS_FINE_LOCATION = 1000
 
     override val viewModel by viewModels<SettingViewModel> {

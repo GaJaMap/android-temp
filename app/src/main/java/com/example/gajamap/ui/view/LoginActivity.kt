@@ -42,6 +42,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             if (error != null) {
                 Log.d("kakao", "카카오계정으로 로그인 실패 ${error}")
             } else if (token != null) {
+                Log.d("kakoAccessToken", token.accessToken)
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
@@ -59,6 +60,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                     // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                     UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
                 } else if (token != null) {
+                    Log.d("kakoAccessToken", token.accessToken)
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
