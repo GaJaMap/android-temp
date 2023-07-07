@@ -8,10 +8,8 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,23 +18,23 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.contains
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
-import com.example.gajamap.databinding.FragmentAddBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.normal.TedPermission
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
+import net.daum.mf.map.api.MapReverseGeoCoder
+import net.daum.mf.map.api.MapReverseGeoCoder.ReverseGeoCodingResultListener
 import net.daum.mf.map.api.MapView
-import java.security.KeyStore.TrustedCertificateEntry
 import kotlin.random.Random
+
 
 class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 전역 변수로 바인딩 객체 선언
@@ -53,8 +51,10 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     // 검색창 dropdown list
     var searchList : Array<String> = emptyArray()
     var check = false
+    var markerCheck = false
     // 지도에서 직접 추가하기를 위한 중심 위치 point
-    var centerPoint: MapPoint? = null
+    private lateinit var marker: MapPOIItem
+    private lateinit var reverseGeoCodingResultListener : ReverseGeoCodingResultListener
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -72,6 +72,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         mBinding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             if (checkLocationService()) {
@@ -155,29 +156,44 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
 
             }
         }
+        // 위도, 경도 값으로 주소 받기
+        reverseGeoCodingResultListener = object : MapReverseGeoCoder.ReverseGeoCodingResultListener {
+            override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
+                // 주소를 찾은 경우
+                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                binding.addBottomTv2.text = addressString
+
+            }
+
+            override fun onReverseGeoCoderFailedToFindAddress(mapReverseGeoCoder: MapReverseGeoCoder) {
+                // 호출에 실패한 경우
+                Log.e("ReverseGeocoding", "주소를 찾을 수 없습니다.")
+            }
+        }
 
         binding.ibPlus.setOnClickListener{
             binding.clSearchWhole.visibility = View.INVISIBLE
-            // todo: 상단바가 안 보임 추후 수정 예정
-            //binding.clSearchLocation.visibility = View.VISIBLE
+            binding.clSearchLocation.visibility = View.VISIBLE
             binding.clLocation.visibility = View.VISIBLE
             binding.ibPlus.isVisible = false
             binding.ibGps.isVisible = false
             binding.ibKm.isVisible = false
-            // 지도에 마커 추가
-            val point = MapPOIItem()
-            point.apply{
-                mapPoint = MapPoint.mapPointWithGeoCoord(37.5562,126.9724)
-                markerType = MapPOIItem.MarkerType.RedPin
-                isDraggable = true
-            }
-            binding.mapView.addPOIItem(point)
-            onMapViewCenterPointMoved(binding.mapView, centerPoint)
+
+            // 지도에서 직접 추가하기 마커 위치
+            val centerPoint = binding.mapView.mapCenterPoint
+            marker = MapPOIItem()
+            binding.mapView.setMapCenterPoint(centerPoint, true)
+            marker.itemName = "Marker"
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+            marker.markerType = MapPOIItem.MarkerType.RedPin
+            binding.mapView.addPOIItem(marker)
+            val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+            mapGeoCoder.startFindingAddress()
+            markerCheck = true
         }
         binding.addBottomBtn.setOnClickListener {
             // todo: AddDirectFragment로 이동
         }
-
         return root
     }
 
@@ -250,48 +266,46 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
-        TODO("Not yet implemented")
+
     }
 
     // 지도에 직접 추가하기 부분 기능들 구현
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
-        Log.d("중심 위치?", p1.toString())
+        if (markerCheck){
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
+        }
     }
 
     override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {
-        TODO("Not yet implemented")
     }
 
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
     }
 
     override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
     }
 
     override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
     }
 
     override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
+        if (markerCheck){
+            val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+            mapGeoCoder.startFindingAddress()
+        }
     }
 
     override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
-        TODO("Not yet implemented")
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
-        TODO("Not yet implemented")
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(
@@ -299,11 +313,9 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         p1: MapPOIItem?,
         p2: MapPOIItem.CalloutBalloonButtonType?
     ) {
-        TODO("Not yet implemented")
     }
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
-        TODO("Not yet implemented")
     }
 
 
