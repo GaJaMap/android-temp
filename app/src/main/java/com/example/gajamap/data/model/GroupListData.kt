@@ -1,4 +1,4 @@
-package com.example.gajamap.api.data.remote
+package com.example.gajamap.data.model
 
 data class GroupListData(
     val img: Int,

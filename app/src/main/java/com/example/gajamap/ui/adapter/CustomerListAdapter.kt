@@ -1,4 +1,4 @@
-package com.example.gajamap.ui.fragment.customerList
+package com.example.gajamap.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.gajamap.databinding.ItemListBinding
+import com.example.gajamap.ui.fragment.customerList.Customer
 
 class CustomerListAdapter(private val dataList : ArrayList<Customer>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 

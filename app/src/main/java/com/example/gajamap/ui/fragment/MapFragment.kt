@@ -23,7 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.contains
 import androidx.core.view.isVisible
 import com.example.gajamap.R
-import com.example.gajamap.api.data.remote.GroupListData
+import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentAddBinding

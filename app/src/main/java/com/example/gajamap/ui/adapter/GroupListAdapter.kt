@@ -1,12 +1,10 @@
 package com.example.gajamap.ui.adapter
 
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.gajamap.api.data.remote.GroupListData
+import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.databinding.ItemGroupListBinding
 
 class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
