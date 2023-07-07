@@ -11,6 +11,7 @@ import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentKakaoProfileBinding
 import com.example.gajamap.ui.adapter.KakaoFriendAdapter
 import com.example.gajamap.viewmodel.SettingViewModel
+import com.kakao.sdk.auth.AuthCodeIntentFactory.talk
 import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.CoroutineScope

@@ -9,13 +9,18 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
@@ -23,9 +28,15 @@ import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import net.daum.mf.map.api.MapPOIItem
+import net.daum.mf.map.api.MapPoint
+import net.daum.mf.map.api.MapReverseGeoCoder
+import net.daum.mf.map.api.MapReverseGeoCoder.ReverseGeoCodingResultListener
+import net.daum.mf.map.api.MapView
 import kotlin.random.Random
 
-class MapFragment : Fragment() {
+
+class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 전역 변수로 바인딩 객체 선언
     private var mBinding: FragmentMapBinding? = null
     // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
@@ -37,6 +48,13 @@ class MapFragment : Fragment() {
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var groupName: String = ""
     var pos: Int = 0
+    // 검색창 dropdown list
+    var searchList : Array<String> = emptyArray()
+    var check = false
+    var markerCheck = false
+    // 지도에서 직접 추가하기를 위한 중심 위치 point
+    private lateinit var marker: MapPOIItem
+    private lateinit var reverseGeoCodingResultListener : ReverseGeoCodingResultListener
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -54,6 +72,7 @@ class MapFragment : Fragment() {
         mBinding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             if (checkLocationService()) {
@@ -66,56 +85,114 @@ class MapFragment : Fragment() {
         }
 
         // 그룹 더보기 바텀 다이얼로그 띄우기
-        // todo: 상단 검색창 만들면 왼쪽 dropdown 누르면 띄우기! 일단 plus 버튼으로 해둠
+        // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
+        searchList = searchList.plus("전체")
+        searchList = searchList.plus("서울특별시 고객들")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerSearch.adapter = adapter
+        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                if (check == true){
+                    dataList.clear()
+                    val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+                    val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+                    groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                        override fun click(name: String, position: Int) {
+                            // 그룹 삭제 dialog
+                            val builder = AlertDialog.Builder(requireContext())
+                            builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                                .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                                .setPositiveButton("확인",positiveButtonClick)
+                                .setNegativeButton("취소", negativeButtonClick)
+                            val alertDialog = builder.create()
+                            alertDialog.show()
+                            groupName = name
+                            pos = position
+                        }
+                    }, object : GroupListAdapter.GroupEditListener{
+                        override fun click2(name: String, position: Int) {
+                            // 그룹 수정 dialog
+                            val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                            val mBuilder = AlertDialog.Builder(requireContext())
+                            val addDialog = mBuilder.create()
+                            addDialog.setView(mDialogView.root)
+                            addDialog.show()
+                            mDialogView.ivClose.setOnClickListener {
+                                addDialog.dismiss()
+                            }
+                        }
+                    })
+                    dataList.apply {
+                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
+                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
+                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
+                    }
+                    groupListAdapter.datalist = dataList
+                    groupListAdapter.notifyDataSetChanged()
+
+                    sheetView.rvAddgroup.adapter = groupListAdapter
+
+                    groupDialog.setContentView(sheetView.root)
+                    groupDialog.show()
+
+                    sheetView.btnAddgroup.setOnClickListener {
+                        // 그룹 추가 dialog
+                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                        mDialogView.tvTitle.text = "그룹 추가하기"
+                        val mBuilder = AlertDialog.Builder(requireContext())
+                        val addDialog = mBuilder.create()
+                        addDialog.setView(mDialogView.root)
+                        addDialog.show()
+                        mDialogView.ivClose.setOnClickListener {
+                            addDialog.dismiss()
+                        }
+                    }
+                }
+                check = true
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
+        // 위도, 경도 값으로 주소 받기
+        reverseGeoCodingResultListener = object : MapReverseGeoCoder.ReverseGeoCodingResultListener {
+            override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
+                // 주소를 찾은 경우
+                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                binding.addBottomTv2.text = addressString
+
+            }
+
+            override fun onReverseGeoCoderFailedToFindAddress(mapReverseGeoCoder: MapReverseGeoCoder) {
+                // 호출에 실패한 경우
+                Log.e("ReverseGeocoding", "주소를 찾을 수 없습니다.")
+            }
+        }
+
         binding.ibPlus.setOnClickListener{
-            dataList.clear()
-            val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
-            val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+            binding.clSearchWhole.visibility = View.INVISIBLE
+            binding.clSearchLocation.visibility = View.VISIBLE
+            binding.clLocation.visibility = View.VISIBLE
+            binding.ibPlus.isVisible = false
+            binding.ibGps.isVisible = false
+            binding.ibKm.isVisible = false
 
-            groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
-                override fun click(name: String, position: Int) {
-                    // 그룹 삭제 dialog
-                    val builder = AlertDialog.Builder(requireContext())
-                    builder.setTitle("해당 그룹을 삭제하시겠습니까?")
-                        .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                        .setPositiveButton("확인",positiveButtonClick)
-                        .setNegativeButton("취소", negativeButtonClick)
-                    val alertDialog = builder.create()
-                    alertDialog.show()
-                    groupName = name
-                    pos = position
-                }
-            }, object : GroupListAdapter.GroupEditListener{
-                override fun click2(name: String, position: Int) {
-                    // 그룹 수정 dialog
-                    val mDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_group, null)
-                    val mBuilder = AlertDialog.Builder(requireContext())
-                        .setView(mDialogView)
-                    mBuilder.show()
-                }
-
-            })
-            dataList.apply {
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
-                add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
-            }
-            groupListAdapter.datalist = dataList
-            groupListAdapter.notifyDataSetChanged()
-
-            sheetView.rvAddgroup.adapter = groupListAdapter
-
-            groupDialog.setContentView(sheetView.root)
-            groupDialog.show()
-
-            sheetView.btnAddgroup.setOnClickListener {
-                // 그룹 추가 dialog
-                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                mDialogView.tvTitle.text = "그룹 추가하기"
-                val mBuilder = AlertDialog.Builder(requireContext())
-                    .setView(mDialogView.root)
-                mBuilder.show()
-            }
+            // 지도에서 직접 추가하기 마커 위치
+            val centerPoint = binding.mapView.mapCenterPoint
+            marker = MapPOIItem()
+            binding.mapView.setMapCenterPoint(centerPoint, true)
+            marker.itemName = "Marker"
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+            marker.markerType = MapPOIItem.MarkerType.RedPin
+            binding.mapView.addPOIItem(marker)
+            val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+            mapGeoCoder.startFindingAddress()
+            markerCheck = true
+        }
+        binding.addBottomBtn.setOnClickListener {
+            // todo: AddDirectFragment로 이동
         }
         return root
     }
@@ -185,6 +262,61 @@ class MapFragment : Fragment() {
 
     // 위치추적 시작
     private fun startTracking() {
-       // binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
+
+    override fun onMapViewInitialized(p0: MapView?) {
+
+    }
+
+    // 지도에 직접 추가하기 부분 기능들 구현
+    override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
+        if (markerCheck){
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
+        }
+    }
+
+    override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {
+    }
+
+    override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
+    }
+
+    override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
+    }
+
+    override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {
+    }
+
+    override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {
+    }
+
+    override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
+        if (markerCheck){
+            val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+            mapGeoCoder.startFindingAddress()
+        }
+    }
+
+    override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
+
+    }
+
+    override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
+    }
+
+    override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
+    }
+
+    override fun onCalloutBalloonOfPOIItemTouched(
+        p0: MapView?,
+        p1: MapPOIItem?,
+        p2: MapPOIItem.CalloutBalloonButtonType?
+    ) {
+    }
+
+    override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
+    }
+
+
 }

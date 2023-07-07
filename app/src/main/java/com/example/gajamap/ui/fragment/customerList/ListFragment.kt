@@ -1,13 +1,15 @@
 package com.example.gajamap.ui.fragment.customerList
 
 
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.view.View
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -22,6 +24,8 @@ import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
 import com.example.gajamap.viewmodel.ListViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
+    // 검색창 dropdown list
+    var searchList : Array<String> = emptyArray()
 
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
 
@@ -43,7 +47,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
     override fun onCreateAction() {
-
         //리사이클러뷰
         val customerListAdapter = CustomerListAdapter(customerList)
         binding.listRv.apply {
@@ -51,8 +54,29 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             addItemDecoration(CustomerListVerticalItemDecoration())
         }
+        // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
+        searchList = searchList.plus("전체")
+        searchList = searchList.plus("서울특별시 고객들")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerSearch.adapter = adapter
+        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
 
-        //GPS 위치권한
+                Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
+        //다이얼로그
+        /*binding.fragmentListCategory3.setOnClickListener {
+            val dialog = CustomerListDialog()
+            // 알림창이 띄워져있는 동안 배경 클릭 막기
+            dialog.isCancelable = false
+            dialog.show(requireActivity().supportFragmentManager, "ConfirmDialog")
+        }*/
+//GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
@@ -65,7 +89,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
         //리사이클러뷰 클릭
         customerListAdapter.setOnItemClickListener(object :
-        CustomerListAdapter.OnItemClickListener{
+            CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
             }
