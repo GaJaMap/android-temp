@@ -32,10 +32,13 @@ import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
+import net.daum.mf.map.api.MapPOIItem
+import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import java.security.KeyStore.TrustedCertificateEntry
 import kotlin.random.Random
 
-class MapFragment : Fragment() {
+class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 전역 변수로 바인딩 객체 선언
     private var mBinding: FragmentMapBinding? = null
     // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
@@ -50,6 +53,8 @@ class MapFragment : Fragment() {
     // 검색창 dropdown list
     var searchList : Array<String> = emptyArray()
     var check = false
+    // 지도에서 직접 추가하기를 위한 중심 위치 point
+    var centerPoint: MapPoint? = null
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -151,7 +156,6 @@ class MapFragment : Fragment() {
             }
         }
 
-
         binding.ibPlus.setOnClickListener{
             binding.clSearchWhole.visibility = View.INVISIBLE
             // todo: 상단바가 안 보임 추후 수정 예정
@@ -160,8 +164,20 @@ class MapFragment : Fragment() {
             binding.ibPlus.isVisible = false
             binding.ibGps.isVisible = false
             binding.ibKm.isVisible = false
-
+            // 지도에 마커 추가
+            val point = MapPOIItem()
+            point.apply{
+                mapPoint = MapPoint.mapPointWithGeoCoord(37.5562,126.9724)
+                markerType = MapPOIItem.MarkerType.RedPin
+                isDraggable = true
+            }
+            binding.mapView.addPOIItem(point)
+            onMapViewCenterPointMoved(binding.mapView, centerPoint)
         }
+        binding.addBottomBtn.setOnClickListener {
+            // todo: AddDirectFragment로 이동
+        }
+
         return root
     }
 
@@ -232,4 +248,63 @@ class MapFragment : Fragment() {
     private fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
+
+    override fun onMapViewInitialized(p0: MapView?) {
+        TODO("Not yet implemented")
+    }
+
+    // 지도에 직접 추가하기 부분 기능들 구현
+    override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
+        Log.d("중심 위치?", p1.toString())
+    }
+
+    override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onCalloutBalloonOfPOIItemTouched(
+        p0: MapView?,
+        p1: MapPOIItem?,
+        p2: MapPOIItem.CalloutBalloonButtonType?
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
+        TODO("Not yet implemented")
+    }
+
+
 }
