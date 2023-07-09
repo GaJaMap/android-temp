@@ -21,6 +21,8 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
+        // kakao rest api key
+        buildConfigField "String", "KAKAO_REST_API_KEY", properties['kakao_rest_api_key']
         // mainfest에서 쓸 수 있도록 지정
         manifestPlaceholders = [KAKAO_API_KEY : kakaoApiKey]
 
@@ -85,6 +87,9 @@ dependencies {
     implementation 'io.github.ParkSangGwon:tedpermission-normal:3.3.0'
     //implementation 'com.kakao.sdk:v2-friend:2.3.0'
     implementation "com.kakao.sdk:v2-all:2.14.0"
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     // ROOM Database 사용
     implementation("androidx.room:room-runtime:2.4.3")

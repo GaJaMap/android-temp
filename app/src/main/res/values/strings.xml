@@ -21,6 +21,12 @@
     <string name="group_dialog_btn_submit">완료</string>
     <string name="group_dialog_hint">새 그룹의 이름을 입력해주세요</string>
 
+    <!-- Location Search Dialog -->
+    <string name="location_search_dialog_title">검색 결과</string>
+    <string name="location_search_dialog_plus">추가</string>
+    <string name="location_search_dialog_ex">경복궁</string>
+    <string name="location_search_dialog_ex_address">서울 종로구 사직로 161</string>
+
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
     <string name="list_category1">최신순</string>

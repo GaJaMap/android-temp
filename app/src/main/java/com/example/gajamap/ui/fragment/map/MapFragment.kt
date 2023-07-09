@@ -1,4 +1,4 @@
-package com.example.gajamap.ui.fragment
+package com.example.gajamap.ui.fragment.map
 
 import android.Manifest
 import android.app.AlertDialog
@@ -9,30 +9,42 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
 import android.os.Bundle
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
+import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.data.model.GroupListData
+import com.example.gajamap.data.response.LocationSearchData
+import com.example.gajamap.data.response.ResultSearchKeywordData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
+import com.example.gajamap.ui.adapter.LocationSearchAdapter
+import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
 import net.daum.mf.map.api.MapReverseGeoCoder.ReverseGeoCodingResultListener
 import net.daum.mf.map.api.MapView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.random.Random
 
 
@@ -55,6 +67,10 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     // 지도에서 직접 추가하기를 위한 중심 위치 point
     private lateinit var marker: MapPOIItem
     private lateinit var reverseGeoCodingResultListener : ReverseGeoCodingResultListener
+    // LocationSearch recyclerview
+    private val locationSearchList = arrayListOf<LocationSearchData>()
+    private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
+    private var keyword = "" // 검색 키워드
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -157,11 +173,11 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             }
         }
         // 위도, 경도 값으로 주소 받기
-        reverseGeoCodingResultListener = object : MapReverseGeoCoder.ReverseGeoCodingResultListener {
+        reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
                 Log.d("ReverseGeocoding", "도로명 주소: $addressString")
-                binding.addBottomTv2.text = addressString
+                binding.tvLocationAddress.text = addressString
 
             }
 
@@ -172,12 +188,12 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         }
 
         binding.ibPlus.setOnClickListener{
-            binding.clSearchWhole.visibility = View.INVISIBLE
+            binding.clSearchWhole.visibility = View.GONE
             binding.clSearchLocation.visibility = View.VISIBLE
             binding.clLocation.visibility = View.VISIBLE
-            binding.ibPlus.isVisible = false
-            binding.ibGps.isVisible = false
-            binding.ibKm.isVisible = false
+            binding.ibPlus.visibility = View.GONE
+            binding.ibGps.visibility = View.GONE
+            binding.ibKm.visibility = View.GONE
 
             // 지도에서 직접 추가하기 마커 위치
             val centerPoint = binding.mapView.mapCenterPoint
@@ -191,10 +207,100 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             mapGeoCoder.startFindingAddress()
             markerCheck = true
         }
-        binding.addBottomBtn.setOnClickListener {
-            // todo: AddDirectFragment로 이동
+
+        // LocationSearch recyclerview
+        binding.rvLocation.adapter = locationSearchAdapter
+        // recyclerview 아이템 클릭 시 해당 위치로 이동
+        locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
+                binding.mapView.setMapCenterPoint(mapPoint, true)
+                v.setBackgroundColor(context!!.getResources().getColor(R.color.inform))
+                val btn: Button = v.findViewById(R.id.btn_plus)
+                btn.visibility = View.VISIBLE
+                btn.setOnClickListener {
+                    // 고객 추가하기 fragment로 이동
+                    val addDirectFragment = AddDirectFragment()
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.nav_fl, addDirectFragment)
+                        .commitNow()
+                }
+            }
+        })
+        // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
+        // edittext 완료 클릭 시 변경하는 방법도 있긴 한데 내 키보드에서는 완료 버튼이 없음....
+        binding.tvLocationSearchGo.setOnClickListener {
+            binding.clLocationSearch.visibility = View.VISIBLE
+            binding.clLocation.visibility = View.GONE
+            // 검색 키워드 받기
+            keyword = binding.etLocationSearch.text.toString()
+            searchKeyword(keyword)
+        }
+
+        binding.tvLocationBtn.setOnClickListener {
+            // 고객 추가하기 fragment로 이동
+            val addDirectFragment = AddDirectFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_fl, addDirectFragment)
+                .commitNow()
         }
         return root
+    }
+
+    // 키워드 검색 함수
+    private fun searchKeyword(keyword: String) {
+        // API 서버에 요청
+        KakaoSearchClient.kakaoSearchService?.getSearchKeyword(BuildConfig.KAKAO_REST_API_KEY, keyword, 1)?.enqueue(object: Callback<ResultSearchKeywordData> {
+            override fun onResponse(call: Call<ResultSearchKeywordData>, response: Response<ResultSearchKeywordData>) {
+                if (response.isSuccessful){
+                    // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
+                    binding.mapView.removePOIItem(marker)
+                    markerCheck = false
+                    addItemsAndMarkers(response.body())
+                    Log.d("LocationSearch", "success")
+
+                }else{  /// 이곳은 에러 발생할 경우 실행됨
+                    Log.d("LocationSearch", "fail : ${response.code()}")
+                }
+            }
+            override fun onFailure(call: Call<ResultSearchKeywordData>, t: Throwable) {
+                Log.w("LocalSearch", "통신 실패: ${t.message}")
+            }
+        })
+    }
+
+    // 검색 결과 처리 함수
+    private fun addItemsAndMarkers(searchResult: ResultSearchKeywordData?) {
+        if (!searchResult?.documents.isNullOrEmpty()) {
+            // 검색 결과 있을 경우
+            locationSearchList.clear()           // 리사이클러뷰 초기화
+            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+            for (document in searchResult!!.documents) {
+                // 결과를 리사이클러뷰에 추가
+                val item = LocationSearchData(
+                    document.place_name,
+                    document.road_address_name,
+                    document.address_name,
+                    document.x.toDouble(),
+                    document.y.toDouble()
+                )
+                locationSearchList.add(item)
+                // 지도에 마커 추가
+                val point = MapPOIItem()
+                point.apply {
+                    itemName = document.place_name
+                    mapPoint =
+                        MapPoint.mapPointWithGeoCoord(document.y.toDouble(), document.x.toDouble())
+                    markerType = MapPOIItem.MarkerType.BluePin
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                }
+                binding.mapView.addPOIItem(point)
+            }
+            locationSearchAdapter.notifyDataSetChanged()
+        } else {
+            // 검색 결과 없음
+            Toast.makeText(requireContext(), "검색 결과가 없습니다", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // 위치 권한 확인
