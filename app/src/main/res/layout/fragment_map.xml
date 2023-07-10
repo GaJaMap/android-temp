@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragment.map.MapFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_search_whole"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/fragment_list_tool"
+        android:elevation="10dp"
+        android:visibility="visible"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="12dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_search"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/fragment_list_search_purple"
+            app:layout_constraintStart_toStartOf="@+id/cl_search_whole"
+            app:layout_constraintTop_toTopOf="@+id/cl_search_whole"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole">
+
+            <Spinner
+                android:id="@+id/spinner_search"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/fragment_list_search_purple"
+                app:layout_constraintStart_toStartOf="@+id/cl_search"
+                app:layout_constraintTop_toTopOf="@+id/cl_search"
+                app:layout_constraintBottom_toBottomOf="@+id/cl_search"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_search_drop"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toEndOf="@+id/spinner_search"
+                app:layout_constraintEnd_toEndOf="@+id/cl_search"
+                app:layout_constraintTop_toTopOf="@+id/spinner_search"
+                app:layout_constraintBottom_toBottomOf="@+id/spinner_search"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:background="@drawable/fragment_list_search_et_background"
+            app:layout_constraintStart_toEndOf="@+id/cl_search"
+            app:layout_constraintEnd_toEndOf="@+id/cl_search_whole"
+            app:layout_constraintTop_toTopOf="@+id/cl_search_whole"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole"
+            android:textSize="13sp"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:textColor="@color/black"
+            android:paddingStart="8dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_search_location"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/fragment_list_tool"
+        android:elevation="10dp"
+        android:visibility="invisible"
+        android:layout_marginTop="28dp"
+        android:layout_marginHorizontal="12dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/add_search_gps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_gps"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <EditText
+            android:id="@+id/et_location_search"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:background="@drawable/fragment_list_tool"
+            android:hint="@string/add_hint"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:textColorHint="@color/et_hint_gray"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/add_search_gps"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_location_search_go"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_search_next"
+            android:textSize="15sp"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/add_search_next_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <net.daum.mf.map.api.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_location"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:visibility="invisible"
+        android:background="@drawable/fragment_add_bottom_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tv_location_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_bold"
+            android:text="@string/add_bottom_tv1"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="13dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_location_address"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/add_bottom_tv2"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/fragment_add_bottom_gray"
+            app:layout_constraintTop_toBottomOf="@+id/tv_location_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_location_btn"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:fontFamily="@font/nanumsquareneo_bold"
+            android:text="@string/add_bottom_tv3"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/fragment_add_bottom_purple"
+            app:layout_constraintTop_toBottomOf="@+id/tv_location_address"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_location_search"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:visibility="invisible"
+        android:background="@drawable/fragment_add_bottom_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_up"
+            android:layout_width="16dp"
+            android:layout_height="12dp"
+            android:background="@drawable/ic_up"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_location_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_bold"
+            android:text="@string/location_search_dialog_title"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toTopOf="@+id/iv_up"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_up"
+            app:layout_constraintStart_toEndOf="@+id/iv_up"/>
+
+        <LinearLayout
+            android:id="@+id/ll_location"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_location_search"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@color/line"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="vertical"
+            android:overScrollMode="never"
+            tools:listitem="@layout/item_location_search"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_location" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageButton
+        android:id="@+id/ib_plus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:src="@drawable/ic_plus"
+        android:visibility="visible"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ib_gps"/>
+
+    <ImageButton
+        android:id="@+id/ib_gps"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:visibility="visible"
+        android:src="@drawable/ic_gray_gps"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/ib_km"/>
+
+    <ImageButton
+        android:id="@+id/ib_km"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_roundbtn"
+        android:src="@drawable/ic_km"
+        android:visibility="visible"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_km"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_whitebox"
+        android:padding="8dp"
+        android:visibility="invisible"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/ib_km"
+        app:layout_constraintEnd_toEndOf="@+id/ib_km">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_3km"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_km_stroke"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/map_button_3km"
+            android:textSize="12sp"
+            android:textColor="@color/main"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_5km"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_5km"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_km_stroke"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/map_button_5km"
+            android:textSize="12sp"
+            android:textColor="@color/main"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_3km"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
