@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
+import com.example.gajamap.data.model.LoginRequest
 import com.example.gajamap.databinding.ActivityLoginBinding
 import com.example.gajamap.databinding.ActivityMainBinding
 import com.example.gajamap.viewmodel.LoginViewModel
@@ -18,6 +19,9 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login) {
 
@@ -43,8 +47,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 Log.d("kakao", "카카오계정으로 로그인 실패 ${error}")
             } else if (token != null) {
                 Log.d("kakoAccessToken", token.accessToken)
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                //Log.d("kakoRefreshToken", token.refreshToken)
+                postLogin(token.accessToken)
             }
         }
         // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
@@ -61,13 +65,28 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                     UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
                 } else if (token != null) {
                     Log.d("kakoAccessToken", token.accessToken)
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    //Log.d("kakoRefreshToken", token.refreshToken)
+                    postLogin(token.accessToken)
                 }
             }
         } else {
             UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
         }
+    }
+
+    //로그인 api
+    private fun postLogin(token: String){
+
+        Log.d("kakoAccessToken_1", token)
+        viewModel.postLogin(LoginRequest(token))
+
+        viewModel.login.observe(this, Observer {
+            //Log.d("loginResponse", it.message.toString())
+
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+        )
     }
 
 
