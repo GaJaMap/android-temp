@@ -1,50 +1,42 @@
 package com.example.gajamap.viewmodel
 
-import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.util.Log
+import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
-import com.example.gajamap.ui.view.KakaoResponse
-import com.example.gajamap.ui.view.LoginActivity
-import com.example.gajamap.ui.view.MainActivity
-import com.kakao.sdk.auth.model.OAuthToken
-import com.kakao.sdk.common.KakaoSdk
-import com.kakao.sdk.user.UserApiClient
+import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.model.LoginResponse
+import com.example.gajamap.data.repository.LoginRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoginViewModel(private val tmp: String): ViewModel() {
 
-    val kakaoResponseLiveData: MutableLiveData<KakaoResponse> = MutableLiveData()
+    private val loginRepository = LoginRepository()
 
-    fun kakaoLogin(){
+    //var login = MutableLiveData<Boolean>(true)
+    private val _login = MutableLiveData<LoginResponse>()
+    val login : LiveData<LoginResponse>
+        get() = _login
 
-        val kakaoResponse = KakaoResponse(null,null)
-        val context = GajaMapApplication.instance.applicationContext
-        val kakaoTalkAvailable = UserApiClient.instance.isKakaoTalkLoginAvailable(context)
-        if(kakaoTalkAvailable){
-            UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+    fun postLogin(loginRequest: LoginRequest){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = loginRepository.postLogin(loginRequest)
+            Log.d("postLogin", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                _login.postValue(response.body())
+                val header = response.headers()
+                val contentType = header["Set-Cookie"]?.split(";")?.get(0)
+                val session = contentType?.replace("SESSION=","")
+                Log.d("session", "$session")
+                if (session != null) {
+                    GajaMapApplication.prefs.setString("session", session)
+                }
 
-                    kakaoResponse.token = token
-                    kakaoResponse.error = error
-
-                    kakaoResponseLiveData.value = kakaoResponse
-
-
-            }
-        } else {
-            UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
-
-                    kakaoResponse.token = token
-                    kakaoResponse.error = error
-
-                    kakaoResponseLiveData.value = kakaoResponse
-
+                Log.d("postSuccess", "${response.body()}")
+            }else {
+                Log.d("loginError", "postLogin : ${response.message()}")
             }
         }
-
-
     }
 
     class LoginViewModelFactory(private val tmp: String)
@@ -58,5 +50,5 @@ class LoginViewModel(private val tmp: String): ViewModel() {
             // 상속이 되지 않았다면 IllegalArgumentException을 통해 상속이 되지 않았다는 에러를 띄움
             throw IllegalArgumentException("Not found ViewModel class.")
         }
-        }
+    }
 }
