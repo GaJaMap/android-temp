@@ -1,12 +1,14 @@
 package com.example.gajamap.ui.fragment.map
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.text.TextWatcher
@@ -71,6 +73,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     private val locationSearchList = arrayListOf<LocationSearchData>()
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
     private var keyword = "" // 검색 키워드
+    var countkm = 0
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -80,6 +83,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -91,6 +95,12 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
+            // gps 버튼 클릭 상태로 변경
+            // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+            val bgShape = binding.ibGps.background as GradientDrawable
+            bgShape.setColor(resources.getColor(R.color.main))
+            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
+
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
@@ -188,6 +198,12 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         }
 
         binding.ibPlus.setOnClickListener{
+            // plus 버튼 클릭 상태로 변경
+            val bgShape = binding.ibPlus.background as GradientDrawable
+            bgShape.setColor(resources.getColor(R.color.main))
+            binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
+
+            // 화면 변경
             binding.clSearchWhole.visibility = View.GONE
             binding.clSearchLocation.visibility = View.VISIBLE
             binding.clLocation.visibility = View.VISIBLE
@@ -206,6 +222,20 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
             mapGeoCoder.startFindingAddress()
             markerCheck = true
+        }
+
+        binding.ibKm.setOnClickListener {
+            val bgShape = binding.ibKm.background as GradientDrawable
+            if (countkm % 2 == 0){
+                // km 버튼 클릭 상태로 변경
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibKm.setImageResource(R.drawable.ic_white_km)
+            }
+            else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+                bgShape.setColor(resources.getColor(R.color.white))
+                binding.ibKm.setImageResource(R.drawable.ic_km)
+            }
+            countkm += 1
         }
 
         // LocationSearch recyclerview
@@ -245,6 +275,17 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                 .commitNow()
         }
         return root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 다른 화면에 갔다가 다시 돌아왔을 때 버튼 색상 원래대로 되돌리기
+        val bgShapekm = binding.ibKm.background as GradientDrawable
+        bgShapekm.setColor(resources.getColor(R.color.white))
+        val bgShapeplus = binding.ibPlus.background as GradientDrawable
+        bgShapeplus.setColor(resources.getColor(R.color.white))
+        val bgShapegps = binding.ibGps.background as GradientDrawable
+        bgShapegps.setColor(resources.getColor(R.color.white))
     }
 
     // 키워드 검색 함수
@@ -423,6 +464,4 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
     }
-
-
 }
