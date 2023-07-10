@@ -1,7 +1,5 @@
 package com.example.gajamap.viewmodel
 
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
@@ -10,8 +8,6 @@ import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.HttpURLConnection
-import java.net.URL
 
 class LoginViewModel(private val tmp: String): ViewModel() {
 
@@ -20,7 +16,7 @@ class LoginViewModel(private val tmp: String): ViewModel() {
     //var login = MutableLiveData<Boolean>(true)
     private val _login = MutableLiveData<LoginResponse>()
     val login : LiveData<LoginResponse>
-    get() = _login
+        get() = _login
 
     fun postLogin(loginRequest: LoginRequest){
         viewModelScope.launch(Dispatchers.IO) {
@@ -54,5 +50,5 @@ class LoginViewModel(private val tmp: String): ViewModel() {
             // 상속이 되지 않았다면 IllegalArgumentException을 통해 상속이 되지 않았다는 에러를 띄움
             throw IllegalArgumentException("Not found ViewModel class.")
         }
-        }
+    }
 }
