@@ -27,6 +27,10 @@
     <string name="location_search_dialog_ex">경복궁</string>
     <string name="location_search_dialog_ex_address">서울 종로구 사직로 161</string>
 
+    <!-- Map Button -->
+    <string name="map_button_3km">3km</string>
+    <string name="map_button_5km">5km</string>
+
     <string name="list_search">고객 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
     <string name="list_category1">최신순</string>

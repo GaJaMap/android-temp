@@ -230,10 +230,12 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                 // km 버튼 클릭 상태로 변경
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibKm.setImageResource(R.drawable.ic_white_km)
+                binding.clKm.visibility = View.VISIBLE
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibKm.setImageResource(R.drawable.ic_km)
+                binding.clKm.visibility = View.INVISIBLE
             }
             countkm += 1
         }
