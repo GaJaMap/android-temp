@@ -266,7 +266,7 @@
         android:layout_height="40dp"
         android:background="@drawable/bg_roundbtn"
         android:visibility="visible"
-        android:src="@drawable/ic_gps"
+        android:src="@drawable/ic_gray_gps"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
