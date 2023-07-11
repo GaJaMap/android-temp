@@ -21,7 +21,7 @@ import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentListBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
 import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
-import com.example.gajamap.viewmodel.ListViewModel
+import com.example.gajamap.viewmodel.GetClientViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
@@ -36,8 +36,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km")
     )
 
-    override val viewModel by viewModels<ListViewModel> {
-        ListViewModel.ListViewModelFactory("tmp")
+    override val viewModel by viewModels<GetClientViewModel> {
+        GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {

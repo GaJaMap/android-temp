@@ -26,13 +26,13 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentAddDirectBinding
-import com.example.gajamap.viewmodel.AddViewModel
+import com.example.gajamap.viewmodel.GetClientViewModel
 import java.io.File
 
 class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragment_add_direct) {
 
-    override val viewModel by viewModels<AddViewModel> {
-        AddViewModel.AddViewModelFactory("tmp")
+    override val viewModel by viewModels<GetClientViewModel> {
+        GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {

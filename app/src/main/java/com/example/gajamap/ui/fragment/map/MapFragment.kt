@@ -92,7 +92,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         mBinding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        binding.mapView.setMapViewEventListener(this)
+        //binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             // gps 버튼 클릭 상태로 변경
@@ -212,7 +212,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             binding.ibKm.visibility = View.GONE
 
             // 지도에서 직접 추가하기 마커 위치
-            val centerPoint = binding.mapView.mapCenterPoint
+            /*val centerPoint = binding.mapView.mapCenterPoint
             marker = MapPOIItem()
             binding.mapView.setMapCenterPoint(centerPoint, true)
             marker.itemName = "Marker"
@@ -221,7 +221,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             binding.mapView.addPOIItem(marker)
             val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
             mapGeoCoder.startFindingAddress()
-            markerCheck = true
+            markerCheck = true*/
         }
 
         binding.ibKm.setOnClickListener {
@@ -246,7 +246,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
-                binding.mapView.setMapCenterPoint(mapPoint, true)
+                //binding.mapView.setMapCenterPoint(mapPoint, true)
                 v.setBackgroundColor(context!!.getResources().getColor(R.color.inform))
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 btn.visibility = View.VISIBLE
@@ -297,7 +297,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
             override fun onResponse(call: Call<ResultSearchKeywordData>, response: Response<ResultSearchKeywordData>) {
                 if (response.isSuccessful){
                     // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
-                    binding.mapView.removePOIItem(marker)
+                    //binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
                     Log.d("LocationSearch", "success")
@@ -317,7 +317,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         if (!searchResult?.documents.isNullOrEmpty()) {
             // 검색 결과 있을 경우
             locationSearchList.clear()           // 리사이클러뷰 초기화
-            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+            //binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
@@ -337,7 +337,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
-                binding.mapView.addPOIItem(point)
+                //binding.mapView.addPOIItem(point)
             }
             locationSearchAdapter.notifyDataSetChanged()
         } else {
@@ -411,7 +411,7 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
 
     // 위치추적 시작
     private fun startTracking() {
-        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        //binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
 
     override fun onMapViewInitialized(p0: MapView?) {

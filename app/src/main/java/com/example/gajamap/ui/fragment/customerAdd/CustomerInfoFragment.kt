@@ -7,12 +7,12 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentAddBinding
 import com.example.gajamap.databinding.FragmentCustomerInfoBinding
-import com.example.gajamap.viewmodel.AddViewModel
+import com.example.gajamap.viewmodel.GetClientViewModel
 import net.daum.android.map.MapView
 
 class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.fragment_customer_info) {
-    override val viewModel by viewModels<AddViewModel> {
-        AddViewModel.AddViewModelFactory("tmp")
+    override val viewModel by viewModels<GetClientViewModel> {
+        GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {

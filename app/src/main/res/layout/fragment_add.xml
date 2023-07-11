@@ -10,7 +10,7 @@
             type="com.example.gajamap.ui.fragment.customerAdd.AddFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.AddViewModel" />
+            type="com.example.gajamap.viewmodel.GetClientViewModel" />
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"

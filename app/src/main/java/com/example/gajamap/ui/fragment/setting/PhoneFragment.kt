@@ -15,10 +15,10 @@ import androidx.core.content.ContextCompat
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentPhoneBinding
-import com.example.gajamap.viewmodel.SettingViewModel
 import android.provider.Settings
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.ui.adapter.PhoneListAdapter
+import com.example.gajamap.viewmodel.ClientViewModel
 
 class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone) {
 
@@ -29,8 +29,8 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     private var phoneListAdapter : PhoneListAdapter? = null
     private val ACCESS_FINE_LOCATION = 1000
 
-    override val viewModel by viewModels<SettingViewModel> {
-        SettingViewModel.SettingViewModelFactory("tmp")
+    override val viewModel by viewModels<ClientViewModel> {
+        ClientViewModel.SettingViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {

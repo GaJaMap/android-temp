@@ -9,4 +9,5 @@ class LoginRepository {
 
     //로그인
     suspend fun postLogin(loginRequest: LoginRequest) = loginClient.postLogin(loginRequest)
+
 }

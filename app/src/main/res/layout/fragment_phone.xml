@@ -10,7 +10,7 @@
             type="com.example.gajamap.ui.fragment.setting.PhoneFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.SettingViewModel" />
+            type="com.example.gajamap.viewmodel.ClientViewModel" />
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"

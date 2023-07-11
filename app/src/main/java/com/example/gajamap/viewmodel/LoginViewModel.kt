@@ -4,26 +4,26 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.LoginRequest
-import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class LoginViewModel(private val tmp: String): ViewModel() {
 
     private val loginRepository = LoginRepository()
 
-    //var login = MutableLiveData<Boolean>(true)
-    private val _login = MutableLiveData<LoginResponse>()
-    val login : LiveData<LoginResponse>
+    private val _login = MutableLiveData<Response<Long>>()
+    val login : LiveData<Response<Long>>
         get() = _login
+
 
     fun postLogin(loginRequest: LoginRequest){
         viewModelScope.launch(Dispatchers.IO) {
             val response = loginRepository.postLogin(loginRequest)
-            Log.d("postLogin", "$response\n${response.code()}")
+            Log.d("postLogin", "${response}\n${response.code()}")
             if(response.isSuccessful){
-                _login.postValue(response.body())
+                _login.postValue(response)
                 val header = response.headers()
                 val contentType = header["Set-Cookie"]?.split(";")?.get(0)
                 val session = contentType?.replace("SESSION=","")

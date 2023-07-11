@@ -10,7 +10,7 @@
             type="com.example.gajamap.ui.fragment.customerList.ListFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.ListViewModel" />
+            type="com.example.gajamap.viewmodel.GetClientViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
