@@ -3,6 +3,7 @@ package com.example.gajamap.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.data.repository.GroupRepository
+import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.CreateGroupResponse
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,25 @@ class MapViewModel(private val tmp: String): ViewModel() {
             }
         }
     }
+
+    /*
+    private val _checkGroup = MutableLiveData<CheckGroupResponse>()
+    val checkGroup : LiveData<CheckGroupResponse>
+        get() = _checkGroup
+
+    fun checkGroup(){
+        viewModelScope.launch {
+            val response = groupRepository.checkGroup()
+            Log.d("checkGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                // _checkGroup.postValue(response.body())
+                Log.d("checkGroupSuccess", "${response.body()}")
+
+            }else {
+                Log.d("checkGroupError", "checkGroup : ${response.message()}")
+            }
+        }
+    }*/
 
 
     // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
