@@ -31,8 +31,6 @@ class GajaMapApplication : Application() {
 
         // Retrofit 인스턴스, 앱 실행시 한번만 생성하여 사용합니다.
         lateinit var sRetrofit: Retrofit
-
-
     }
 
     override fun onCreate() {
@@ -52,13 +50,12 @@ class GajaMapApplication : Application() {
             .cookieJar(JavaNetCookieJar(CookieManager()))
             .build()
 
-
         sRetrofit = Retrofit.Builder()
             .baseUrl(API_URL)
             .client(okHttpClient)
             .addConverterFactory(nullOnEmptyConverterFactory)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(provideOkHttpClient(AppInterceptor()))
+            //.client(provideOkHttpClient(AppInterceptor()))
             .build()
     }
 
@@ -96,6 +93,4 @@ class GajaMapApplication : Application() {
             proceed(newRequest)
         }
     }
-    //
-
 }

@@ -6,30 +6,31 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.location.LocationManager
-import android.os.Bundle
-import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
+import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.data.model.GroupListData
+import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.LocationSearchData
 import com.example.gajamap.data.response.ResultSearchKeywordData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
@@ -38,6 +39,8 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
+import com.example.gajamap.ui.view.MainActivity
+import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -50,12 +53,7 @@ import retrofit2.Response
 import kotlin.random.Random
 
 
-class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEventListener {
-    // 전역 변수로 바인딩 객체 선언
-    private var mBinding: FragmentMapBinding? = null
-    // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
-    private val binding get() = mBinding!!
-
+class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
     val dataList = mutableListOf<GroupListData>()
@@ -75,23 +73,18 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     private var keyword = "" // 검색 키워드
     var countkm = 0
 
-    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
-    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+    override val viewModel by viewModels<MapViewModel> {
+        MapViewModel.MapViewModelFactory("tmp")
     }
-    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
+
+    override fun initViewModel(viewModel: ViewModel) {
+        binding.setVariable(BR.viewModel, viewModel)
+        binding.lifecycleOwner = this@MapFragment
+        binding.fragment = this@MapFragment
     }
 
     @SuppressLint("ResourceAsColor")
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // 바인딩
-        mBinding = FragmentMapBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
+    override fun onCreateAction() {
         binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -172,6 +165,11 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                         addDialog.setView(mDialogView.root)
                         addDialog.show()
                         mDialogView.ivClose.setOnClickListener {
+                            addDialog.dismiss()
+                        }
+                        mDialogView.btnDialogSubmit.setOnClickListener {
+                            // 고객 생성 api 연동
+                            createGroup(mDialogView.etName.text.toString())
                             addDialog.dismiss()
                         }
                     }
@@ -276,7 +274,14 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                 .replace(R.id.nav_fl, addDirectFragment)
                 .commitNow()
         }
-        return root
+    }
+
+    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
+    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
+        Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+    }
+    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
+        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -288,6 +293,18 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         bgShapeplus.setColor(resources.getColor(R.color.white))
         val bgShapegps = binding.ibGps.background as GradientDrawable
         bgShapegps.setColor(resources.getColor(R.color.white))
+    }
+
+    // 그룹 생성 api
+    private fun createGroup(name: String){
+
+        Log.d("createGroup", name)
+        viewModel.createGroup(CreateGroupRequest(name))
+
+        viewModel.createGroup.observe(this, Observer {
+            Log.d("createGroupObserver", name)
+        }
+        )
     }
 
     // 키워드 검색 함수
