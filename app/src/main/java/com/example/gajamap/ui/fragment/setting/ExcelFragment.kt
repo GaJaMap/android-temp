@@ -21,7 +21,9 @@ class ExcelFragment : BaseFragment<FragmentExcelBinding>(R.layout.fragment_excel
     }
 
     override fun onCreateAction() {
-
+        binding.topBackBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
     }
 
 }

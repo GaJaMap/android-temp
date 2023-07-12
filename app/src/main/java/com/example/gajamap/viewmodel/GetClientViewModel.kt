@@ -2,6 +2,7 @@ package com.example.gajamap.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.gajamap.data.model.BaseResponse
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.data.model.GetGroupAllClientResponse
 import com.example.gajamap.data.model.GetGroupClientResponse
@@ -29,6 +30,28 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     val getGroupAllClient : LiveData<GetGroupAllClientResponse>
     get() = _getGroupAllClient
 
+    private val _getGroupAllClientName = MutableLiveData<GetGroupAllClientResponse>()
+    val getGroupAllClientName : LiveData<GetGroupAllClientResponse>
+        get() = _getGroupAllClientName
+
+
+    private val _deleteClient = MutableLiveData<BaseResponse>()
+    val deleteClient : LiveData<BaseResponse>
+        get() = _deleteClient
+
+
+    fun deleteClient(groupId : Int, client : Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.deleteClient(groupId, client)
+            Log.d("deleteClient", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _deleteClient.postValue(response.body())
+                Log.d("deleteClientSuccess", "${response.body()}")
+            }else {
+                Log.d("deleteClientError", "deleteClient : ${response.message()}")
+            }
+        }
+    }
 
     fun getGroupClient(groupId : Int, client : Int){
         viewModelScope.launch(Dispatchers.IO) {
@@ -69,9 +92,22 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun getGroupAllClient(wordCond : String, groupId : Int){
+    fun getGroupAllClientName(wordCond : String, groupId : Int){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getGroupAllClient(wordCond, groupId)
+            val response = getClientRepository.getGroupAllClientName(wordCond, groupId)
+            Log.d("getGroupAllClientName", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _getGroupAllClientName.postValue(response.body())
+                Log.d("getGroupAllClientNameSuccess", "${response.body()}")
+            }else {
+                Log.d("getGroupAllClientNameError", "getGroupAllClientName : ${response.message()}")
+            }
+        }
+    }
+
+    fun getGroupAllClient(groupId : Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.getGroupAllClient(groupId)
             Log.d("getGroupAllClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _getGroupAllClient.postValue(response.body())

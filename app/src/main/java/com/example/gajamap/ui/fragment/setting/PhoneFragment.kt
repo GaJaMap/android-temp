@@ -41,6 +41,10 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
 
     override fun onCreateAction() {
 
+        binding.topBackBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
+
         //스피너
         val itemList = listOf("그룹선택", "그룹 2", "그룹 3", "그룹 4")
         val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
@@ -51,8 +55,6 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
         //연락처 권한
         onCheckContactsPermission()
         requestPermission()
-
-        //리사이클러뷰
 
     }
 

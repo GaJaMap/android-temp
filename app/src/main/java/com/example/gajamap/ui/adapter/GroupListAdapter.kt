@@ -45,4 +45,6 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     interface GroupEditListener{
         fun click2(name: String, position: Int)
     }
+
+
 }
