@@ -1,25 +1,29 @@
 package com.example.gajamap.ui.fragment.customerAdd
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Activity.RESULT_OK
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.ListFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -28,17 +32,19 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
-import com.example.gajamap.databinding.FragmentAddDirectBinding
-import com.example.gajamap.ui.fragment.map.MapFragment
+import com.example.gajamap.data.model.BaseResponse
+import com.example.gajamap.data.model.PutClientRequest
+import com.example.gajamap.databinding.FragmentEditProfileBinding
 import com.example.gajamap.ui.fragment.setting.SettingFragment
 import com.example.gajamap.viewmodel.ClientViewModel
-import com.example.gajamap.viewmodel.GetClientViewModel
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+import java.io.IOException
 
-class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragment_add_direct) {
+class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fragment_edit_profile) {
 
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
@@ -46,11 +52,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
 
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
-        binding.lifecycleOwner = this@AddDirectFragment
-        binding.fragment = this@AddDirectFragment
+        binding.lifecycleOwner = this@EditProfileFragment
+        binding.fragment = this@EditProfileFragment
     }
+
     var imageFile : File? = null
-    private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
 
     companion object {
         // 갤러리 권한 요청
@@ -59,7 +65,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
 
     override fun onCreateAction() {
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+        }
+
+        binding.btnSubmit.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
         }
 
         //스피너
@@ -68,7 +78,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         binding.infoProfileGroup.adapter = adapter
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        binding.infoProfileGroup.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
+        binding.infoProfileGroup.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
                 //binding.result.text = data[pos] //배열이라서 []로 된다.
                 //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
@@ -79,40 +89,18 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
+
         }
+
+
+
 
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
         }
-        chkInputData()
-        onContentAdd()
 
         binding.topBackBtn.setOnClickListener {
 
-        }
-    }
-
-    // 필수 입력사항에 값이 변경될 때 확인 버튼 활성화 시킬 함수 호출
-    private fun onContentAdd(){
-        binding.infoProfileNameEt.addTextChangedListener {
-            chkBtnActivate()
-        }
-        binding.infoProfilePhoneEt.addTextChangedListener{
-            chkBtnActivate()
-        }
-    }
-
-    private fun chkInputData() = binding.infoProfileNameEt.text.isNotEmpty() && binding.infoProfilePhoneEt.text.isNotEmpty()
-
-    // 필수 입력사항을 모두 작성하였을 때 확인 버튼 활성화시키기
-    private fun chkBtnActivate() {
-        // 버튼이 활성화되어 있지 않은 상황에서 확인
-        if (!isBtnActivated && chkInputData()) {
-            isBtnActivated = !isBtnActivated
-            binding.btnSubmit.apply {
-                isEnabled = true
-                setBackgroundResource(R.drawable.fragment_add_bottom_purple)
-            }
         }
     }
 
@@ -123,6 +111,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         if (result.resultCode == Activity.RESULT_OK){
             // 이미지를 받으면 ImageView에 적용
             val imageUri = result.data?.data
+            Log.d("img", imageUri.toString())
             imageUri?.let{
                 // 서버 업로드를 위해 파일 형태로 변환
                 val file = File(getRealPathFromURI(it))
@@ -202,11 +191,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
             val longitude1 = "127.7777"
             val longitude = RequestBody.create("text/plain".toMediaTypeOrNull(), longitude1.toString())
 
-            viewModel.postClient( clientName, groupId, phoneNumber, province, city, district, detail, latitude, longitude, clientImage)
-            viewModel.postClient.observe(viewLifecycleOwner, Observer {
-                Log.d("postAddDirect", it.body().toString())
+            viewModel.putClient(10, 78, clientName, groupId, phoneNumber, province, city, district, detail, latitude, longitude, clientImage)
+            viewModel.putClient.observe(viewLifecycleOwner, Observer {
+                Log.d("edit", it.toString())
             })*/
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).addToBackStack(null).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
         }
 
     }

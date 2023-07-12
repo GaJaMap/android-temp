@@ -33,6 +33,12 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
     override fun onCreateAction() {
 
+        binding.btnSubmit.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
+        binding.topBackBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
         // 친구 목록 요청
         TalkApiClient.instance.friends { friends, error ->
             if (error != null) {

@@ -19,7 +19,7 @@ class LoginViewModel(private val tmp: String): ViewModel() {
 
 
     fun postLogin(loginRequest: LoginRequest){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch  (Dispatchers.IO) {
             val response = loginRepository.postLogin(loginRequest)
             Log.d("postLogin", "${response}\n${response.code()}")
             if(response.isSuccessful){

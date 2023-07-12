@@ -10,6 +10,8 @@ import com.example.gajamap.data.model.PutClientRequest
 import com.example.gajamap.data.repository.ClientRespository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 class ClientViewModel(private val tmp: String): ViewModel() {
@@ -33,9 +35,18 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     val postKakaoPhoneClient : LiveData<Response<List<Int>>>
     get() = _postKakaoPhoneClient
 
-    fun putClient(groupId : Int, client : Int, putClientRequest: PutClientRequest) {
+    fun putClient(groupid : Int, client : Int, clientName: RequestBody,
+                  groupId : RequestBody,
+                  phoneNumber : RequestBody,
+                  province : RequestBody,
+                  city : RequestBody,
+                  district : RequestBody,
+                  detail : RequestBody,
+                  latitude : RequestBody,
+                  longitude : RequestBody,
+                  clientImage : MultipartBody.Part?) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = clientRepository.putClient(putClientRequest, groupId, client)
+            val response = clientRepository.putClient(groupid, client, clientName,groupId,phoneNumber,province, city, district, detail, latitude, longitude, clientImage)
             Log.d("putClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _putClient.postValue(response.body())
@@ -47,7 +58,7 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     }
 
 
-    fun deleteClient(groupId : Int, client : Int){
+    /*fun deleteClient(groupId : Int, client : Int){
         viewModelScope.launch(Dispatchers.IO) {
             val response = clientRepository.deleteClient(groupId, client)
             Log.d("deleteClient", "${response.body()}\n${response.code()}")
@@ -58,11 +69,20 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("deleteClientError", "deleteClient : ${response.message()}")
             }
         }
-    }
+    }*/
 
-    fun postClient(postClientRequest: PostClientRequest){
+    fun postClient(clientName: RequestBody,
+                   groupId : RequestBody,
+                   phoneNumber : RequestBody,
+                   province : RequestBody,
+                   city : RequestBody,
+                   district : RequestBody,
+                   detail : RequestBody,
+                   latitude : RequestBody,
+                   longitude : RequestBody,
+                   clientImage : MultipartBody.Part?){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = clientRepository.postClient(postClientRequest)
+            val response = clientRepository.postClient(clientName,groupId,phoneNumber,province, city, district, detail, latitude, longitude, clientImage)
             Log.d("postClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _postClient.postValue(response)

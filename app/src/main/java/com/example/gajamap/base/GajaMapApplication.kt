@@ -1,7 +1,10 @@
 package com.example.gajamap.base
 
 import android.app.Application
+import android.content.ContentUris
 import android.content.SharedPreferences
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
 import com.example.gajamap.BuildConfig
 
@@ -33,8 +36,6 @@ class GajaMapApplication : Application() {
 
         // Retrofit 인스턴스, 앱 실행시 한번만 생성하여 사용합니다.
         lateinit var sRetrofit: Retrofit
-
-
 
     }
 
@@ -106,5 +107,4 @@ class GajaMapApplication : Application() {
         }
     }*/
     //
-
 }

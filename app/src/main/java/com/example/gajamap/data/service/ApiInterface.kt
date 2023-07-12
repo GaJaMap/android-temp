@@ -1,14 +1,10 @@
 package com.example.gajamap.data.service
 
 import com.example.gajamap.data.model.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiInterface {
 
@@ -29,23 +25,52 @@ interface ApiInterface {
     suspend fun getAllClientName(@Query("wordCond")wordCond : String) : Response<GetAllClientResponse>
 
 
-    //특정 그룹내에 고객 전부 조회
+    //특정 그룹내에 고객 전부 조회 -> 이름 검색
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClient(@Query("wordCond")wordCond : String, @Path("groupId")groupId : Int) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClientName(@Query("wordCond")wordCond : String, @Path("groupId")groupId : Int) : Response<GetGroupAllClientResponse>
+
+
+    //특정 그룹내에 고객
+    @GET("/api/group/{groupId}/clients")
+    suspend fun getGroupAllClient(@Path("groupId")groupId : Int) : Response<GetGroupAllClientResponse>
 
     //고객 등록
+    @Multipart
     @POST("/api/clients")
-    suspend fun postClient(@Body postClientRequest: PostClientRequest) : Response<Int>
+    suspend fun postClient(@Part clientName: RequestBody,
+                           @Part groupId : RequestBody,
+                           @Part phoneNumber : RequestBody,
+                           @Part province : RequestBody,
+                           @Part city : RequestBody,
+                           @Part district : RequestBody,
+                           @Part detail : RequestBody,
+                           @Part latitude : RequestBody,
+                           @Part longitude : RequestBody,
+                           @Part clientImage : MultipartBody.Part?
+    ) : Response<Int>
 
     //카카오, 전화번호부 데이터 등록
     @POST("api/clients/bulk")
-    suspend fun postKakaoPhoneClient(@Body postKakaoPhoneRequest: PostKakaoPhoneRequest) : Response<List<Int>>
+    suspend fun postKakaoPhoneClient(@Body kakaoPhoneRequest: PostKakaoPhoneRequest) : Response<List<Int>>
 
     //고객 삭제
     @DELETE("/api/group/{groupId}/clients/{clientId}")
     suspend fun deleteClient(@Path("groupId")groupId : Int, @Path("clientId")clientId: Int) : Response<BaseResponse>
 
     //고객 정보 변경
+    @Multipart
     @PUT("/api/group/{groupId}/clients/{clientId}")
-    suspend fun putClient(@Body putClientRequest: PutClientRequest, @Path("groupId")groupId : Int, @Path("clientId")clientId: Int): Response<BaseResponse>
+    suspend fun putClient(
+        @Path("groupid")groupid : Int, @Path("clientId")clientId: Int,
+        @Part clientName: RequestBody,
+        @Part groupId : RequestBody,
+        @Part phoneNumber : RequestBody,
+        @Part province : RequestBody,
+        @Part city : RequestBody,
+        @Part district : RequestBody,
+        @Part detail : RequestBody,
+        @Part latitude : RequestBody,
+        @Part longitude : RequestBody,
+        @Part clientImage : MultipartBody.Part?
+    ): Response<BaseResponse>
 }

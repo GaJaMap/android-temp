@@ -5,21 +5,33 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.example.gajamap.R
+import com.example.gajamap.data.model.Client
+import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ItemListBinding
-import com.example.gajamap.ui.fragment.customerList.Customer
+import java.net.URL
 
-class CustomerListAdapter(private val dataList : ArrayList<Customer>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
+class CustomerListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemListBinding):
             RecyclerView.ViewHolder(binding.root){
-                fun bind(data: Customer){
+                fun bind(data: Client){
+                    val text1 = data.address.province
+                    val text2 = data.address.city
+                    val address = "$text1 $text2"
+                    val distance = data.distance.toString()
+                    val distance1 = distance + "km"
+                    val filePath = getImageUrl(data.image.filePath)
                     Glide.with(binding.itemProfileImg.context)
-                        .load(data.img)
+                        .load(R.drawable.profile_img_origin)
+                        .fitCenter()
+                        .apply(RequestOptions().override(500,500))
                         .into(binding.itemProfileImg)
-                    binding.itemProfileAddressDetail.text = data.address
-                    binding.itemProfileName.text = data.name
-                    binding.itemProfilePhoneDetail.text = data.phone
-                    binding.itemProfileDistance.text = data.distance
+                    binding.itemProfileAddressDetail.text = address
+                    binding.itemProfileName.text = data.clientName
+                    binding.itemProfilePhoneDetail.text = data.phoneNumber
+                    binding.itemProfileDistance.text = distance1
 
                 }
             }
@@ -50,4 +62,11 @@ class CustomerListAdapter(private val dataList : ArrayList<Customer>): RecyclerV
     }
 
     private lateinit var itemClickListener : OnItemClickListener
+
+
+    fun getImageUrl(imageName: String): String {
+        val filePath = "/path/to/images/demi-tasse@hanmail.net/$imageName"
+        val url = URL("file://$filePath")
+        return url.toString()
+    }
 }
