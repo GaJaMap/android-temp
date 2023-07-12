@@ -6,30 +6,33 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.location.LocationManager
-import android.os.Bundle
-import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
+import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.data.model.GroupListData
+import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.repository.GroupRepository
+import com.example.gajamap.data.response.CheckGroupResponse
+import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.LocationSearchData
 import com.example.gajamap.data.response.ResultSearchKeywordData
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
@@ -38,6 +41,8 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
+import com.example.gajamap.ui.view.MainActivity
+import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -50,12 +55,7 @@ import retrofit2.Response
 import kotlin.random.Random
 
 
-class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEventListener {
-    // 전역 변수로 바인딩 객체 선언
-    private var mBinding: FragmentMapBinding? = null
-    // 매번 null 체크를 할 필요없이 편의성을 위해 바인딩 변수 재선언
-    private val binding get() = mBinding!!
-
+class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
     val dataList = mutableListOf<GroupListData>()
@@ -75,23 +75,18 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
     private var keyword = "" // 검색 키워드
     var countkm = 0
 
-    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
-    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+    override val viewModel by viewModels<MapViewModel> {
+        MapViewModel.MapViewModelFactory("tmp")
     }
-    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
+
+    override fun initViewModel(viewModel: ViewModel) {
+        binding.setVariable(BR.viewModel, viewModel)
+        binding.lifecycleOwner = this@MapFragment
+        binding.fragment = this@MapFragment
     }
 
     @SuppressLint("ResourceAsColor")
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // 바인딩
-        mBinding = FragmentMapBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
+    override fun onCreateAction() {
         binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -119,64 +114,93 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         binding.spinnerSearch.adapter = adapter
         binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                if (check == true){
-                    dataList.clear()
-                    val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
-                    val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
-
-                    groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
-                        override fun click(name: String, position: Int) {
-                            // 그룹 삭제 dialog
-                            val builder = AlertDialog.Builder(requireContext())
-                            builder.setTitle("해당 그룹을 삭제하시겠습니까?")
-                                .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                                .setPositiveButton("확인",positiveButtonClick)
-                                .setNegativeButton("취소", negativeButtonClick)
-                            val alertDialog = builder.create()
-                            alertDialog.show()
-                            groupName = name
-                            pos = position
-                        }
-                    }, object : GroupListAdapter.GroupEditListener{
-                        override fun click2(name: String, position: Int) {
-                            // 그룹 수정 dialog
-                            val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                            val mBuilder = AlertDialog.Builder(requireContext())
-                            val addDialog = mBuilder.create()
-                            addDialog.setView(mDialogView.root)
-                            addDialog.show()
-                            mDialogView.ivClose.setOnClickListener {
-                                addDialog.dismiss()
+                // 그룹 조회 api 연동
+                // checkGroup()
+                GroupRepository.group.checkGroup().enqueue(object : Callback<CheckGroupResponse> {
+                    override fun onResponse(
+                        call: Call<CheckGroupResponse>,
+                        response: Response<CheckGroupResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("checkGroup", "success")
+                            val data = response.body()
+                            val num = data!!.groupInfos.count()
+                            if (num == 0){
+                                Toast.makeText(requireContext(), "그룹이 없습니다.", Toast.LENGTH_SHORT).show()
                             }
+                            else{
+                                if (check == true){
+                                    dataList.clear()
+                                    val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+                                    val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+                                    groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                                        override fun click(name: String, position: Int) {
+                                            // 그룹 삭제 dialog
+                                            val builder = AlertDialog.Builder(requireContext())
+                                            builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                                                .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                                                .setPositiveButton("확인",positiveButtonClick)
+                                                .setNegativeButton("취소", negativeButtonClick)
+                                            val alertDialog = builder.create()
+                                            alertDialog.show()
+                                            groupName = name
+                                            pos = position
+                                        }
+                                    }, object : GroupListAdapter.GroupEditListener{
+                                        override fun click2(name: String, position: Int) {
+                                            // 그룹 수정 dialog
+                                            val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                                            val mBuilder = AlertDialog.Builder(requireContext())
+                                            val addDialog = mBuilder.create()
+                                            addDialog.setView(mDialogView.root)
+                                            addDialog.show()
+                                            mDialogView.ivClose.setOnClickListener {
+                                                addDialog.dismiss()
+                                            }
+                                        }
+                                    })
+                                    for (i in 0..num-1){
+                                        val itemdata = data.groupInfos.get(i)
+                                        dataList.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = itemdata.groupName, person = itemdata.clientCount))
+
+                                        groupListAdapter.datalist = dataList
+                                        groupListAdapter.notifyDataSetChanged()
+
+                                        sheetView.rvAddgroup.adapter = groupListAdapter
+                                    }
+                                    groupDialog.setContentView(sheetView.root)
+                                    groupDialog.show()
+
+                                    sheetView.btnAddgroup.setOnClickListener {
+                                        // 그룹 추가 dialog
+                                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                                        mDialogView.tvTitle.text = "그룹 추가하기"
+                                        val mBuilder = AlertDialog.Builder(requireContext())
+                                        val addDialog = mBuilder.create()
+                                        addDialog.setView(mDialogView.root)
+                                        addDialog.show()
+                                        mDialogView.ivClose.setOnClickListener {
+                                            addDialog.dismiss()
+                                        }
+                                        mDialogView.btnDialogSubmit.setOnClickListener {
+                                            // 고객 생성 api 연동
+                                            createGroup(mDialogView.etName.text.toString())
+                                            addDialog.dismiss()
+                                        }
+                                    }
+                                }
+                                check = true
+                            }
+                        } else { // 이곳은 에러 발생할 경우 실행됨
+                            Log.d("checkGroup", "fail")
                         }
-                    })
-                    dataList.apply {
-                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 1", person = 3))
-                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 2", person = 9))
-                        add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), name = "그룹 3", person = 6))
                     }
-                    groupListAdapter.datalist = dataList
-                    groupListAdapter.notifyDataSetChanged()
 
-                    sheetView.rvAddgroup.adapter = groupListAdapter
-
-                    groupDialog.setContentView(sheetView.root)
-                    groupDialog.show()
-
-                    sheetView.btnAddgroup.setOnClickListener {
-                        // 그룹 추가 dialog
-                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                        mDialogView.tvTitle.text = "그룹 추가하기"
-                        val mBuilder = AlertDialog.Builder(requireContext())
-                        val addDialog = mBuilder.create()
-                        addDialog.setView(mDialogView.root)
-                        addDialog.show()
-                        mDialogView.ivClose.setOnClickListener {
-                            addDialog.dismiss()
-                        }
+                    override fun onFailure(call: Call<CheckGroupResponse>, t: Throwable) {
+                        Log.d("checkGroup", "error")
                     }
-                }
-                check = true
+                })
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
@@ -276,7 +300,14 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
                 .replace(R.id.nav_fl, addDirectFragment)
                 .commitNow()
         }
-        return root
+    }
+
+    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
+    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
+        Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+    }
+    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
+        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -289,6 +320,25 @@ class MapFragment : Fragment(), MapView.POIItemEventListener, MapView.MapViewEve
         val bgShapegps = binding.ibGps.background as GradientDrawable
         bgShapegps.setColor(resources.getColor(R.color.white))
     }
+
+    // 그룹 생성 api
+    private fun createGroup(name: String){
+        viewModel.createGroup(CreateGroupRequest(name))
+
+        viewModel.createGroup.observe(this, Observer {
+            Log.d("createGroupObserver", name)
+        })
+    }
+
+    /*
+    // 그룹 조회 api
+    private fun checkGroup(){
+        viewModel.checkGroup()
+
+        Log.d("checkGroupObserver", "됐나?")
+
+        viewModel.checkGroup.observe(this, Observer {})
+    }*/
 
     // 키워드 검색 함수
     private fun searchKeyword(keyword: String) {

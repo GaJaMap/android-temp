@@ -26,6 +26,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentAddDirectBinding
+import com.example.gajamap.ui.fragment.map.MapFragment
 import com.example.gajamap.viewmodel.AddViewModel
 import java.io.File
 
@@ -79,7 +80,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         onContentAdd()
 
         binding.topBackBtn.setOnClickListener {
-
+            // 지도 fragment로 이동
+            val mapFragment = MapFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_fl, mapFragment)
+                .commitNow()
         }
     }
 
