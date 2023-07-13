@@ -76,7 +76,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var countkm = 0
 
     override val viewModel by viewModels<MapViewModel> {
-        MapViewModel.MapViewModelFactory("tmp")
+        MapViewModel.MapViewModelFactory()
     }
 
     override fun initViewModel(viewModel: ViewModel) {
@@ -115,7 +115,63 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                 // 그룹 조회 api 연동
-                // checkGroup()
+                if (check == true) {
+                    dataList.clear()
+                    val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+                    val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+                    checkGroup()
+                    groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+                        override fun click(name: String, position: Int) {
+                            // 그룹 삭제 dialog
+                            val builder = AlertDialog.Builder(requireContext())
+                            builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                                .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                                .setPositiveButton("확인",positiveButtonClick)
+                                .setNegativeButton("취소", negativeButtonClick)
+                            val alertDialog = builder.create()
+                            alertDialog.show()
+                            groupName = name
+                            pos = position
+                        }
+                    }, object : GroupListAdapter.GroupEditListener{
+                        override fun click2(name: String, position: Int) {
+                            // 그룹 수정 dialog
+                            val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                            val mBuilder = AlertDialog.Builder(requireContext())
+                            val addDialog = mBuilder.create()
+                            addDialog.setView(mDialogView.root)
+                            addDialog.show()
+                            mDialogView.ivClose.setOnClickListener {
+                                addDialog.dismiss()
+                            }
+                        }
+                    })
+                    sheetView.rvAddgroup.adapter = groupListAdapter
+
+                    groupDialog.setContentView(sheetView.root)
+                    groupDialog.show()
+
+                    sheetView.btnAddgroup.setOnClickListener {
+                        // 그룹 추가 dialog
+                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                        mDialogView.tvTitle.text = "그룹 추가하기"
+                        val mBuilder = AlertDialog.Builder(requireContext())
+                        val addDialog = mBuilder.create()
+                        addDialog.setView(mDialogView.root)
+                        addDialog.show()
+                        mDialogView.ivClose.setOnClickListener {
+                            addDialog.dismiss()
+                        }
+                        mDialogView.btnDialogSubmit.setOnClickListener {
+                            // 고객 생성 api 연동
+                            createGroup(mDialogView.etName.text.toString())
+                            // viewModel.buttonClick()
+                            addDialog.dismiss()
+                        }
+                    }
+                }
+                check = true
+                /*
                 GroupRepository.group.checkGroup().enqueue(object : Callback<CheckGroupResponse> {
                     override fun onResponse(
                         call: Call<CheckGroupResponse>,
@@ -200,7 +256,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     override fun onFailure(call: Call<CheckGroupResponse>, t: Throwable) {
                         Log.d("checkGroup", "error")
                     }
-                })
+                })*/
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
@@ -330,15 +386,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         })
     }
 
-    /*
     // 그룹 조회 api
     private fun checkGroup(){
         viewModel.checkGroup()
-
         Log.d("checkGroupObserver", "됐나?")
 
-        viewModel.checkGroup.observe(this, Observer {})
-    }*/
+        viewModel.checkGroup.observe(this@MapFragment, Observer {
+            Log.d("check","히얍")
+            groupListAdapter.setData(it)
+        })
+    }
 
     // 키워드 검색 함수
     private fun searchKeyword(keyword: String) {

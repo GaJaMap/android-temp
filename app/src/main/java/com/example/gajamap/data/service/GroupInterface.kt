@@ -17,6 +17,5 @@ interface GroupInterface {
 
     // 그룹 조회
     @GET("/api/group/?page=0")
-    fun checkGroup() : Call<CheckGroupResponse>
-    //suspend fun checkGroup() : Response<CheckGroupResponse>
+    suspend fun checkGroup() : Response<CheckGroupResponse>
 }
