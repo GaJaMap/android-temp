@@ -19,4 +19,8 @@ interface GroupInterface {
     // 그룹 삭제
     @DELETE("/api/group/{groupId}")
     suspend fun deleteGroup(@Path("groupId") groupId : Int) : Response<CreateGroupResponse>
+
+    // 그룹 수정
+    @PUT("/api/group/{groupId}")
+    suspend fun modifyGroup(@Path("groupId") groupId : Int, @Body createGroupRequest: CreateGroupRequest) : Response<CreateGroupResponse>
 }

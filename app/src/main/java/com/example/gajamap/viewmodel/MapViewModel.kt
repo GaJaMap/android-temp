@@ -86,6 +86,26 @@ class MapViewModel: ViewModel() {
         }
     }
 
+    // 그룹 수정
+    private val _modifyGroup = MutableLiveData<CreateGroupResponse>()
+    val modifyGroup : LiveData<CreateGroupResponse>
+        get() = _modifyGroup
+
+    fun modifyGroup(groupId: Int, createRequest: CreateGroupRequest){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.modifyGroup(groupId, createRequest)
+            Log.d("modifyGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                // 아니면 여기서 값을 그냥 변경할까? => 조금 더 고민해보자
+
+                Log.d("modifyGroupSuccess", "${response.body()}")
+
+            }else {
+                Log.d("modifyGroupError", "modifyGroup : ${response.message()}")
+            }
+        }
+    }
+
 
     // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
     // ViewModel을 통해 전달되는 인자가 있을 때 사용

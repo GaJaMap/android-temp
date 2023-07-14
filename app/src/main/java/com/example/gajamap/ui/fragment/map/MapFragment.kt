@@ -144,7 +144,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             val addDialog = mBuilder.create()
                             addDialog.setView(mDialogView.root)
                             addDialog.show()
+                            gid = id
                             mDialogView.ivClose.setOnClickListener {
+                                addDialog.dismiss()
+                            }
+                            mDialogView.btnDialogSubmit.setOnClickListener {
+                                // todo: 확인 필요!, 그룹 수정 api 연동
+                                modifyGroup(gid, mDialogView.etName.text.toString())
+                                // todo : 확인 필요
+                                checkGroup()
                                 addDialog.dismiss()
                             }
                         }
@@ -326,6 +334,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.deleteGroup(groupId)
         viewModel.deleteGroup.observe(this, Observer {
             Log.d("deleteGroupObserver", groupId.toString())
+        })
+    }
+
+    // 그룹 수정 api
+    private fun modifyGroup(groupId: Int, name: String){
+        viewModel.modifyGroup(groupId, CreateGroupRequest(name))
+
+        viewModel.modifyGroup.observe(this, Observer {
+            Log.d("modifyGroupObserver", groupId.toString() + name)
         })
     }
 

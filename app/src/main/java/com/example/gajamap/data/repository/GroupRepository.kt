@@ -17,4 +17,6 @@ class GroupRepository {
     suspend fun checkGroup() = group.checkGroup()
     // 그룹 삭제
     suspend fun deleteGroup(groupId : Int) = group.deleteGroup(groupId)
+    // 그룹 수정
+    suspend fun modifyGroup(groupId : Int, createGroupRequest: CreateGroupRequest) = group.modifyGroup(groupId, createGroupRequest)
 }
