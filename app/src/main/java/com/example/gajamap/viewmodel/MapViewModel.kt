@@ -15,6 +15,7 @@ import kotlin.random.Random
 class MapViewModel: ViewModel() {
     private val groupRepository = GroupRepository()
 
+    // 그룹 생성
     // 값이 변경되는 경우 MutableLiveData로 선언한다.
     private val _createGroup = MutableLiveData<CreateGroupResponse>()
     val createGroup : LiveData<CreateGroupResponse>
@@ -34,20 +35,19 @@ class MapViewModel: ViewModel() {
         }
     }
 
-
-    // todo : 수정 중
-
+    // 그룹 조회
     private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
     val checkGroup : LiveData<ArrayList<GroupListData>>
         get() = _checkGroup
     private var checkItems = ArrayList<GroupListData>()
 
+    /*
     fun buttonClick(){
         Log.d("checkckehck", "가즈아")
         val user = GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 1, name = "그룹 10", person = "5")
         checkItems.add(user)
         _checkGroup.value = checkItems
-    }
+    }*/
 
     fun checkGroup(){
         viewModelScope.launch {
@@ -64,6 +64,24 @@ class MapViewModel: ViewModel() {
                 _checkGroup.value = checkItems
             }else {
                 Log.d("checkGroupError", "checkGroup : ${response.message()}")
+            }
+        }
+    }
+
+    // 그룹 삭제
+    private val _deleteGroup = MutableLiveData<CreateGroupResponse>()
+    val deleteGroup : LiveData<CreateGroupResponse>
+        get() = _deleteGroup
+
+    fun deleteGroup(groupId: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.deleteGroup(groupId)
+            Log.d("deleteGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                Log.d("deleteGroupSuccess", "${response.body()}")
+
+            }else {
+                Log.d("deleteGroupError", "deleteGroup : ${response.message()}")
             }
         }
     }

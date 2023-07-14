@@ -15,4 +15,6 @@ class GroupRepository {
     suspend fun createGroup(createGroupRequest: CreateGroupRequest) = group.createGroup(createGroupRequest)
     // 그룹 조회
     suspend fun checkGroup() = group.checkGroup()
+    // 그룹 삭제
+    suspend fun deleteGroup(groupId : Int) = group.deleteGroup(groupId)
 }

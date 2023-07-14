@@ -3,6 +3,7 @@ package com.example.gajamap.ui.adapter
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.os.persistableBundleOf
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gajamap.data.model.GroupListData
@@ -18,10 +19,10 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
             binding.item = item
             // 삭제, 수정 버튼 눌렀을 때의 이벤트
             binding.ivDelete.setOnClickListener {
-                groupDeleteListener.click(datalist[position].name, position)
+                groupDeleteListener.click(datalist[position].id, datalist[position].name, position)
             }
             binding.ivModify.setOnClickListener {
-                groupEditListener.click2(datalist[position].name, position)
+                groupEditListener.click2(datalist[position].id, datalist[position].name, position)
             }
         }
     }
@@ -40,10 +41,10 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         holder.bind(datalist[position])
     }
     interface GroupDeleteListener{
-        fun click(name: String, position: Int)
+        fun click(id: Int, name: String, position: Int)
     }
     interface GroupEditListener{
-        fun click2(name: String, position: Int)
+        fun click2(id: Int, name: String, position: Int)
     }
     fun setData(data : ArrayList<GroupListData>){
         datalist = data

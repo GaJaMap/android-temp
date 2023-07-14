@@ -5,10 +5,7 @@ import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.CreateGroupResponse
 import retrofit2.Call
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface GroupInterface {
     // 그룹 생성
@@ -18,4 +15,8 @@ interface GroupInterface {
     // 그룹 조회
     @GET("/api/group/?page=0")
     suspend fun checkGroup() : Response<CheckGroupResponse>
+
+    // 그룹 삭제
+    @DELETE("/api/group/{groupId}")
+    suspend fun deleteGroup(@Path("groupId") groupId : Int) : Response<CreateGroupResponse>
 }
