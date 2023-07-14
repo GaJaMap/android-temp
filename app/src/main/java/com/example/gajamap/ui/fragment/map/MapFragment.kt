@@ -117,9 +117,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                 // 그룹 조회 api 연동
                 if (check == true && position == 0) {
-                    dataList.clear()
                     val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
                     val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+                    // 그룹 조회 서버 연동 함수 호출
                     checkGroup()
                     groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
                         override fun click(id: Int, name: String, position: Int) {
@@ -166,9 +166,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             addDialog.dismiss()
                         }
                         mDialogView.btnDialogSubmit.setOnClickListener {
-                            // 고객 생성 api 연동
+                            // 그룹 생성 api 연동
                             createGroup(mDialogView.etName.text.toString())
-                            // viewModel.buttonClick()
+                            // todo : 확인 필요
+                            checkGroup()
                             addDialog.dismiss()
                         }
                     }
@@ -275,13 +276,20 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
     }
 
-    // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        deleteGroup(gid)
-        //Log.d("deleteGId", gid.toString())
+        // 그룹 삭제 서버 연동 함수 호출
+        // todo: 제대로 되는지 확인 필요
+        wholeDelete()
     }
     val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
         Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun wholeDelete() {
+        deleteGroup(gid)
+        dataList.removeAt(pos)
+        groupListAdapter.datalist = dataList
+        groupListAdapter.notifyDataSetChanged()
     }
 
     override fun onResume() {

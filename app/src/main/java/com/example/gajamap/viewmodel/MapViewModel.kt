@@ -55,6 +55,7 @@ class MapViewModel: ViewModel() {
             Log.d("checkGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
                 val data = response.body()
+                checkItems.clear()
                 Log.d("checkGroupSuccess", "${response.body()}")
                 val num = data!!.groupInfos.count()
                 for (i in 0..num-1) {
@@ -79,7 +80,6 @@ class MapViewModel: ViewModel() {
             Log.d("deleteGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
                 Log.d("deleteGroupSuccess", "${response.body()}")
-
             }else {
                 Log.d("deleteGroupError", "deleteGroup : ${response.message()}")
             }
