@@ -76,7 +76,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         viewModel.postLogin(LoginRequest(token))
 
         viewModel.login.observe(this, Observer {
-            //Log.d("loginResponse", it.message.toString())
 
             startActivity(Intent(this, MainActivity::class.java))
             finish()
