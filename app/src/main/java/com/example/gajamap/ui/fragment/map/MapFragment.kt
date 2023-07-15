@@ -8,6 +8,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
+import android.location.Location
 import android.location.LocationManager
 import android.util.Log
 import android.view.View
@@ -17,10 +18,10 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
@@ -47,6 +48,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.properties.Delegates
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -69,6 +71,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid = 0
+    // 사용자 현재 위치의 위도, 경도
+    var userLatitude: Double? = 0.0
+    var userLongitude: Double? = 0.0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -228,8 +233,58 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibKm.setImageResource(R.drawable.ic_white_km)
                 binding.clKm.visibility = View.VISIBLE
-                // todo : 전체 고객 대상 반경 검색 api, 값으로 넣기
-                wholeRadius(3000.0, 33.125, 127.077)
+
+                // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
+                // todo: 클릭 시 버튼 색깔 변경
+                binding.btn3km.setOnClickListener {
+                    if (checkLocationService()) {
+                        // GPS가 켜져있을 경우
+                        // 위치 권한 허용이 되어있어야 하므로 확인하는 절차가 필요함
+                        // 그래서 기능 로직을 어떻게 해야 할지 모르겠음... 현재 로직은 조금 불편한듯..?
+                        // todo: 로직에 개선 필요!
+                        if (userLatitude == null && userLongitude == 0.0){
+                            val builder = AlertDialog.Builder(requireContext())
+                            builder.setMessage("현재 위치를 기준으로 고객 반경을 검색해야 하므로 위치 권한을 허용해주셔야 합니다.\n" +
+                                    "만약 권한 허용을 완료하셨다면 반경 버튼을 한 번 더 눌러주세요.")
+                            builder.setPositiveButton("확인") { dialog, which ->
+                                permissionCheck()
+                            }
+                            builder.setNegativeButton("취소") { dialog, which ->
+
+                            }
+                            builder.show()
+                        }
+                        else{
+                            wholeRadius(3000.0, userLatitude!!, userLongitude!!)
+                        }
+                    } else {
+                        // GPS가 꺼져있을 경우
+                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                binding.btn5km.setOnClickListener {
+                    if (checkLocationService()) {
+                        // GPS가 켜져있을 경우
+                        if (userLatitude == null && userLongitude == 0.0){
+                            val builder = AlertDialog.Builder(requireContext())
+                            builder.setMessage("현재 위치를 기준으로 고객 반경을 검색해야 하므로 위치 권한을 허용해주셔야 합니다.\n" +
+                                    "만약 권한 허용을 완료하셨다면 반경 버튼을 한 번 더 눌러주세요.")
+                            builder.setPositiveButton("확인") { dialog, which ->
+                                permissionCheck()
+                            }
+                            builder.setNegativeButton("취소") { dialog, which ->
+
+                            }
+                            builder.show()
+                        }
+                        else{
+                            wholeRadius(5000.0, userLatitude!!, userLongitude!!)
+                        }
+                    } else {
+                        // GPS가 꺼져있을 경우
+                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
                 bgShape.setColor(resources.getColor(R.color.white))
@@ -451,6 +506,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         } else {
             // 권한이 있는 상태
             startTracking()
+            // 사용자 위치에 대한 위도, 경도 값 저장
+            val lm: LocationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            //위도 , 경도
+            userLatitude = userNowLocation?.latitude
+            userLongitude = userNowLocation?.longitude
         }
     }
 

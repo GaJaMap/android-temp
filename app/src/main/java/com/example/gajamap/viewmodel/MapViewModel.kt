@@ -61,7 +61,6 @@ class MapViewModel: ViewModel() {
                 val data = response.body()
                 checkItems.clear()
                 Log.d("checkGroupSuccess", "${response.body()}")
-
                 val num = data!!.groupInfos.count()
                 for (i in 0..num-1) {
                     val itemdata = data.groupInfos.get(i)
