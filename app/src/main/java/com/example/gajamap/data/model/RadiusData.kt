@@ -8,7 +8,7 @@ data class RadiusResponse(
 )
 data class RadiusClient(
     @SerializedName("clientId")
-    val clientId: Int,
+    val clientId: Long,
     @SerializedName("groupInfo")
     val groupInfo: GroupInfoData?,
     @SerializedName("clientName")
@@ -26,7 +26,7 @@ data class RadiusClient(
 )
 data class GroupInfoData(
     @SerializedName("groupId")
-    val groupId: Int,
+    val groupId: Long,
     @SerializedName("groupName")
     val groupName: String
 )

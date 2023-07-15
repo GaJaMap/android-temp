@@ -12,7 +12,7 @@ class GroupRepository {
     // 그룹 조회
     suspend fun checkGroup() = group.checkGroup()
     // 그룹 삭제
-    suspend fun deleteGroup(groupId : Int) = group.deleteGroup(groupId)
+    suspend fun deleteGroup(groupId : Long) = group.deleteGroup(groupId)
     // 그룹 수정
-    suspend fun modifyGroup(groupId : Int, createGroupRequest: CreateGroupRequest) = group.modifyGroup(groupId, createGroupRequest)
+    suspend fun modifyGroup(groupId : Long, createGroupRequest: CreateGroupRequest) = group.modifyGroup(groupId, createGroupRequest)
 }

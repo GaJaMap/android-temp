@@ -18,9 +18,9 @@ interface GroupInterface {
 
     // todo: 그룹 삭제 : 확인 필요
     @DELETE("/api/group/{groupId}")
-    suspend fun deleteGroup(@Path("groupId") groupId : Int) : Response<CreateGroupResponse>
+    suspend fun deleteGroup(@Path("groupId") groupId : Long) : Response<CreateGroupResponse>
 
     // todo: 그룹 수정 : 확인 필요
     @PUT("/api/group/{groupId}")
-    suspend fun modifyGroup(@Path("groupId") groupId : Int, @Body createGroupRequest: CreateGroupRequest) : Response<CreateGroupResponse>
+    suspend fun modifyGroup(@Path("groupId") groupId : Long, @Body createGroupRequest: CreateGroupRequest) : Response<CreateGroupResponse>
 }

@@ -17,7 +17,7 @@ data class CheckGroupResponse(
 )
 data class GroupInfo(
     @SerializedName("groupId")
-    val groupId: Int,
+    val groupId: Long,
     @SerializedName("clientCount")
     val clientCount: Int,
     @SerializedName("groupName")
