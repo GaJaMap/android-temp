@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface GroupInterface {
-    // 그룹 생성
+    // todo: 그룹 생성 : 확인 필요
     @POST("/api/group")
     suspend fun createGroup(@Body createGroupRequest: CreateGroupRequest) : Response<CreateGroupResponse>
 
@@ -16,11 +16,11 @@ interface GroupInterface {
     @GET("/api/group/?page=0")
     suspend fun checkGroup() : Response<CheckGroupResponse>
 
-    // 그룹 삭제
+    // todo: 그룹 삭제 : 확인 필요
     @DELETE("/api/group/{groupId}")
     suspend fun deleteGroup(@Path("groupId") groupId : Int) : Response<CreateGroupResponse>
 
-    // 그룹 수정
+    // todo: 그룹 수정 : 확인 필요
     @PUT("/api/group/{groupId}")
     suspend fun modifyGroup(@Path("groupId") groupId : Int, @Body createGroupRequest: CreateGroupRequest) : Response<CreateGroupResponse>
 }

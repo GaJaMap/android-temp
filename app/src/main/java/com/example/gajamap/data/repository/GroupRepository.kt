@@ -5,10 +5,6 @@ import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.service.GroupInterface
 
 class GroupRepository {
-    /*
-    companion object{
-        val group = GajaMapApplication.sRetrofit.create(GroupInterface::class.java)
-    }*/
     private val group = GajaMapApplication.sRetrofit.create(GroupInterface::class.java)
 
     // 그룹 생성

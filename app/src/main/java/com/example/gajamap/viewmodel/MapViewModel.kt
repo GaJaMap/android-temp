@@ -4,7 +4,10 @@ import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.data.model.GroupListData
+import com.example.gajamap.data.model.RadiusRequest
+import com.example.gajamap.data.model.RadiusResponse
 import com.example.gajamap.data.repository.GroupRepository
+import com.example.gajamap.data.repository.RadiusRepository
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.CreateGroupResponse
@@ -14,6 +17,7 @@ import kotlin.random.Random
 
 class MapViewModel: ViewModel() {
     private val groupRepository = GroupRepository()
+    private val radiusRepository = RadiusRepository()
 
     // 그룹 생성
     // 값이 변경되는 경우 MutableLiveData로 선언한다.
@@ -106,6 +110,23 @@ class MapViewModel: ViewModel() {
         }
     }
 
+    // 전체 고객 대상 반경 검색
+    private val _wholeRadius = MutableLiveData<RadiusResponse>()
+    val wholeRadius : LiveData<RadiusResponse>
+        get() = _wholeRadius
+
+    fun wholeRadius(radiusRequest: RadiusRequest){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = radiusRepository.wholeRadius(radiusRequest)
+            Log.d("wholeRadius", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                Log.d("wholeRadiusSuccess", "${response.body()}")
+
+            }else {
+                Log.d("wholeRadiusError", "wholeRadius : ${response.message()}")
+            }
+        }
+    }
 
     // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
     // ViewModel을 통해 전달되는 인자가 있을 때 사용

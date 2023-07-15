@@ -30,6 +30,7 @@ import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.model.RadiusRequest
 import com.example.gajamap.data.repository.GroupRepository
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
@@ -237,6 +238,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibKm.setImageResource(R.drawable.ic_white_km)
                 binding.clKm.visibility = View.VISIBLE
+                // todo : 전체 고객 대상 반경 검색 api => radius 값 변경 필요
+                wholeRadius(3000.0, 33.12345, 127.7777)
+
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
                 bgShape.setColor(resources.getColor(R.color.white))
@@ -343,6 +347,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         viewModel.modifyGroup.observe(this, Observer {
             Log.d("modifyGroupObserver", groupId.toString() + name)
+        })
+    }
+
+    // 전체 고객 대상 반경 검색 api
+    private fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
+        viewModel.wholeRadius(RadiusRequest(radius, latitude, longitude))
+
+        viewModel.wholeRadius.observe(this, Observer {
+            Log.d("wholeRadiusObserver", "작동?")
         })
     }
 
