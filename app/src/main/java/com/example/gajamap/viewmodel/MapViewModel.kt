@@ -4,13 +4,13 @@ import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.data.model.GroupListData
-import com.example.gajamap.data.model.RadiusRequest
 import com.example.gajamap.data.model.RadiusResponse
 import com.example.gajamap.data.repository.GroupRepository
 import com.example.gajamap.data.repository.RadiusRepository
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.CreateGroupResponse
+import com.example.gajamap.ui.fragment.map.MapFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -18,6 +18,7 @@ import kotlin.random.Random
 class MapViewModel: ViewModel() {
     private val groupRepository = GroupRepository()
     private val radiusRepository = RadiusRepository()
+    private val mapFragment = MapFragment()
 
     // 그룹 생성
     // 값이 변경되는 경우 MutableLiveData로 선언한다.
@@ -32,7 +33,6 @@ class MapViewModel: ViewModel() {
             if(response.isSuccessful){
                 _createGroup.postValue(response.body())
                 Log.d("createGroupSuccess", "${response.body()}")
-
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
             }
@@ -61,6 +61,7 @@ class MapViewModel: ViewModel() {
                 val data = response.body()
                 checkItems.clear()
                 Log.d("checkGroupSuccess", "${response.body()}")
+
                 val num = data!!.groupInfos.count()
                 for (i in 0..num-1) {
                     val itemdata = data.groupInfos.get(i)
@@ -115,11 +116,14 @@ class MapViewModel: ViewModel() {
     val wholeRadius : LiveData<RadiusResponse>
         get() = _wholeRadius
 
-    fun wholeRadius(radiusRequest: RadiusRequest){
+    fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = radiusRepository.wholeRadius(radiusRequest)
+            val response = radiusRepository.wholeRadius(radius, latitude, longitude)
             Log.d("wholeRadius", "$response\n${response.code()}")
-            if(response.isSuccessful){
+            if(response.isSuccessful || response.code() == 422){
+                // Livedata의 값을 변경해주는 함수 postValue()
+                // setValue()와 다른점은 백그라운드에서 값을 변경해준다는 것, 백그라운드 쓰레드에서 동작하다가 메인 쓰레드에 값을 post 하는 방식으로 사용
+                _wholeRadius.postValue(response.body())
                 Log.d("wholeRadiusSuccess", "${response.body()}")
 
             }else {

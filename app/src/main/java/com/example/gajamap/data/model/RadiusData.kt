@@ -2,14 +2,6 @@ package com.example.gajamap.data.model
 
 import com.google.gson.annotations.SerializedName
 
-data class RadiusRequest(
-    @SerializedName("radius")
-    val radius: Double,
-    @SerializedName("latitude")
-    val latitude: Double,
-    @SerializedName("longitude")
-    val longitude: Double
-)
 data class RadiusResponse(
     @SerializedName("clients")
     var clients: List<RadiusClient> = arrayListOf()

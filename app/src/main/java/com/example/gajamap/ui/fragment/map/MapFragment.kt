@@ -6,9 +6,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.location.LocationManager
 import android.util.Log
@@ -22,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
@@ -29,10 +28,6 @@ import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.data.model.GroupListData
-import com.example.gajamap.data.model.LoginRequest
-import com.example.gajamap.data.model.RadiusRequest
-import com.example.gajamap.data.repository.GroupRepository
-import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.LocationSearchData
 import com.example.gajamap.data.response.ResultSearchKeywordData
@@ -42,7 +37,6 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
-import com.example.gajamap.ui.view.MainActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
@@ -53,7 +47,6 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.random.Random
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -107,57 +100,54 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
-        // 그룹 더보기 바텀 다이얼로그 띄우기
-        // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
-        searchList = searchList.plus("전체")
-        searchList = searchList.plus("서울특별시 고객들")
-        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerSearch.adapter = adapter
+        // groupListAdapter를 우선적으로 초기화해줘야 함
+        groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
+            override fun click(id: Int, name: String, position: Int) {
+                // 그룹 삭제 dialog
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("해당 그룹을 삭제하시겠습니까?")
+                    .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                    .setPositiveButton("확인",positiveButtonClick)
+                    .setNegativeButton("취소", negativeButtonClick)
+                val alertDialog = builder.create()
+                alertDialog.show()
+                groupName = name
+                pos = position
+                gid = id
+                Log.d("deleteGId1", gid.toString())
+            }
+        }, object : GroupListAdapter.GroupEditListener{
+            override fun click2(id: Int, name: String, position: Int) {
+                // 그룹 수정 dialog
+                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                val mBuilder = AlertDialog.Builder(requireContext())
+                val addDialog = mBuilder.create()
+                addDialog.setView(mDialogView.root)
+                addDialog.show()
+                gid = id
+                mDialogView.ivClose.setOnClickListener {
+                    addDialog.dismiss()
+                }
+                mDialogView.btnDialogSubmit.setOnClickListener {
+                    // todo: 확인 필요!, 그룹 수정 api 연동
+                    modifyGroup(gid, mDialogView.etName.text.toString())
+                    // todo : 확인 필요
+                    checkGroup()
+                    addDialog.dismiss()
+                }
+            }
+        })
+
+        // 그룹 조회 서버 연동 함수 호출
+        checkGroup()
+        // spinner 아이템 클릭 시 이벤트 처리
         binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                // 그룹 조회 api 연동
                 if (check == true && position == 0) {
+                    // 그룹 더보기 바텀 다이얼로그 띄우기
                     val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
                     val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
-                    // 그룹 조회 서버 연동 함수 호출
-                    checkGroup()
-                    groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
-                        override fun click(id: Int, name: String, position: Int) {
-                            // 그룹 삭제 dialog
-                            val builder = AlertDialog.Builder(requireContext())
-                            builder.setTitle("해당 그룹을 삭제하시겠습니까?")
-                                .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                                .setPositiveButton("확인",positiveButtonClick)
-                                .setNegativeButton("취소", negativeButtonClick)
-                            val alertDialog = builder.create()
-                            alertDialog.show()
-                            groupName = name
-                            pos = position
-                            gid = id
-                            Log.d("deleteGId1", gid.toString())
-                        }
-                    }, object : GroupListAdapter.GroupEditListener{
-                        override fun click2(id: Int, name: String, position: Int) {
-                            // 그룹 수정 dialog
-                            val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                            val mBuilder = AlertDialog.Builder(requireContext())
-                            val addDialog = mBuilder.create()
-                            addDialog.setView(mDialogView.root)
-                            addDialog.show()
-                            gid = id
-                            mDialogView.ivClose.setOnClickListener {
-                                addDialog.dismiss()
-                            }
-                            mDialogView.btnDialogSubmit.setOnClickListener {
-                                // todo: 확인 필요!, 그룹 수정 api 연동
-                                modifyGroup(gid, mDialogView.etName.text.toString())
-                                // todo : 확인 필요
-                                checkGroup()
-                                addDialog.dismiss()
-                            }
-                        }
-                    })
+
                     sheetView.rvAddgroup.adapter = groupListAdapter
 
                     groupDialog.setContentView(sheetView.root)
@@ -238,9 +228,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibKm.setImageResource(R.drawable.ic_white_km)
                 binding.clKm.visibility = View.VISIBLE
-                // todo : 전체 고객 대상 반경 검색 api => radius 값 변경 필요
-                wholeRadius(3000.0, 33.12345, 127.7777)
-
+                // todo : 전체 고객 대상 반경 검색 api, 값으로 넣기
+                wholeRadius(3000.0, 33.125, 127.077)
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
                 bgShape.setColor(resources.getColor(R.color.white))
@@ -330,6 +319,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup()
         viewModel.checkGroup.observe(this@MapFragment, Observer {
             groupListAdapter.setData(it)
+
+            // 서버에서 받은 데이터 값으로 spinner에 값 넣어주기
+            searchList = searchList.plus("전체")
+            for (i in 0..it.count()-1){
+                searchList = searchList.plus(it[i].name)
+            }
+            val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerSearch.adapter = adapter
         })
     }
 
@@ -352,7 +350,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     // 전체 고객 대상 반경 검색 api
     private fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
-        viewModel.wholeRadius(RadiusRequest(radius, latitude, longitude))
+        viewModel.wholeRadius(radius, latitude, longitude)
 
         viewModel.wholeRadius.observe(this, Observer {
             Log.d("wholeRadiusObserver", "작동?")
