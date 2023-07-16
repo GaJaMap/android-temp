@@ -132,7 +132,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
-                    //modifyGroup(gid, mDialogView.etName.text.toString())
+                    modifyGroup(gid, mDialogView.etName.text.toString(), position)
+                    Log.d("modify", position.toString())
                     addDialog.dismiss()
                 }
             }
@@ -376,13 +377,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 그룹 수정 api
-    /*
-    private fun modifyGroup(groupId: Long, name: String){
-        viewModel.modifyGroup(groupId, CreateGroupRequest(name))
-        viewModel.modifyGroup.observe(this, Observer {
-            Log.d("modifyGroupObserver", groupId.toString() + name)
+    private fun modifyGroup(groupId: Long, name: String, pos: Int){
+        viewModel.modifyGroup(groupId, CreateGroupRequest(name), pos)
+        viewModel.checkGroup.observe(this, Observer {
+            groupListAdapter.setData(it)
+            check = false
         })
-    }*/
+    }
 
     // 전체 고객 대상 반경 검색 api
     private fun wholeRadius(radius: Double, latitude: Double, longitude: Double){

@@ -20,7 +20,7 @@ interface GroupInterface {
     @DELETE("/api/group/{groupId}")
     suspend fun deleteGroup(@Path("groupId") groupId : Long) : Response<GroupResponse>
 
-    // todo: 그룹 수정 : 확인 필요
+    // 그룹 수정
     @PUT("/api/group/{groupId}")
     suspend fun modifyGroup(@Path("groupId") groupId : Long, @Body createGroupRequest: CreateGroupRequest) : Response<GroupResponse>
 }

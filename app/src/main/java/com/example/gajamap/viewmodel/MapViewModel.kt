@@ -81,17 +81,13 @@ class MapViewModel: ViewModel() {
     }
 
     // 그룹 수정
-    /*
-    private val _modifyGroup = MutableLiveData<CreateGroupResponse>()
-    val modifyGroup : LiveData<CreateGroupResponse>
-        get() = _modifyGroup*/
-
-    fun modifyGroup(groupId: Long, createRequest: CreateGroupRequest){
+    fun modifyGroup(groupId: Long, createRequest: CreateGroupRequest, pos: Int){
         viewModelScope.launch(Dispatchers.IO) {
             val response = groupRepository.modifyGroup(groupId, createRequest)
             Log.d("modifyGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
-                // 아니면 여기서 값을 그냥 변경할까? => 조금 더 고민해보자
+                checkItems.get(pos).name = createRequest.name
+                _checkGroup.postValue(checkItems)
                 Log.d("modifyGroupSuccess", "${response.body()}")
 
             }else {
