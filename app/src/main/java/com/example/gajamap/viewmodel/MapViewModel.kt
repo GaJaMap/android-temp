@@ -12,8 +12,6 @@ import com.example.gajamap.data.repository.GroupRepository
 import com.example.gajamap.data.repository.RadiusRepository
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
-import com.example.gajamap.data.response.CreateGroupResponse
-import com.example.gajamap.ui.fragment.map.MapFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -28,18 +26,17 @@ class MapViewModel: ViewModel() {
         get() = _checkGroup
     private var checkItems = ArrayList<GroupListData>()
 
-    /*
-    private val _createGroup = MutableLiveData<CreateGroupResponse>()
-    val createGroup : LiveData<CreateGroupResponse>
-        get() = _createGroup*/
     // 그룹 생성
     fun createGroup(createRequest: CreateGroupRequest){
         viewModelScope.launch(Dispatchers.IO) {
             val response = groupRepository.createGroup(createRequest)
             Log.d("createGroup", "$response\n${response.code()}")
+            Log.d("createResponse", response.body().toString())
             if(response.isSuccessful){
+                val data = response.body()
                 // MapFragment에서 observer가 실행되기 위해서는 postValue가 필요하다!
-                //_createGroup.postValue(response.body())
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0"))
+                _checkGroup.postValue(checkItems)
                 Log.d("createGroupSuccess", "${response.body()}")
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
@@ -48,15 +45,6 @@ class MapViewModel: ViewModel() {
     }
 
     // 그룹 조회
-
-    /*
-    fun buttonClick(){
-        Log.d("checkckehck", "가즈아")
-        val user = GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 1, name = "그룹 10", person = "5")
-        checkItems.add(user)
-        _checkGroup.value = checkItems
-    }*/
-
     fun checkGroup(){
         viewModelScope.launch {
             val response = groupRepository.checkGroup()
@@ -85,7 +73,6 @@ class MapViewModel: ViewModel() {
             if(response.isSuccessful){
                 checkItems.removeAt(pos)
                 _checkGroup.postValue(checkItems)
-                //_checkGroup.value = checkItems
                 Log.d("deleteGroupSuccess", "${response.body()}")
             }else {
                 Log.d("deleteGroupError", "deleteGroup : ${response.message()}")

@@ -71,9 +71,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
-    // 사용자 현재 위치의 위도, 경도
-    //var userLatitude: Double? = 0.0
-    //var userLongitude: Double? = 0.0
+    var markers : Array<MapPOIItem> = emptyArray()
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -324,17 +322,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
-
         /*
-        viewModel.createGroup.observe(this, Observer {
+        // todo: spinner 값 업데이트
+        searchList = searchList.plus(name)
+        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        binding.spinnerSearch.adapter = adapter*/
+        viewModel.checkGroup.observe(this, Observer {
             Log.d("createGroupObserver", name)
-            //groupListAdapter.setData(it)
-            // spinner 값 업데이트
-            searchList = searchList.plus(name)
-            val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerSearch.adapter = adapter
-        })*/
+            groupListAdapter.setData(it)
+            check = false
+        })
     }
 
     // 그룹 조회 api
@@ -384,6 +383,24 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 builder.setPositiveButton("확인") { dialog, which ->
                 }
                 builder.show()
+            }
+            else{
+                val data = viewModel.wholeRadius.value!!.clients
+                val num = data.count()
+                binding.mapView.removeAllPOIItems()
+                for (i in 0..num-1){
+                    val itemdata = data.get(i)
+                    // 지도에 마커 추가
+                    val point = MapPOIItem()
+                    point.apply {
+                        itemName = itemdata.clientName
+                        mapPoint =
+                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
+                        markerType = MapPOIItem.MarkerType.BluePin
+                        selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                    }
+                    binding.mapView.addPOIItem(point)
+                }
             }
         })
     }
