@@ -41,10 +41,10 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         holder.bind(datalist[position])
     }
     interface GroupDeleteListener{
-        fun click(id: Int, name: String, position: Int)
+        fun click(id: Long, name: String, position: Int)
     }
     interface GroupEditListener{
-        fun click2(id: Int, name: String, position: Int)
+        fun click2(id: Long, name: String, position: Int)
     }
     fun setData(data : ArrayList<GroupListData>){
         datalist = data

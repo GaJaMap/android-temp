@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class CreateGroupRequest(
     val name : String = ""
 )
-data class CreateGroupResponse(
+data class GroupResponse(
     val message : String = ""
 )
 
@@ -17,7 +17,7 @@ data class CheckGroupResponse(
 )
 data class GroupInfo(
     @SerializedName("groupId")
-    val groupId: Int,
+    val groupId: Long,
     @SerializedName("clientCount")
     val clientCount: Int,
     @SerializedName("groupName")

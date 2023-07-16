@@ -1,34 +1,43 @@
 package com.example.gajamap.viewmodel
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.util.Log
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.*
 import com.example.gajamap.data.model.GroupListData
+import com.example.gajamap.data.model.RadiusResponse
 import com.example.gajamap.data.repository.GroupRepository
+import com.example.gajamap.data.repository.RadiusRepository
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
-import com.example.gajamap.data.response.CreateGroupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MapViewModel: ViewModel() {
     private val groupRepository = GroupRepository()
+    private val radiusRepository = RadiusRepository()
+
+    // 값이 변경되는 경우 MutableLiveData로 선언한다.
+    private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
+    val checkGroup : LiveData<ArrayList<GroupListData>>
+        get() = _checkGroup
+    private var checkItems = ArrayList<GroupListData>()
 
     // 그룹 생성
-    // 값이 변경되는 경우 MutableLiveData로 선언한다.
-    private val _createGroup = MutableLiveData<CreateGroupResponse>()
-    val createGroup : LiveData<CreateGroupResponse>
-        get() = _createGroup
-
     fun createGroup(createRequest: CreateGroupRequest){
         viewModelScope.launch(Dispatchers.IO) {
             val response = groupRepository.createGroup(createRequest)
             Log.d("createGroup", "$response\n${response.code()}")
+            Log.d("createResponse", response.body().toString())
             if(response.isSuccessful){
-                _createGroup.postValue(response.body())
+                val data = response.body()
+                // MapFragment에서 observer가 실행되기 위해서는 postValue가 필요하다!
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0"))
+                _checkGroup.postValue(checkItems)
                 Log.d("createGroupSuccess", "${response.body()}")
-
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
             }
@@ -36,19 +45,6 @@ class MapViewModel: ViewModel() {
     }
 
     // 그룹 조회
-    private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
-    val checkGroup : LiveData<ArrayList<GroupListData>>
-        get() = _checkGroup
-    private var checkItems = ArrayList<GroupListData>()
-
-    /*
-    fun buttonClick(){
-        Log.d("checkckehck", "가즈아")
-        val user = GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 1, name = "그룹 10", person = "5")
-        checkItems.add(user)
-        _checkGroup.value = checkItems
-    }*/
-
     fun checkGroup(){
         viewModelScope.launch {
             val response = groupRepository.checkGroup()
@@ -70,15 +66,13 @@ class MapViewModel: ViewModel() {
     }
 
     // 그룹 삭제
-    private val _deleteGroup = MutableLiveData<CreateGroupResponse>()
-    val deleteGroup : LiveData<CreateGroupResponse>
-        get() = _deleteGroup
-
-    fun deleteGroup(groupId: Int){
+    fun deleteGroup(groupId: Long, pos: Int){
         viewModelScope.launch(Dispatchers.IO) {
             val response = groupRepository.deleteGroup(groupId)
             Log.d("deleteGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
+                checkItems.removeAt(pos)
+                _checkGroup.postValue(checkItems)
                 Log.d("deleteGroupSuccess", "${response.body()}")
             }else {
                 Log.d("deleteGroupError", "deleteGroup : ${response.message()}")
@@ -87,17 +81,13 @@ class MapViewModel: ViewModel() {
     }
 
     // 그룹 수정
-    private val _modifyGroup = MutableLiveData<CreateGroupResponse>()
-    val modifyGroup : LiveData<CreateGroupResponse>
-        get() = _modifyGroup
-
-    fun modifyGroup(groupId: Int, createRequest: CreateGroupRequest){
+    fun modifyGroup(groupId: Long, createRequest: CreateGroupRequest, pos: Int){
         viewModelScope.launch(Dispatchers.IO) {
             val response = groupRepository.modifyGroup(groupId, createRequest)
             Log.d("modifyGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
-                // 아니면 여기서 값을 그냥 변경할까? => 조금 더 고민해보자
-
+                checkItems.get(pos).name = createRequest.name
+                _checkGroup.postValue(checkItems)
                 Log.d("modifyGroupSuccess", "${response.body()}")
 
             }else {
@@ -106,6 +96,41 @@ class MapViewModel: ViewModel() {
         }
     }
 
+    // 전체 고객 대상 반경 검색
+    private val _wholeRadius = MutableLiveData<RadiusResponse>()
+    val wholeRadius : LiveData<RadiusResponse>
+        get() = _wholeRadius
+
+    fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = radiusRepository.wholeRadius(radius, latitude, longitude)
+            Log.d("wholeRadius", "$response\n${response.code()}")
+            if(response.isSuccessful || response.code() == 422){
+                // Livedata의 값을 변경해주는 함수 postValue()
+                // setValue()와 다른점은 백그라운드에서 값을 변경해준다는 것, 백그라운드 쓰레드에서 동작하다가 메인 쓰레드에 값을 post 하는 방식으로 사용
+                _wholeRadius.postValue(response.body())
+                Log.d("wholeRadiusSuccess", "${response.body()}")
+
+            }else {
+                Log.d("wholeRadiusError", "wholeRadius : ${response.message()}")
+            }
+        }
+    }
+
+    // 특정 그룹 내에 고객 대상 반경 검색
+    fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = radiusRepository.specificRadius(groupId, radius, latitude, longitude)
+            Log.d("specificRadius", "$response\n${response.code()}")
+            if(response.isSuccessful || response.code() == 422){
+                _wholeRadius.postValue(response.body())
+                Log.d("specificRadiusSuccess", "${response.body()}")
+
+            }else {
+                Log.d("specificRadiusError", "specificRadius : ${response.message()}")
+            }
+        }
+    }
 
     // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
     // ViewModel을 통해 전달되는 인자가 있을 때 사용
