@@ -13,5 +13,5 @@ interface RadiusInterface {
 
     // 전체 고객 대상 반경 검색
     @GET("/api/group/{groupId}/clients/nearby")
-    suspend fun specificRadius(@Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double, @Path("groupId") groupId : Long) : Response<RadiusResponse>
+    suspend fun specificRadius(@Path("groupId") groupId : Long, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<RadiusResponse>
 }

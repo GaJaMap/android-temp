@@ -71,7 +71,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
-    var markers : Array<MapPOIItem> = emptyArray()
+    var spinnerPos : Int = 0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -143,8 +143,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         // spinner 아이템 클릭 시 이벤트 처리
         binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                spinnerPos = position
                 if (check == true && position == 0) {
-                    Log.d("deleteSheet", "00")
                     // 그룹 더보기 바텀 다이얼로그 띄우기
                     val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
                     val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
@@ -234,7 +234,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     if (checkLocationService()) {
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
-                            wholeRadius(3000.0, a.first, a.second)
+                            if (spinnerPos == 0){
+                                wholeRadius(3000.0, a.first, a.second)
+                            }
+                            else{
+                                val specificId = viewModel.checkGroup.value?.get(spinnerPos)?.id
+                                Log.d("specificId", specificId.toString())
+                                specificRadius(3000.0, a.first, a.second, specificId!!)
+                            }
                         }
                     } else {
                         // GPS가 꺼져있을 경우
@@ -246,7 +253,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     if (checkLocationService()) {
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
-                            wholeRadius(5000.0, a.first, a.second)
+                            if (spinnerPos == 0){
+                                wholeRadius(5000.0, a.first, a.second)
+                            }
+                            else{
+                                specificRadius(5000.0, a.first, a.second, gid)
+                            }
                         }
                     } else {
                         // GPS가 꺼져있을 경우
@@ -409,13 +421,31 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
         viewModel.specificRadius(radius, latitude, longitude, groupId)
 
-        viewModel.specificRadius.observe(this, Observer {
-            if (viewModel.specificRadius.value == null){
+        viewModel.wholeRadius.observe(this, Observer {
+            if (viewModel.wholeRadius.value == null){
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setMessage("현재 생성된 그룹이 없거나 등록된 고객이 없습니다.\n그룹 및 고객을 등록해주세요.")
                 builder.setPositiveButton("확인") { dialog, which ->
                 }
                 builder.show()
+            }
+            else{
+                val data = viewModel.wholeRadius.value!!.clients
+                val num = data.count()
+                binding.mapView.removeAllPOIItems()
+                for (i in 0..num-1){
+                    val itemdata = data.get(i)
+                    // 지도에 마커 추가
+                    val point = MapPOIItem()
+                    point.apply {
+                        itemName = itemdata.clientName
+                        mapPoint =
+                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
+                        markerType = MapPOIItem.MarkerType.BluePin
+                        selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                    }
+                    binding.mapView.addPOIItem(point)
+                }
             }
         })
     }

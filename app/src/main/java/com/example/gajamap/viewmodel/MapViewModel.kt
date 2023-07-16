@@ -122,18 +122,12 @@ class MapViewModel: ViewModel() {
     }
 
     // 특정 그룹 내에 고객 대상 반경 검색
-    private val _specificRadius = MutableLiveData<RadiusResponse>()
-    val specificRadius : LiveData<RadiusResponse>
-        get() = _specificRadius
-
     fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = radiusRepository.specificRadius(radius, latitude, longitude, groupId)
+            val response = radiusRepository.specificRadius(groupId, radius, latitude, longitude)
             Log.d("specificRadius", "$response\n${response.code()}")
             if(response.isSuccessful || response.code() == 422){
-                // Livedata의 값을 변경해주는 함수 postValue()
-                // setValue()와 다른점은 백그라운드에서 값을 변경해준다는 것, 백그라운드 쓰레드에서 동작하다가 메인 쓰레드에 값을 post 하는 방식으로 사용
-                _specificRadius.postValue(response.body())
+                _wholeRadius.postValue(response.body())
                 Log.d("specificRadiusSuccess", "${response.body()}")
 
             }else {
