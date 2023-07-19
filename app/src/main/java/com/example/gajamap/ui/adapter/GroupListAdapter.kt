@@ -2,6 +2,7 @@ package com.example.gajamap.ui.adapter
 
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.persistableBundleOf
 import androidx.databinding.BindingAdapter
@@ -39,13 +40,30 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     // 적절한 데이터를 가져와서 그 데이터를 사용하여 뷰홀더의 레이아웃 채움
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
+        // 아이템 클릭 이벤트
+        holder.itemView.setOnClickListener {
+            itemClickListener.onClick(it, position, datalist[position].id, datalist[position].name)
+        }
     }
+    // 아이템 삭제 버튼 클릭
     interface GroupDeleteListener{
         fun click(id: Long, name: String, position: Int)
     }
+    // 아이템 수정 버튼 클릭
     interface GroupEditListener{
         fun click2(id: Long, name: String, position: Int)
     }
+    // 아이템 클릭
+    interface OnItemClickListener {
+        fun onClick(v: View, position: Int, gid: Long, gname: String)
+    }
+
+    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.itemClickListener = onItemClickListener
+    }
+
+    private lateinit var itemClickListener : OnItemClickListener
+
     fun setData(data : ArrayList<GroupListData>){
         datalist = data
         notifyDataSetChanged()

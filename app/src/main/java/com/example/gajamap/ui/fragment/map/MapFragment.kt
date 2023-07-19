@@ -12,13 +12,10 @@ import android.location.Location
 import android.location.LocationManager
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -28,7 +25,6 @@ import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
-import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.LocationSearchData
 import com.example.gajamap.data.response.ResultSearchKeywordData
@@ -48,19 +44,14 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.properties.Delegates
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
-    val dataList = mutableListOf<GroupListData>()
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var groupName: String = ""
     var pos: Int = 0
-    // 검색창 dropdown list
-    var searchList : Array<String> = emptyArray()
-    var check = false
     var markerCheck = false
     // 지도에서 직접 추가하기를 위한 중심 위치 point
     private lateinit var marker: MapPOIItem
@@ -71,7 +62,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
-    var spinnerPos : Int = 0
+    var itemId: Long = 0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -85,6 +76,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
+        val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+        val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
         binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -133,52 +127,53 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
                     modifyGroup(gid, mDialogView.etName.text.toString(), position)
-                    Log.d("modify", position.toString())
                     addDialog.dismiss()
                 }
             }
         })
 
-        // 그룹 조회 서버 연동 함수 호출
-        checkGroup()
-        // spinner 아이템 클릭 시 이벤트 처리
-        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                spinnerPos = position
-                if (check == true && position == 0) {
-                    // 그룹 더보기 바텀 다이얼로그 띄우기
-                    val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
-                    val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
-
-                    sheetView.rvAddgroup.adapter = groupListAdapter
-
-                    groupDialog.setContentView(sheetView.root)
-                    groupDialog.show()
-
-                    sheetView.btnAddgroup.setOnClickListener {
-                        // 그룹 추가 dialog
-                        val mDialogView = DialogGroupBinding.inflate(layoutInflater)
-                        mDialogView.tvTitle.text = "그룹 추가하기"
-                        val mBuilder = AlertDialog.Builder(requireContext())
-                        val addDialog = mBuilder.create()
-                        addDialog.setView(mDialogView.root)
-                        addDialog.show()
-                        mDialogView.ivClose.setOnClickListener {
-                            addDialog.dismiss()
-                        }
-                        mDialogView.btnDialogSubmit.setOnClickListener {
-                            // 그룹 생성 api 연동
-                            createGroup(mDialogView.etName.text.toString())
-                            addDialog.dismiss()
-                        }
-                    }
-                }
-                check = true
+        // 그룹 recyclerview 아이템 클릭 시 값 변경 및 배경색 바꾸기
+        groupListAdapter.setItemClickListener(object : GroupListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int, gid: Long, gname: String) {
+                v.setBackgroundColor(context!!.getResources().getColor(R.color.inform))
+                itemId = gid
+                binding.tvSearch.text = gname
+                sheetView.tvAddgroupMain.text = gname
             }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
+        })
 
+        // search bar 클릭 시 바텀 다이얼로그 띄우기
+        binding.clSearch.setOnClickListener {
+            // 그룹 조회 서버 연동 함수 호출
+            checkGroup()
+            // 그룹 더보기 바텀 다이얼로그 띄우기
+            //val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+            //val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+            sheetView.rvAddgroup.adapter = groupListAdapter
+
+            groupDialog.setContentView(sheetView.root)
+            groupDialog.show()
+
+            sheetView.btnAddgroup.setOnClickListener {
+                // 그룹 추가 dialog
+                val mDialogView = DialogGroupBinding.inflate(layoutInflater)
+                mDialogView.tvTitle.text = "그룹 추가하기"
+                val mBuilder = AlertDialog.Builder(requireContext())
+                val addDialog = mBuilder.create()
+                addDialog.setView(mDialogView.root)
+                addDialog.show()
+                mDialogView.ivClose.setOnClickListener {
+                    addDialog.dismiss()
+                }
+                mDialogView.btnDialogSubmit.setOnClickListener {
+                    // 그룹 생성 api 연동
+                    createGroup(mDialogView.etName.text.toString())
+                    addDialog.dismiss()
+                }
             }
         }
+
         // 위도, 경도 값으로 주소 받기
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
@@ -235,13 +230,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     if (checkLocationService()) {
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
-                            if (spinnerPos == 0){
+                            if (binding.tvSearch.text == "전체"){
                                 wholeRadius(3000.0, a.first, a.second)
                             }
                             else{
-                                val specificId = viewModel.checkGroup.value?.get(spinnerPos)?.id
-                                Log.d("specificId", specificId.toString())
-                                specificRadius(3000.0, a.first, a.second, specificId!!)
+                                specificRadius(3000.0, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -254,11 +247,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     if (checkLocationService()) {
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
-                            if (spinnerPos == 0){
+                            if (binding.tvSearch.text == "전체"){
                                 wholeRadius(5000.0, a.first, a.second)
                             }
                             else{
-                                specificRadius(5000.0, a.first, a.second, gid)
+                                specificRadius(5000.0, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -335,17 +328,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
-        /*
-        // todo: spinner 값 업데이트
-        searchList = searchList.plus(name)
-        val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        binding.spinnerSearch.adapter = adapter*/
         viewModel.checkGroup.observe(this, Observer {
             Log.d("createGroupObserver", name)
             groupListAdapter.setData(it)
-            check = false
         })
     }
 
@@ -354,15 +339,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup()
         viewModel.checkGroup.observe(this@MapFragment, Observer {
             groupListAdapter.setData(it)
-
-            // 서버에서 받은 데이터 값으로 spinner에 값 넣어주기
-            searchList = searchList.plus("전체")
-            for (i in 0..it.count()-1){
-                searchList = searchList.plus(it[i].name)
-            }
-            val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerSearch.adapter = adapter
         })
     }
 
@@ -372,7 +348,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup.observe(this, Observer {
             Log.d("delete", pos.toString())
             groupListAdapter.setData(it)
-            check = false
         })
     }
 
@@ -381,7 +356,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.modifyGroup(groupId, CreateGroupRequest(name), pos)
         viewModel.checkGroup.observe(this, Observer {
             groupListAdapter.setData(it)
-            check = false
         })
     }
 
@@ -412,7 +386,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
+                    /*
+                    val hasMarker = binding.mapView.poiItems.any {
+                        mark
+                    }*/
                     binding.mapView.addPOIItem(point)
+                    //binding.mapView.selectPOIItem(point, true)
                 }
             }
         })
@@ -446,6 +425,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
                     binding.mapView.addPOIItem(point)
+                    // binding.mapView.selectPOIItem(point, true)
                 }
             }
         })
@@ -479,6 +459,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             // 검색 결과 있을 경우
             locationSearchList.clear()           // 리사이클러뷰 초기화
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+            Log.d("locations", searchResult!!.documents.size.toString())
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
@@ -585,7 +566,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
-
+        /*
+        marker?.let {
+            if(isFirstCalloutBallonShown){
+                // 말풍선 표시
+                p0?.selectPOIItem(it, true)
+                isFirstCalloutBallonShown = false
+            }
+        }*/
     }
 
     // 지도에 직접 추가하기 부분 기능들 구현
