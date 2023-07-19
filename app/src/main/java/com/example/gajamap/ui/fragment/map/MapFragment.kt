@@ -12,13 +12,10 @@ import android.location.Location
 import android.location.LocationManager
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -28,7 +25,6 @@ import com.example.gajamap.BuildConfig.KAKAO_API_KEY
 import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
-import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.LocationSearchData
 import com.example.gajamap.data.response.ResultSearchKeywordData
@@ -48,7 +44,6 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.properties.Delegates
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -67,6 +62,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
+    var itemId: Long = 0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -80,6 +76,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
+        val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+        val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
         binding.mapView.setMapViewEventListener(this)
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
@@ -128,9 +127,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
                     modifyGroup(gid, mDialogView.etName.text.toString(), position)
-                    Log.d("modify", position.toString())
                     addDialog.dismiss()
                 }
+            }
+        })
+
+        // 그룹 recyclerview 아이템 클릭 시 값 변경 및 배경색 바꾸기
+        groupListAdapter.setItemClickListener(object : GroupListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int, gid: Long, gname: String) {
+                v.setBackgroundColor(context!!.getResources().getColor(R.color.inform))
+                itemId = gid
+                binding.tvSearch.text = gname
+                sheetView.tvAddgroupMain.text = gname
             }
         })
 
@@ -139,8 +147,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             // 그룹 조회 서버 연동 함수 호출
             checkGroup()
             // 그룹 더보기 바텀 다이얼로그 띄우기
-            val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
-            val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+            //val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
+            //val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
             sheetView.rvAddgroup.adapter = groupListAdapter
 
@@ -226,7 +234,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                                 wholeRadius(3000.0, a.first, a.second)
                             }
                             else{
-                                specificRadius(3000.0, a.first, a.second, gid)
+                                specificRadius(3000.0, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -243,7 +251,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                                 wholeRadius(5000.0, a.first, a.second)
                             }
                             else{
-                                specificRadius(5000.0, a.first, a.second, gid)
+                                specificRadius(5000.0, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -378,7 +386,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
+                    /*
+                    val hasMarker = binding.mapView.poiItems.any {
+                        mark
+                    }*/
                     binding.mapView.addPOIItem(point)
+                    //binding.mapView.selectPOIItem(point, true)
                 }
             }
         })
@@ -412,6 +425,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
                     binding.mapView.addPOIItem(point)
+                    // binding.mapView.selectPOIItem(point, true)
                 }
             }
         })
@@ -552,7 +566,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
-
+        /*
+        marker?.let {
+            if(isFirstCalloutBallonShown){
+                // 말풍선 표시
+                p0?.selectPOIItem(it, true)
+                isFirstCalloutBallonShown = false
+            }
+        }*/
     }
 
     // 지도에 직접 추가하기 부분 기능들 구현
