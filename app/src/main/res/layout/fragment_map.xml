@@ -305,7 +305,7 @@
                 android:id="@+id/btn_3km"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="@drawable/bg_km_stroke"
+                android:background="@drawable/bg_km_notclick"
                 android:fontFamily="@font/nanumsquareneo_regular"
                 android:text="@string/map_button_3km"
                 android:textSize="12sp"
@@ -314,13 +314,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btn_5km"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_5km"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="@drawable/bg_km_stroke"
+                android:background="@drawable/bg_km_notclick"
                 android:fontFamily="@font/nanumsquareneo_regular"
                 android:text="@string/map_button_5km"
                 android:textSize="12sp"
@@ -328,7 +328,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/btn_3km"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
