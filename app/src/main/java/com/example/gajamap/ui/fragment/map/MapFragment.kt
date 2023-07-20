@@ -63,6 +63,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var countkm = 0
     var gid: Long = 0
     var itemId: Long = 0
+    // 반경 3km, 5km 버튼 클릭되었는지 check
+    var threeCheck = false
+    var fiveCheck = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -220,8 +223,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.clKm.visibility = View.VISIBLE
 
                 // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
-                // todo: 클릭 시 버튼 색깔 변경
                 binding.btn3km.setOnClickListener {
+                    if(fiveCheck){
+                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn5km.setTextColor(resources.getColor(R.color.main))
+                        fiveCheck = false
+                    }
+                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
+                    binding.btn3km.setTextColor(resources.getColor(R.color.white))
+                    threeCheck = true
                     // GPS가 켜져있을 경우
                     if (checkLocationService()) {
                         val a = permissionCheck()
@@ -239,6 +249,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     }
                 }
                 binding.btn5km.setOnClickListener {
+                    if(threeCheck){
+                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn3km.setTextColor(resources.getColor(R.color.main))
+                        threeCheck = false
+                    }
+                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
+                    binding.btn5km.setTextColor(resources.getColor(R.color.white))
+                    fiveCheck = true
                     // GPS가 켜져있을 경우
                     if (checkLocationService()) {
                         val a = permissionCheck()
@@ -272,7 +290,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
-                // todo: 버튼 잘 눌리는지 확인 필요
+                // 버튼 잘 눌리는지 확인 필요
                 btn.setOnClickListener {
                     // 고객 추가하기 fragment로 이동
                     val addDirectFragment = AddDirectFragment()
@@ -377,7 +395,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     point.apply {
                         itemName = itemdata.clientName
                         mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
+                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
