@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.os.persistableBundleOf
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,7 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         fun bind(item: GroupListData){
             bgShape.setColor(item.img)
             binding.item = item
+
             // 삭제, 수정 버튼 눌렀을 때의 이벤트
             binding.ivDelete.setOnClickListener {
                 groupDeleteListener.click(datalist[position].id, datalist[position].name, position)
@@ -44,6 +46,10 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     // 적절한 데이터를 가져와서 그 데이터를 사용하여 뷰홀더의 레이아웃 채움
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
+        if (position == 0){
+            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
+            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
+        }
         // 아이템의 배경 설정
         if(position == selectedPosition){
             holder.itemView.setBackgroundResource(R.color.inform)

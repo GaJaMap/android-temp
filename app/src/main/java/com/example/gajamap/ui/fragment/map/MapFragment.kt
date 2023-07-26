@@ -577,14 +577,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
-        /*
-        marker?.let {
-            if(isFirstCalloutBallonShown){
-                // 말풍선 표시
-                p0?.selectPOIItem(it, true)
-                isFirstCalloutBallonShown = false
-            }
-        }*/
     }
 
     // 지도에 직접 추가하기 부분 기능들 구현
