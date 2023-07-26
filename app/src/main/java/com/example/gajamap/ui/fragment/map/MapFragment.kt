@@ -36,6 +36,7 @@ import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.delay
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -66,6 +67,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 반경 3km, 5km 버튼 클릭되었는지 check
     var threeCheck = false
     var fiveCheck = false
+    var groupNum = 0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -83,6 +85,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
         binding.mapView.setMapViewEventListener(this)
+        // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
+        checkGroup()
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             // gps 버튼 클릭 상태로 변경
@@ -147,7 +151,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
             // 그룹 조회 서버 연동 함수 호출
-            checkGroup()
+            //checkGroup()
             // 그룹 더보기 바텀 다이얼로그 띄우기
             sheetView.rvAddgroup.adapter = groupListAdapter
 
@@ -177,7 +181,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
-                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                //Log.d("ReverseGeocoding", "도로명 주소: $addressString")
                 binding.tvLocationAddress.text = addressString
             }
 
@@ -188,30 +192,42 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
 
         binding.ibPlus.setOnClickListener{
-            // plus 버튼 클릭 상태로 변경
-            val bgShape = binding.ibPlus.background as GradientDrawable
-            bgShape.setColor(resources.getColor(R.color.main))
-            binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
+            if (groupNum == 1){
+                // 그룹 삭제 dialog
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("현재 생성된 그룹이 없습니다.")
+                    .setMessage("그룹을 등록해주시기 바랍니다.")
+                    .setPositiveButton("확인"){ dialog, which ->
+                    }
+                val alertDialog = builder.create()
+                alertDialog.show()
+            }
+            else{
+                // plus 버튼 클릭 상태로 변경
+                val bgShape = binding.ibPlus.background as GradientDrawable
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
 
-            // 화면 변경
-            binding.clSearchWhole.visibility = View.GONE
-            binding.clSearchLocation.visibility = View.VISIBLE
-            binding.clLocation.visibility = View.VISIBLE
-            binding.ibPlus.visibility = View.GONE
-            binding.ibGps.visibility = View.GONE
-            binding.ibKm.visibility = View.GONE
+                // 화면 변경
+                binding.clSearchWhole.visibility = View.GONE
+                binding.clSearchLocation.visibility = View.VISIBLE
+                binding.clLocation.visibility = View.VISIBLE
+                binding.ibPlus.visibility = View.GONE
+                binding.ibGps.visibility = View.GONE
+                binding.ibKm.visibility = View.GONE
 
-            // 지도에서 직접 추가하기 마커 위치
-            val centerPoint = binding.mapView.mapCenterPoint
-            marker = MapPOIItem()
-            binding.mapView.setMapCenterPoint(centerPoint, true)
-            marker.itemName = "Marker"
-            marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
-            marker.markerType = MapPOIItem.MarkerType.RedPin
-            binding.mapView.addPOIItem(marker)
-            val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
-            mapGeoCoder.startFindingAddress()
-            markerCheck = true
+                // 지도에서 직접 추가하기 마커 위치
+                val centerPoint = binding.mapView.mapCenterPoint
+                marker = MapPOIItem()
+                binding.mapView.setMapCenterPoint(centerPoint, true)
+                marker.itemName = "Marker"
+                marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+                marker.markerType = MapPOIItem.MarkerType.RedPin
+                binding.mapView.addPOIItem(marker)
+                val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+                mapGeoCoder.startFindingAddress()
+                markerCheck = true
+            }
         }
 
         binding.ibKm.setOnClickListener {
@@ -342,7 +358,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
         viewModel.checkGroup.observe(this, Observer {
-            Log.d("createGroupObserver", name)
             groupListAdapter.setData(it)
         })
     }
@@ -352,6 +367,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup()
         viewModel.checkGroup.observe(this@MapFragment, Observer {
             groupListAdapter.setData(it)
+            groupNum = viewModel.checkGroup.value!!.size
         })
     }
 
@@ -359,7 +375,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun deleteGroup(groupId: Long, pos: Int){
         viewModel.deleteGroup(groupId, pos)
         viewModel.checkGroup.observe(this, Observer {
-            Log.d("delete", pos.toString())
             groupListAdapter.setData(it)
         })
     }
@@ -515,7 +530,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
                 }
                 builder.setNegativeButton("취소") { dialog, which ->
-
                 }
                 builder.show()
             } else {
