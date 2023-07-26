@@ -54,10 +54,14 @@ class MapViewModel: ViewModel() {
                 checkItems.clear()
                 Log.d("checkGroupSuccess", "${response.body()}")
                 val num = data!!.groupInfos.count()
+                var count = 0
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 0, name = "전체", person = "0"))
                 for (i in 0..num-1) {
                     val itemdata = data.groupInfos.get(i)
+                    count += itemdata.clientCount
                     checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = itemdata.groupId, name = itemdata.groupName, person = itemdata.clientCount.toString()))
                 }
+                checkItems[0].person = count.toString()
                 _checkGroup.value = checkItems
             }else {
                 Log.d("checkGroupError", "checkGroup : ${response.message()}")

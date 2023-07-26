@@ -4,5 +4,5 @@ data class GroupListData(
     val img: Int,
     val id: Long,
     var name: String,
-    val person: String
+    var person: String
 )
