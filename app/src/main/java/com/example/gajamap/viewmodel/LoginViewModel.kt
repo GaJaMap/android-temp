@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,8 +14,8 @@ class LoginViewModel(private val tmp: String): ViewModel() {
 
     private val loginRepository = LoginRepository()
 
-    private val _login = MutableLiveData<Response<Long>>()
-    val login : LiveData<Response<Long>>
+    private val _login = MutableLiveData<LoginResponse>()
+    val login : LiveData<LoginResponse>
         get() = _login
 
 
@@ -23,7 +24,7 @@ class LoginViewModel(private val tmp: String): ViewModel() {
             val response = loginRepository.postLogin(loginRequest)
             Log.d("postLogin", "${response}\n${response.code()}")
             if(response.isSuccessful){
-                _login.postValue(response)
+                _login.postValue(response.body())
                 val header = response.headers()
                 val contentType = header["Set-Cookie"]?.split(";")?.get(0)
                 val session = contentType?.replace("SESSION=","")

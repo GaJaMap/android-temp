@@ -10,7 +10,7 @@ interface ApiInterface {
 
     //로그인
     @POST("/api/user/login")
-    suspend fun postLogin(@Body loginRequest: LoginRequest) : Response<Long>
+    suspend fun postLogin(@Body loginRequest: LoginRequest) : Response<LoginResponse>
 
     // 특정 그룹내에 특정 고객 조회
     @GET("/api/group/{groupId}/clients/{clientId}")
