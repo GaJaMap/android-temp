@@ -10,7 +10,7 @@
             type="com.example.gajamap.ui.fragment.setting.PhoneFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.SettingViewModel" />
+            type="com.example.gajamap.viewmodel.ClientViewModel" />
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -189,7 +189,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/phone_list_rv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="300dp"
         android:nestedScrollingEnabled="false"
         android:layout_marginStart="27dp"
         tools:listitem="@layout/item_phone"
@@ -199,6 +199,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setting_phone_check_back"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_submit"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="@string/direct_check"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/fragment_add_bottom_purple"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
 

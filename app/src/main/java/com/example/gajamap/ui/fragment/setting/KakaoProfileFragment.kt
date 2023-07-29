@@ -10,7 +10,7 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentKakaoProfileBinding
 import com.example.gajamap.ui.adapter.KakaoFriendAdapter
-import com.example.gajamap.viewmodel.SettingViewModel
+import com.example.gajamap.viewmodel.ClientViewModel
 import com.kakao.sdk.auth.AuthCodeIntentFactory.talk
 import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
@@ -21,8 +21,8 @@ import kotlinx.coroutines.withContext
 
 class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.fragment_kakao_profile){
 
-    override val viewModel by viewModels<SettingViewModel> {
-        SettingViewModel.SettingViewModelFactory("tmp")
+    override val viewModel by viewModels<ClientViewModel> {
+        ClientViewModel.SettingViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {
@@ -33,6 +33,12 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
     override fun onCreateAction() {
 
+        binding.btnSubmit.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
+        binding.topBackBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
         // 친구 목록 요청
         TalkApiClient.instance.friends { friends, error ->
             if (error != null) {

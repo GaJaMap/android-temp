@@ -10,18 +10,27 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.data.model.GetAllClientResponse
+import com.example.gajamap.data.model.GetGroupAllClientResponse
+import com.example.gajamap.data.model.GetGroupClientResponse
 import com.example.gajamap.databinding.FragmentListBinding
+import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
 import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
-import com.example.gajamap.viewmodel.ListViewModel
+import com.example.gajamap.viewmodel.GetClientViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
@@ -30,14 +39,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
 
     //더미데이터
-    private var customerList: ArrayList<Customer> = arrayListOf(
+    /*private var customerList: ArrayList<Customer> = arrayListOf(
         Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km"),
         Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km"),
         Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km")
-    )
+    )*/
 
-    override val viewModel by viewModels<ListViewModel> {
-        ListViewModel.ListViewModelFactory("tmp")
+    override val viewModel by viewModels<GetClientViewModel> {
+        GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {
@@ -47,13 +56,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
     override fun onCreateAction() {
+        //거리순, 최신순, 거리순 클릭하면
         //리사이클러뷰
-        val customerListAdapter = CustomerListAdapter(customerList)
-        binding.listRv.apply {
-            adapter = customerListAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            addItemDecoration(CustomerListVerticalItemDecoration())
-        }
+        binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
+        viewModel.getAllClient()
+        viewModel.getAllClient.observe(this, Observer {
+            ListRv(it)
+        })
+
         // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
         searchList = searchList.plus("전체")
         searchList = searchList.plus("서울특별시 고객들")
@@ -63,21 +73,64 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
 
+                binding.etSearch.addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(p0: Editable?) {
+                        //입력이 끝날 때 작동됩니다.
+                        if(position == 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.getAllClientName(searchName.toString())
+                            viewModel.getAllClientName.observe(viewLifecycleOwner, Observer {
+                                ListRv(it)
+                            })
+                        }
+                        if(position != 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.getGroupAllClientName(searchName.toString(), 12)
+                            viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
+                                GroupClientSearchRV(it)
+                            })
+                        }
+                    }
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        //입력 하기 전에 작동됩니다.
+                        if(position == 0){
+                            viewModel.getGroupAllClient(12)
+                            viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
+                                GroupClientSearchRV(it)
+                            })
+                        }
+
+                    }
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
+                        if(position == 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.getAllClientName(searchName.toString())
+                            viewModel.getAllClientName.observe(viewLifecycleOwner, Observer {
+                                ListRv(it)
+                            })
+                        }
+                        if(position != 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.getGroupAllClientName(searchName.toString(), 12)
+                            viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
+                                GroupClientSearchRV(it)
+                            })
+                        }
+                    }
+                })
+
+
+
                 Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
         }
-        //다이얼로그
-        /*binding.fragmentListCategory3.setOnClickListener {
-            val dialog = CustomerListDialog()
-            // 알림창이 띄워져있는 동안 배경 클릭 막기
-            dialog.isCancelable = false
-            dialog.show(requireActivity().supportFragmentManager, "ConfirmDialog")
-        }*/
-//GPS 위치권한
+        //GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
@@ -86,14 +139,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
             }
         }
-
-        //리사이클러뷰 클릭
-        customerListAdapter.setOnItemClickListener(object :
-            CustomerListAdapter.OnItemClickListener{
-            override fun onClick(v: View, position: Int) {
-                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
-            }
-        })
 
     }
 
@@ -164,6 +209,76 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     private fun startTracking() {
 
     }
+
+    fun ListRv(it : GetAllClientResponse){
+        //고객 리스트
+        val customerListAdapter = CustomerListAdapter(it.clients)
+        binding.listRv.apply {
+            adapter = customerListAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        //리사이클러뷰 클릭
+        customerListAdapter.setOnItemClickListener(object :
+            CustomerListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val name = it.clients[position].clientName
+                val text1 = it.clients[position].address.province
+                val text2 = it.clients[position].address.city
+                val text3 = it.clients[position].address.district
+                val address1 = "$text1 $text2 $text3"
+                val address2 = it.clients[position].address.detail
+                val phone = it.clients[position].phoneNumber
+                val latitude = it.clients[position].location.latitude
+                val longitude = it.clients[position].location.longitude
+                GajaMapApplication.prefs.setString("name", name)
+                GajaMapApplication.prefs.setString("address1", address1)
+                GajaMapApplication.prefs.setString("address2", address2)
+                GajaMapApplication.prefs.setString("phone", phone)
+                GajaMapApplication.prefs.setString("latitude", latitude.toString())
+                GajaMapApplication.prefs.setString("longitude", longitude.toString())
+
+
+                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            }
+        })
+    }
+
+
+    fun GroupClientSearchRV(it : GetGroupAllClientResponse){
+        //고객 리스트
+        val customerListAdapter = CustomerListAdapter(it.clients)
+        binding.listRv.apply {
+            adapter = customerListAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        //리사이클러뷰 클릭
+        customerListAdapter.setOnItemClickListener(object :
+            CustomerListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val name = it.clients[position].clientName
+                val text1 = it.clients[position].address.province
+                val text2 = it.clients[position].address.city
+                val text3 = it.clients[position].address.district
+                val address1 = "$text1 $text2 $text3"
+                val address2 = it.clients[position].address.detail
+                val phone = it.clients[position].phoneNumber
+                val latitude = it.clients[position].location.latitude
+                val longitude = it.clients[position].location.longitude
+                GajaMapApplication.prefs.setString("name", name)
+                GajaMapApplication.prefs.setString("address1", address1)
+                GajaMapApplication.prefs.setString("address2", address2)
+                GajaMapApplication.prefs.setString("phone", phone)
+                GajaMapApplication.prefs.setString("latitude", latitude.toString())
+                GajaMapApplication.prefs.setString("longitude", longitude.toString())
+
+
+                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            }
+        })
+    }
+
 
 
 }
