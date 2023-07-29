@@ -61,7 +61,6 @@ class GajaMapApplication : Application() {
             .build()
 
 
-
         sRetrofit = Retrofit.Builder()
             .baseUrl(API_URL)
             .client(okHttpClient)
@@ -105,6 +104,8 @@ class GajaMapApplication : Application() {
                 .build()
             proceed(newRequest)
         }
+
     }*/
-    //
+    
+
 }

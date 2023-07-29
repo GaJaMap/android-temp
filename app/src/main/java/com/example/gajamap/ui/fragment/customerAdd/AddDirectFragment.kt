@@ -88,7 +88,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         onContentAdd()
 
         binding.topBackBtn.setOnClickListener {
-
+            // 지도 fragment로 이동
+            val mapFragment = MapFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_fl, mapFragment)
+                .commitNow()
         }
     }
 

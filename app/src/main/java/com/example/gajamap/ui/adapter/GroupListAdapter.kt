@@ -1,27 +1,35 @@
 package com.example.gajamap.ui.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.os.persistableBundleOf
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.gajamap.R
 import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.databinding.ItemGroupListBinding
 
 class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     var datalist = mutableListOf<GroupListData>()
+    private var selectedPosition = RecyclerView.NO_POSITION
 
     inner class ViewHolder(private val binding: ItemGroupListBinding): RecyclerView.ViewHolder(binding.root) {
         val bgShape = binding.ivGroup.background as GradientDrawable
         fun bind(item: GroupListData){
             bgShape.setColor(item.img)
-            binding.tvGroup.text = item.name
-            binding.tvGroupperson.text = item.person.toString()
+            binding.item = item
+
             // 삭제, 수정 버튼 눌렀을 때의 이벤트
             binding.ivDelete.setOnClickListener {
-                groupDeleteListener.click(datalist[position].name, position)
+                groupDeleteListener.click(datalist[position].id, datalist[position].name, position)
             }
             binding.ivModify.setOnClickListener {
-                groupEditListener.click2(datalist[position].name, position)
+                groupEditListener.click2(datalist[position].id, datalist[position].name, position)
             }
         }
     }
@@ -38,12 +46,50 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     // 적절한 데이터를 가져와서 그 데이터를 사용하여 뷰홀더의 레이아웃 채움
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
+        if (position == 0){
+            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
+            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
+        }
+        // 아이템의 배경 설정
+        if(position == selectedPosition){
+            holder.itemView.setBackgroundResource(R.color.inform)
+        }else{
+            holder.itemView.setBackgroundResource(R.color.white)
+        }
+        // 아이템 클릭 이벤트
+        holder.itemView.setOnClickListener {
+            // 이전에 선택된 아이템의 배경을 변경
+            val previousSelectedPosition = selectedPosition
+            selectedPosition = holder.position
+            notifyItemChanged(previousSelectedPosition)
+            // 현재 클릭된 아이템의 배경을 변경
+            notifyItemChanged(selectedPosition)
+
+            itemClickListener.onClick(it, position, datalist[position].id, datalist[position].name)
+        }
     }
+    // 아이템 삭제 버튼 클릭
     interface GroupDeleteListener{
-        fun click(name: String, position: Int)
+        fun click(id: Long, name: String, position: Int)
     }
+    // 아이템 수정 버튼 클릭
     interface GroupEditListener{
-        fun click2(name: String, position: Int)
+        fun click2(id: Long, name: String, position: Int)
+    }
+    // 아이템 클릭
+    interface OnItemClickListener {
+        fun onClick(v: View, position: Int, gid: Long, gname: String)
+    }
+
+    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.itemClickListener = onItemClickListener
+    }
+
+    private lateinit var itemClickListener : OnItemClickListener
+
+    fun setData(data : ArrayList<GroupListData>){
+        datalist = data
+        notifyDataSetChanged()
     }
 
 

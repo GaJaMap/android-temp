@@ -37,7 +37,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     }
 
     override fun onCreateAction() {
-
     }
 
     fun kakaoLogin(){
@@ -66,7 +65,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                     UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
                 } else if (token != null) {
                     Log.d("kakoAccessToken", token.accessToken)
-                    //Log.d("kakoRefreshToken", token.refreshToken)
                     postLogin(token.accessToken)
                 }
             }
@@ -83,7 +81,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         viewModel.postLogin(LoginRequest(token))
 
         viewModel.login.observe(this, Observer {
-            //Log.d("loginResponse", it.message.toString())
 
             startActivity(Intent(this, MainActivity::class.java))
             finish()

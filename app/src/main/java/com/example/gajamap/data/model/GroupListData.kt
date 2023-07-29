@@ -2,6 +2,7 @@ package com.example.gajamap.data.model
 
 data class GroupListData(
     val img: Int,
-    val name: String,
-    val person: Int
+    val id: Long,
+    var name: String,
+    var person: String
 )
