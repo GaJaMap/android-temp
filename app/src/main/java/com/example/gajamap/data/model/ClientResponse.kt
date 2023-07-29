@@ -6,7 +6,8 @@ data class PostClientRequest(
     val clientName: String,
     val groupId: Int,
     val location: Location,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val isBasicImage : Boolean
 )
 
 data class PostKakaoPhoneRequest(
@@ -29,5 +30,6 @@ data class PutClientRequest(
     val clientName: String,
     val groupId: Int,
     val location: Location,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val isBasicImage : Boolean
 )

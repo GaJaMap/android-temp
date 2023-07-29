@@ -223,10 +223,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val name = it.clients[position].clientName
-                val text1 = it.clients[position].address.province
-                val text2 = it.clients[position].address.city
-                val text3 = it.clients[position].address.district
-                val address1 = "$text1 $text2 $text3"
+                val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail
                 val phone = it.clients[position].phoneNumber
                 val latitude = it.clients[position].location.latitude
@@ -258,10 +255,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val name = it.clients[position].clientName
-                val text1 = it.clients[position].address.province
-                val text2 = it.clients[position].address.city
-                val text3 = it.clients[position].address.district
-                val address1 = "$text1 $text2 $text3"
+                val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail
                 val phone = it.clients[position].phoneNumber
                 val latitude = it.clients[position].location.latitude
