@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="fragment"
+            type="com.example.gajamap.ui.fragment.customerAdd.EditProfileFragment" />
+        <variable
+            name="viewModel"
+            type="com.example.gajamap.viewmodel.ClientViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top"
+            android:layout_width="match_parent"
+            android:layout_height="51dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/top_back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_back_btn"
+                android:layout_marginStart="14dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/top_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="정보 수정하기"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/info_profile_img"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:src="@drawable/profile_img_origin"
+            android:layout_marginTop="18dp"
+            app:layout_constraintTop_toBottomOf="@+id/top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/info_profile_camera_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/feagment_direct_circle"
+            android:elevation="12dp"
+            app:layout_constraintEnd_toEndOf="@+id/info_profile_img"
+            app:layout_constraintBottom_toBottomOf="@+id/info_profile_img">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/info_profile_camera_img"
+                android:layout_width="32dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_camera"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/info_profile_name"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_person"
+            android:layout_marginTop="28dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_img"/>
+
+        <EditText
+            android:id="@+id/info_profile_name_et"
+            android:layout_width="0dp"
+            android:layout_height="39dp"
+            android:hint="@string/direct_hint1"
+            android:textColorHint="@color/direct_hint_gray"
+            android:textSize="11sp"
+            android:text="이채우"
+            android:paddingStart="11dp"
+            android:textColor="@color/black"
+            android:background="@drawable/fragment_add_bottom_gray"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="34dp"
+            app:layout_constraintTop_toTopOf="@+id/info_profile_name"
+            app:layout_constraintBottom_toBottomOf="@+id/info_profile_name"
+            app:layout_constraintStart_toEndOf="@+id/info_profile_name"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/info_profile_name_et_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/direct_warning"
+            android:textColor="@color/essential"
+            android:textSize="8sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_name_et"
+            app:layout_constraintStart_toStartOf="@+id/info_profile_name_et"/>
+
+        <Spinner
+            android:id="@+id/info_profile_group"
+            android:layout_width="104dp"
+            android:layout_height="30dp"
+            android:spinnerMode="dropdown"
+            android:theme="@style/SpinnerTheme"
+            android:text="서울특별시"
+            android:background="@drawable/fragment_add_bottom_gray"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_name_et_warning"
+            app:layout_constraintStart_toStartOf="@+id/info_profile_name_et"/>
+
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/direct_group_select"
+            android:textSize="11sp"
+            android:layout_marginStart="11dp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="@+id/info_profile_group"
+            app:layout_constraintTop_toTopOf="@+id/info_profile_group"
+            app:layout_constraintBottom_toBottomOf="@+id/info_profile_group"/>-->
+
+        <TextView
+            android:id="@+id/info_profile_group_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/direct_warning_group"
+            android:textColor="@color/essential"
+            android:textSize="8sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_group"
+            app:layout_constraintStart_toStartOf="@+id/info_profile_group"/>
+
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/info_profile_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_address"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_group_warning"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/info_profile_address_tv_back"
+            android:layout_width="0dp"
+            android:layout_height="39dp"
+            android:background="@drawable/fragment_add_bottom_gray"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="34dp"
+            app:layout_constraintTop_toTopOf="@+id/info_profile_address"
+            app:layout_constraintBottom_toBottomOf="@+id/info_profile_address"
+            app:layout_constraintStart_toEndOf="@+id/info_profile_address"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/info_profile_address_tv1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/info_address1"
+                android:textSize="11sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/info_profile_address_change_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/direct_address_change"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="@color/direct_blue"
+                android:layout_marginEnd="6dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <EditText
+            android:id="@+id/info_profile_address_tv2"
+            android:layout_width="0dp"
+            android:layout_height="39dp"
+            android:hint="@string/direct_hint2"
+            android:textColorHint="@color/direct_hint_gray"
+            android:textSize="11sp"
+            android:paddingStart="11dp"
+            android:textColor="@color/black"
+            android:background="@drawable/fragment_add_bottom_gray"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="34dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_address_tv_back"
+            app:layout_constraintStart_toEndOf="@+id/info_profile_address"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/info_profile_phone"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_phone"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_address_tv2"/>
+
+
+        <EditText
+            android:id="@+id/info_profile_phone_et"
+            android:layout_width="0dp"
+            android:layout_height="39dp"
+            android:hint="@string/direct_hint3"
+            android:textColorHint="@color/direct_hint_gray"
+            android:textSize="11sp"
+            android:paddingStart="11dp"
+            android:text="010-1111-2222"
+            android:textColor="@color/black"
+            android:background="@drawable/fragment_add_bottom_gray"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="34dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toTopOf="@+id/info_profile_phone"
+            app:layout_constraintBottom_toBottomOf="@+id/info_profile_phone"
+            app:layout_constraintStart_toEndOf="@+id/info_profile_phone"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/info_profile_phone_et_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/direct_warning"
+            android:textColor="@color/essential"
+            android:textSize="8sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_phone_et"
+            app:layout_constraintStart_toStartOf="@+id/info_profile_phone_et"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_submit"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:text="@string/direct_check"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/fragment_add_bottom_purple"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

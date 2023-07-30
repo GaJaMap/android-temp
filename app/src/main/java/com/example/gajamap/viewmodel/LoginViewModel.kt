@@ -8,20 +8,21 @@ import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class LoginViewModel(private val tmp: String): ViewModel() {
 
     private val loginRepository = LoginRepository()
 
-    //var login = MutableLiveData<Boolean>(true)
     private val _login = MutableLiveData<LoginResponse>()
     val login : LiveData<LoginResponse>
         get() = _login
 
+
     fun postLogin(loginRequest: LoginRequest){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch  (Dispatchers.IO) {
             val response = loginRepository.postLogin(loginRequest)
-            Log.d("postLogin", "$response\n${response.code()}")
+            Log.d("postLogin", "${response}\n${response.code()}")
             if(response.isSuccessful){
                 _login.postValue(response.body())
                 val header = response.headers()

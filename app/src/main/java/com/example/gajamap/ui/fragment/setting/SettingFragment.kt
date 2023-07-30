@@ -2,23 +2,24 @@ package com.example.gajamap.ui.fragment.setting
 
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Phone
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentSettingBinding
-import com.example.gajamap.viewmodel.AddViewModel
-import com.example.gajamap.viewmodel.SettingViewModel
+import com.example.gajamap.viewmodel.ClientViewModel
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_setting) {
 
-    override val viewModel by viewModels<SettingViewModel> {
-        SettingViewModel.SettingViewModelFactory("tmp")
+    override val viewModel by viewModels<ClientViewModel> {
+        ClientViewModel.SettingViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {
@@ -28,6 +29,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
     }
 
     override fun onCreateAction() {
+
 
         //문의하기
         binding.settingInquireTv.setOnClickListener {

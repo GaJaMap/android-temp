@@ -91,4 +91,6 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         datalist = data
         notifyDataSetChanged()
     }
+
+
 }

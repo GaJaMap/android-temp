@@ -10,12 +10,14 @@
             type="com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.AddViewModel" />
+            type="com.example.gajamap.viewmodel.ClientViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top"

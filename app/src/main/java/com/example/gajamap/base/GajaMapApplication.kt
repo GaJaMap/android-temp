@@ -1,7 +1,11 @@
 package com.example.gajamap.base
 
 import android.app.Application
+import android.content.ContentUris
 import android.content.SharedPreferences
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import com.example.gajamap.BuildConfig
 
 import com.kakao.sdk.common.KakaoSdk
@@ -18,6 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.lang.reflect.Type
 import java.net.CookieManager
+import java.util.concurrent.TimeUnit
 
 class GajaMapApplication : Application() {
 
@@ -31,6 +36,7 @@ class GajaMapApplication : Application() {
 
         // Retrofit 인스턴스, 앱 실행시 한번만 생성하여 사용합니다.
         lateinit var sRetrofit: Retrofit
+
     }
 
     override fun onCreate() {
@@ -48,7 +54,12 @@ class GajaMapApplication : Application() {
         val builder = OkHttpClient().newBuilder()
         val okHttpClient = builder
             .cookieJar(JavaNetCookieJar(CookieManager()))
+            .readTimeout(10000, TimeUnit.MILLISECONDS)
+            .connectTimeout(10000, TimeUnit.MILLISECONDS)
+            // 로그캣에 okhttp.OkHttpClient로 검색하면 http 통신 내용을 보여줍니다.
+            //.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
+
 
         sRetrofit = Retrofit.Builder()
             .baseUrl(API_URL)
@@ -76,8 +87,7 @@ class GajaMapApplication : Application() {
         }
     }
 
-
-    private fun provideOkHttpClient(interceptor: AppInterceptor): OkHttpClient
+    /*private fun provideOkHttpClient(interceptor: AppInterceptor): OkHttpClient
             = OkHttpClient.Builder().run {
         addInterceptor(interceptor)
         build()
@@ -86,11 +96,16 @@ class GajaMapApplication : Application() {
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
-            val session = GajaMapApplication.prefs.getString("session","")
+            val session = "JSESSIONID=" + GajaMapApplication.prefs.getString("session","")
+            Log.d("application", session)
+            //val session = GajaMapApplication.prefs.getString("session","")
             val newRequest = request().newBuilder()
-                .addHeader("JSESSIONID", session)
+                .addHeader("Set-Cookie", session)
                 .build()
             proceed(newRequest)
         }
-    }
+
+    }*/
+    
+
 }

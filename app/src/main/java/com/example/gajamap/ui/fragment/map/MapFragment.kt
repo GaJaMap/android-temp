@@ -87,6 +87,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.mapView.setMapViewEventListener(this)
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
+
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             // gps 버튼 클릭 상태로 변경
@@ -192,6 +193,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
 
         binding.ibPlus.setOnClickListener{
+
             if (groupNum == 1){
                 // 그룹 삭제 dialog
                 val builder = AlertDialog.Builder(requireContext())
@@ -304,7 +306,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
+
                 binding.mapView.setMapCenterPoint(mapPoint, true)
+
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 // 버튼 잘 눌리는지 확인 필요
                 btn.setOnClickListener {
@@ -464,7 +468,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             override fun onResponse(call: Call<ResultSearchKeywordData>, response: Response<ResultSearchKeywordData>) {
                 if (response.isSuccessful){
                     // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
-                    binding.mapView.removePOIItem(marker)
+                    //binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
                     Log.d("LocationSearch", "success")
@@ -484,8 +488,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         if (!searchResult?.documents.isNullOrEmpty()) {
             // 검색 결과 있을 경우
             locationSearchList.clear()           // 리사이클러뷰 초기화
+
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             Log.d("locations", searchResult!!.documents.size.toString())
+
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
@@ -505,7 +511,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
-                binding.mapView.addPOIItem(point)
+                //binding.mapView.addPOIItem(point)
             }
             locationSearchAdapter.notifyDataSetChanged()
         } else {
@@ -587,7 +593,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     // 위치추적 시작
     private fun startTracking() {
-        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        //binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
 
     override fun onMapViewInitialized(p0: MapView?) {

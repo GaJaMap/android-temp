@@ -6,12 +6,13 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentAddBinding
-import com.example.gajamap.viewmodel.AddViewModel
+import com.example.gajamap.viewmodel.GetClientViewModel
+
 
 class AddFragment: BaseFragment<FragmentAddBinding>(R.layout.fragment_add) {
 
-    override val viewModel by viewModels<AddViewModel> {
-        AddViewModel.AddViewModelFactory("tmp")
+    override val viewModel by viewModels<GetClientViewModel> {
+        GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {
