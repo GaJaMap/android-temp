@@ -41,6 +41,7 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
 
@@ -99,9 +100,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             selectGallery()
         }
 
-        binding.topBackBtn.setOnClickListener {
-
-        }
     }
 
     // 이미지를 결과값으로 받는 변수
@@ -172,29 +170,27 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     private fun sendImage(clientImage: MultipartBody.Part){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
-            /*val clientName1 = binding.infoProfileNameEt.text
-            val clientName = RequestBody.create("text/plain".toMediaTypeOrNull(), clientName1.toString())
-            val groupId1 = "10"
-            val groupId = RequestBody.create("text/plain".toMediaTypeOrNull(), groupId1.toString())
+            val clientName1 = binding.infoProfileNameEt.text
+            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId1 = 10
+            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
-            val phoneNumber = RequestBody.create("text/plain".toMediaTypeOrNull(), phoneNumber1.toString())
-            val province1 = "서울시"
-            val province = RequestBody.create("text/plain".toMediaTypeOrNull(), province1.toString())
-            val city1 = "노원구"
-            val city = RequestBody.create("text/plain".toMediaTypeOrNull(), city1.toString())
-            val district1 = "부평대로 168"
-            val district = RequestBody.create("text/plain".toMediaTypeOrNull(), district1.toString())
+            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = "서울시 노원구 상상상상"
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = "2층 205호"
-            val detail = RequestBody.create("text/plain".toMediaTypeOrNull(), detail1.toString())
-            val latitude1 = "33.12345"
-            val latitude = RequestBody.create("text/plain".toMediaTypeOrNull(), latitude1)
-            val longitude1 = "127.7777"
-            val longitude = RequestBody.create("text/plain".toMediaTypeOrNull(), longitude1.toString())
+            val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude1 = 33.12345
+            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val longitude1 = 127.7777
+            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val isBasicImage1 = false
+            val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient(10, 78, clientName, groupId, phoneNumber, province, city, district, detail, latitude, longitude, clientImage)
+            viewModel.putClient(10, 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("edit", it.toString())
-            })*/
+            })
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
         }
 

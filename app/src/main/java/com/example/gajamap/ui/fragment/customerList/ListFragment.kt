@@ -15,7 +15,6 @@ import android.text.TextWatcher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +25,7 @@ import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.data.model.GetGroupAllClientResponse
 import com.example.gajamap.data.model.GetGroupClientResponse
+import com.example.gajamap.data.model.GetRadiusResponse
 import com.example.gajamap.databinding.FragmentListBinding
 import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
@@ -35,8 +35,14 @@ import com.example.gajamap.viewmodel.GetClientViewModel
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
     var searchList : Array<String> = emptyArray()
+    private var radius = 0
 
-    private val ACCESS_FINE_LOCATION = 1000   // Request Code
+    private val ACCESS_FINE_LOCATION = 1000
+
+    private var cate1 = false
+    private var cate2 = false
+    private val cate3 = false
+    // Request Code
 
     //더미데이터
     /*private var customerList: ArrayList<Customer> = arrayListOf(
@@ -56,15 +62,120 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
     override fun onCreateAction() {
-        //거리순, 최신순, 거리순 클릭하면
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
-        viewModel.getAllClient()
-        viewModel.getAllClient.observe(this, Observer {
-            ListRv(it)
-        })
+        val groupIdLogin = GajaMapApplication.prefs.getString("groupIdLogin", "")
+        if(groupIdLogin != null){
+            viewModel.getAllClient()
+            viewModel.getAllClient.observe(this, Observer {
+                ListRv(it)
+            })
+        }
+        else {
+            viewModel.getGroupAllClient(groupIdLogin)
+            viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
+                GroupClientSearchRV(it)
+            })
+        }
+
+        binding.fragmentEditBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, EditListFragment()).addToBackStack(null).commit()
+        }
+
+        //최신순은 보라색으로 시작
+        binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
+        binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+        binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+        binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+
+        //반경 스피너
+        val itemList = listOf("반경", "3KM", "5KM")
+        val adapterRadius = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
+        binding.radiusSpinner.adapter = adapterRadius
+        adapterRadius.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.radiusSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if(position != 0){
+                    binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+                    binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+                    binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+                    binding.radiusSpinner.setBackgroundResource(R.drawable.list_distance_purple)
+                }
+
+                if(position == 1){
+                    radius = 3000
+                }
+                if(position == 2){
+                    radius = 5000
+                }
+
+                binding.etSearch.addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(p0: Editable?) {
+                        //입력이 끝날 때 작동됩니다.
+                        if(position == 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+
+                        }
+                        if(position != 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.groupNameRadius(10, searchName.toString(), radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+                        }
+                    }
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        //입력 하기 전에 작동됩니다.
+                        if(position == 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.allRadius( radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.allRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+
+                        }
+                        if(position != 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.groupRadius(10, radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.groupRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+                        }
+
+                    }
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
+                        if(position == 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+
+                        }
+                        if(position != 0){
+                            val searchName = binding.etSearch.text
+                            viewModel.groupNameRadius(10, searchName.toString(), radius.toDouble(), 33.12345, 127.7777)
+                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
+                                listRadius(it)
+                            })
+                        }
+                    }
+                })
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+        }
 
         // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
+        //그룹 스피너
         searchList = searchList.plus("전체")
         searchList = searchList.plus("서울특별시 고객들")
         val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, searchList)
@@ -85,7 +196,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                         }
                         if(position != 0){
                             val searchName = binding.etSearch.text
-                            viewModel.getGroupAllClientName(searchName.toString(), 12)
+                            viewModel.getGroupAllClientName(searchName.toString(), 10)
                             viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
                                 GroupClientSearchRV(it)
                             })
@@ -94,7 +205,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                         //입력 하기 전에 작동됩니다.
                         if(position == 0){
-                            viewModel.getGroupAllClient(12)
+                            viewModel.getGroupAllClient(10)
                             viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
                                 GroupClientSearchRV(it)
                             })
@@ -112,7 +223,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                         }
                         if(position != 0){
                             val searchName = binding.etSearch.text
-                            viewModel.getGroupAllClientName(searchName.toString(), 12)
+                            viewModel.getGroupAllClientName(searchName.toString(), 10)
                             viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
                                 GroupClientSearchRV(it)
                             })
@@ -128,9 +239,26 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
             }
         }
+
+        //최신순
+        /*binding.fragmentListCategory1.setOnClickListener {
+
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
+        }
+        //오래된순
+        binding.fragmentListCategory2.setOnClickListener {
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
+        }*/
         //GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
+            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
@@ -210,12 +338,75 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
     }
 
+    fun listRadius(it : GetRadiusResponse){
+        //고객 리스트
+        val customerListAdapter = CustomerListAdapter(it.clients)
+        binding.listRv.apply {
+            adapter = customerListAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        binding.fragmentListCategory1.setOnClickListener {view->
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
+            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            customerListAdapter.updateData(it.clients)
+        }
+        binding.fragmentListCategory2.setOnClickListener {view->
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
+            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            val reversedList = it.clients.reversed()
+            customerListAdapter.updateData(reversedList)
+        }
+
+        //리사이클러뷰 클릭
+        customerListAdapter.setOnItemClickListener(object :
+            CustomerListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val name = it.clients[position].clientName
+                val address1 = it.clients[position].address.mainAddress
+                val address2 = it.clients[position].address.detail
+                val phone = it.clients[position].phoneNumber
+                val latitude = it.clients[position].location.latitude
+                val longitude = it.clients[position].location.longitude
+                GajaMapApplication.prefs.setString("name", name)
+                GajaMapApplication.prefs.setString("address1", address1)
+                GajaMapApplication.prefs.setString("address2", address2)
+                GajaMapApplication.prefs.setString("phone", phone)
+                GajaMapApplication.prefs.setString("latitude", latitude.toString())
+                GajaMapApplication.prefs.setString("longitude", longitude.toString())
+
+
+                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            }
+        })
+    }
+
     fun ListRv(it : GetAllClientResponse){
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
             adapter = customerListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        binding.fragmentListCategory1.setOnClickListener {view->
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
+            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            customerListAdapter.updateData(it.clients)
+        }
+        binding.fragmentListCategory2.setOnClickListener {view->
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
+            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            val reversedList = it.clients.reversed()
+            customerListAdapter.updateData(reversedList)
         }
 
         //리사이클러뷰 클릭
@@ -243,11 +434,26 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
 
     fun GroupClientSearchRV(it : GetGroupAllClientResponse){
+
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
             adapter = customerListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        binding.fragmentListCategory1.setOnClickListener {view->
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
+            customerListAdapter.updateData(it.clients)
+        }
+        binding.fragmentListCategory2.setOnClickListener {view->
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
+            val reversedList = it.clients.reversed()
+            customerListAdapter.updateData(reversedList)
         }
 
         //리사이클러뷰 클릭

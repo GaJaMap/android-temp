@@ -1,33 +1,53 @@
 package com.example.gajamap.ui.adapter
 
+import android.annotation.SuppressLint
+import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.okhttp3.OkHttpStreamFetcher
+import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
 import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ItemListBinding
+import com.example.gajamap.base.path2uri
+import okhttp3.OkHttpClient
 import java.net.URL
 
-class CustomerListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
+class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemListBinding):
             RecyclerView.ViewHolder(binding.root){
                 fun bind(data: Client){
-                    val text1 = data.address.province
-                    val text2 = data.address.city
-                    val address = "$text1 $text2"
+                    val address = data.address.mainAddress
                     val distance = data.distance.toString()
                     val distance1 = distance + "km"
-                    val filePath = getImageUrl(data.image.filePath)
-                    Glide.with(binding.itemProfileImg.context)
-                        .load(R.drawable.profile_img_origin)
-                        .fitCenter()
-                        .apply(RequestOptions().override(500,500))
-                        .into(binding.itemProfileImg)
+                    val file = data.image.filePath
+                    if(file != null){
+                        val filePath = getImageUrl(data.image.filePath)
+                        Glide.with(binding.itemProfileImg.context)
+                            .load(filePath)
+                            .fitCenter()
+                            .apply(RequestOptions().override(500,500))
+                            .error(R.drawable.profile_img_origin)
+                            .into(binding.itemProfileImg)
+                    }
+                    else{
+                        Glide.with(binding.itemProfileImg.context)
+                            .load(R.drawable.profile_img_origin)
+                            .fitCenter()
+                            .apply(RequestOptions().override(500,500))
+                            .error(R.drawable.profile_img_origin)
+                            .into(binding.itemProfileImg)
+                    }
                     binding.itemProfileAddressDetail.text = address
                     binding.itemProfileName.text = data.clientName
                     binding.itemProfilePhoneDetail.text = data.phoneNumber
@@ -65,8 +85,18 @@ class CustomerListAdapter(private val dataList: List<Client>): RecyclerView.Adap
 
 
     fun getImageUrl(imageName: String): String {
-        val filePath = "/path/to/images/demi-tasse@hanmail.net/$imageName"
-        val url = URL("file://$filePath")
+        Log.d("img", imageName)
+        /*val filePath = "/path/to/images/$imageName"
+        val url = URL("file://$filePath")*/
+        val url = "content://media/external/images/$imageName"
+        //val url = URL("content://media/external/images/$imageName")
+
         return url.toString()
+
+    }
+
+    fun updateData(newDataList: List<Client>) {
+        dataList = newDataList
+        notifyDataSetChanged()
     }
 }
