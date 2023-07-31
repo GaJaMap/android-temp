@@ -38,21 +38,20 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     fun putClient(groupid : Int, client : Int, clientName: RequestBody,
                   groupId : RequestBody,
                   phoneNumber : RequestBody,
-                  province : RequestBody,
-                  city : RequestBody,
-                  district : RequestBody,
+                  mainAddress : RequestBody,
                   detail : RequestBody,
                   latitude : RequestBody,
                   longitude : RequestBody,
-                  clientImage : MultipartBody.Part?) {
+                  clientImage : MultipartBody.Part?,
+                  isBasicImage : RequestBody) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = clientRepository.putClient(groupid, client, clientName,groupId,phoneNumber,province, city, district, detail, latitude, longitude, clientImage)
+            val response = clientRepository.putClient(groupid, client, clientName,groupId,phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             Log.d("putClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _putClient.postValue(response.body())
                 Log.d("putClientSuccess", "${response.body()}")
             }else {
-                Log.d("putClientError", "putClient : ${response.message()}")
+                Log.d("putClientError", "putClient : ${response.errorBody()}")
             }
         }
     }
@@ -74,21 +73,20 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     fun postClient(clientName: RequestBody,
                    groupId : RequestBody,
                    phoneNumber : RequestBody,
-                   province : RequestBody,
-                   city : RequestBody,
-                   district : RequestBody,
+                   mainAddress : RequestBody,
                    detail : RequestBody,
                    latitude : RequestBody,
                    longitude : RequestBody,
-                   clientImage : MultipartBody.Part?){
+                   clientImage : MultipartBody.Part?,
+                   isBasicImage : RequestBody){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = clientRepository.postClient(clientName,groupId,phoneNumber,province, city, district, detail, latitude, longitude, clientImage)
+            val response = clientRepository.postClient(clientName,groupId,phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             Log.d("postClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _postClient.postValue(response)
                 Log.d("postClientSuccess", "${response.body()}")
             }else {
-                Log.d("postClientError", "postClient : ${response.message()}")
+                Log.d("postClientError", "postClient : ${response.errorBody()}")
             }
         }
     }

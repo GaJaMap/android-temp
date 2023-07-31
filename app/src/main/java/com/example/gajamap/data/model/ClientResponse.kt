@@ -11,7 +11,7 @@ data class PostClientRequest(
 )
 
 data class PostKakaoPhoneRequest(
-    val clients: List<Clients>,
+    val clients: MutableList<Clients?>,
     val groupId: Int
 )
 
@@ -32,4 +32,8 @@ data class PutClientRequest(
     val location: Location,
     val phoneNumber: String,
     val isBasicImage : Boolean
+)
+
+data class DeleteRequest(
+    val clientIds : List<Int>
 )

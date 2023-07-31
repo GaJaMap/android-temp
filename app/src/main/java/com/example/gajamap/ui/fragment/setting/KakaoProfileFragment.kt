@@ -2,24 +2,26 @@ package com.example.gajamap.ui.fragment.setting
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.data.model.Clients
+import com.example.gajamap.data.model.PostKakaoPhoneRequest
 import com.example.gajamap.databinding.FragmentKakaoProfileBinding
 import com.example.gajamap.ui.adapter.KakaoFriendAdapter
 import com.example.gajamap.viewmodel.ClientViewModel
-import com.kakao.sdk.auth.AuthCodeIntentFactory.talk
 import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.fragment_kakao_profile){
+
+    // 선택된 클라이언트들을 저장하기 위한 리스트
+    private var selectedClients: MutableList<Clients?> = mutableListOf()
 
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
@@ -33,9 +35,6 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
     override fun onCreateAction() {
 
-        binding.btnSubmit.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
-        }
         binding.topBackBtn.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
         }
@@ -95,6 +94,8 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                 //Log.i("kakaoprofile", "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
                 Log.i("kakaoprofile", "$friends")
 
+                Log.d("phonekakao", friends.elements.toString())
+
                 //카카오 친구목록 리사이클러뷰
                 val kakaoFriendAdapter = friends.elements?.let { KakaoFriendAdapter(it) }
                 binding.phoneListRv.apply {
@@ -103,8 +104,54 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                     addItemDecoration(PhoneListVerticalItemDecoration())
                 }
 
+                //전체선택
+                binding.settingPhoneCheckEvery.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        selectedClients.addAll(friends.elements?.map {
+                            it.profileNickname?.let { it1 -> Clients(it1, "010-1111-1111") }
+                        } ?: emptyList())
+                    }
+                    else {
+                        selectedClients.clear()
+                    }
+                    kakaoFriendAdapter?.setAllItemsChecked(isChecked)
+                }
+
+                kakaoFriendAdapter?.setOnItemClickListener(object :
+                    KakaoFriendAdapter.OnItemClickListener{
+                    override fun onClick(v: View, position: Int) {
+                        // 아이템 클릭시 해당 아이템의 선택 여부를 토글하고 선택된 클라이언트 리스트 업데이트
+                        val item = friends.elements?.get(position)
+                        Log.d("selectItem", item.toString())
+                        item?.let {
+                            if (kakaoFriendAdapter.isChecked(position)) {
+                                it.profileNickname?.let { nickname ->
+                                    selectedClients.add(Clients(nickname, "010-1111-1111"))
+                                }
+                            } else {
+                                it.profileNickname?.let { nickname ->
+                                    selectedClients.remove(Clients(nickname, "010-1111-1111"))
+                                }
+                            }
+                        }
+                        /*val item = friends.elements?.get(position)
+                        item?.let {
+                            selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
+                        }*/
+                    }
+                })
+
 
             }
+        }
+
+        binding.btnSubmit.setOnClickListener {
+            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, 10))
+            Log.d("select", selectedClients.toString())
+            viewModel.postKakaoPhoneClient.observe(this, Observer {
+
+            })
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
         }
 
 

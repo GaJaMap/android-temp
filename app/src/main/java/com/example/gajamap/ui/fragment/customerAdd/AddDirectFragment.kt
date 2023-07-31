@@ -36,6 +36,7 @@ import com.example.gajamap.viewmodel.GetClientViewModel
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragment_add_direct) {
@@ -51,6 +52,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
     }
     var imageFile : File? = null
     private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
+    private var isCamera = false
 
     companion object {
         // 갤러리 권한 요청
@@ -83,7 +85,12 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
 
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
+            isCamera = true
         }
+        if(!isCamera){
+            sendImage1()
+        }
+
         chkInputData()
         onContentAdd()
 
@@ -94,6 +101,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
                 .replace(R.id.nav_fl, mapFragment)
                 .commitNow()
         }
+
     }
 
     // 필수 입력사항에 값이 변경될 때 확인 버튼 활성화 시킬 함수 호출
@@ -127,6 +135,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         if (result.resultCode == Activity.RESULT_OK){
             // 이미지를 받으면 ImageView에 적용
             val imageUri = result.data?.data
+            Log.d("imgUrl", imageUri.toString())
             imageUri?.let{
                 // 서버 업로드를 위해 파일 형태로 변환
                 val file = File(getRealPathFromURI(it))
@@ -187,30 +196,57 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
     private fun sendImage(clientImage: MultipartBody.Part){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
-            /*val clientName1 = binding.infoProfileNameEt.text
-            val clientName = RequestBody.create("text/plain".toMediaTypeOrNull(), clientName1.toString())
-            val groupId1 = "10"
-            val groupId = RequestBody.create("text/plain".toMediaTypeOrNull(), groupId1.toString())
+            val clientName1 = binding.infoProfileNameEt.text
+            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId1 = 10
+            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
-            val phoneNumber = RequestBody.create("text/plain".toMediaTypeOrNull(), phoneNumber1.toString())
-            val province1 = "서울시"
-            val province = RequestBody.create("text/plain".toMediaTypeOrNull(), province1.toString())
-            val city1 = "노원구"
-            val city = RequestBody.create("text/plain".toMediaTypeOrNull(), city1.toString())
-            val district1 = "부평대로 168"
-            val district = RequestBody.create("text/plain".toMediaTypeOrNull(), district1.toString())
+            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = "서울시 노원구 상상상상"
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = "2층 205호"
-            val detail = RequestBody.create("text/plain".toMediaTypeOrNull(), detail1.toString())
-            val latitude1 = "33.12345"
-            val latitude = RequestBody.create("text/plain".toMediaTypeOrNull(), latitude1)
-            val longitude1 = "127.7777"
-            val longitude = RequestBody.create("text/plain".toMediaTypeOrNull(), longitude1.toString())
+            val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude1 = 33.12345
+            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val longitude1 = 127.7777
+            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val isBasicImage1 = false
+            val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.postClient( clientName, groupId, phoneNumber, province, city, district, detail, latitude, longitude, clientImage)
+            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.postClient.observe(viewLifecycleOwner, Observer {
                 Log.d("postAddDirect", it.body().toString())
-            })*/
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).addToBackStack(null).commit()
+            })
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+        }
+
+    }
+
+    private fun sendImage1(){
+        //확인 버튼
+        binding.btnSubmit.setOnClickListener {
+            val clientName1 = binding.infoProfileNameEt.text
+            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId1 = 10
+            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumber1 = binding.infoProfilePhoneEt.text
+            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = "서울시 노원구 상상상상"
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val detail1 = "2층 205호"
+            val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude1 = 33.12345
+            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val longitude1 = 127.7777
+            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val isBasicImage1 = true
+            val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+            viewModel.postClient.observe(viewLifecycleOwner, Observer {
+                Log.d("postAddDirect", it.body().toString())
+            })
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }

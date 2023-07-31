@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.LoginRequest
 import com.example.gajamap.databinding.ActivityLoginBinding
 import com.example.gajamap.databinding.ActivityMainBinding
@@ -82,6 +83,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         viewModel.login.observe(this, Observer {
 
+            GajaMapApplication.prefs.setString("groupIdLogin", it.groupId.toString())
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
