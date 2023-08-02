@@ -17,9 +17,7 @@ class CustomerListAdapter(private val dataList: List<Client>): RecyclerView.Adap
     inner class ViewHolder(private val binding: ItemListBinding):
             RecyclerView.ViewHolder(binding.root){
                 fun bind(data: Client){
-                    val text1 = data.address.province
-                    val text2 = data.address.city
-                    val address = "$text1 $text2"
+                    val address = data.address.mainAddress
                     val distance = data.distance.toString()
                     val distance1 = distance + "km"
                     val filePath = getImageUrl(data.image.filePath)
