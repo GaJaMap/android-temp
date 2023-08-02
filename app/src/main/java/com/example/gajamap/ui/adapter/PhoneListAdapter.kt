@@ -9,10 +9,19 @@ import com.example.gajamap.ui.fragment.setting.ContactsData
 
 class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
 
+    private val checkedPositions = mutableSetOf<Int>()
     inner class ViewHolder(private val binding: ItemPhoneBinding):
             RecyclerView.ViewHolder(binding.root){
                 fun bind(data : ContactsData){
                     binding.itemPhoneTv.text = data.name
+                    binding.itemPhoneTv.isChecked = checkedPositions.contains(absoluteAdapterPosition)
+                    binding.itemPhoneTv.setOnClickListener {
+                        if(binding.itemPhoneTv.isChecked){
+                            checkedPositions.add(absoluteAdapterPosition)
+                        }else {
+                            checkedPositions.remove(absoluteAdapterPosition)
+                        }
+                    }
                 }
             }
 
@@ -28,12 +37,12 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(dataList[position])
 
-        /*holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener{
             itemClickListener.onClick(it, position)
-        }*/
+        }
     }
 
-    /*interface OnItemClickListener {
+    interface OnItemClickListener {
         fun onClick(v: View, position: Int)
     }
 
@@ -41,5 +50,18 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
         this.itemClickListener = onItemClickListener
     }
 
-    private lateinit var itemClickListener : OnItemClickListener*/
+    private lateinit var itemClickListener : OnItemClickListener
+
+    fun setAllItemsChecked(checked: Boolean) {
+        if (checked) {
+            checkedPositions.addAll(dataList.indices)
+        } else {
+            checkedPositions.clear()
+        }
+        notifyDataSetChanged()
+    }
+
+    fun isChecked(position: Int): Boolean {
+        return checkedPositions.contains(position)
+    }
 }

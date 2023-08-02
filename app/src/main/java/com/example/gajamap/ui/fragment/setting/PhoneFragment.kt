@@ -16,11 +16,20 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.databinding.FragmentPhoneBinding
 import android.provider.Settings
+import android.util.Log
+import android.view.View
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.gajamap.data.model.Clients
+import com.example.gajamap.data.model.PostKakaoPhoneRequest
+import com.example.gajamap.ui.adapter.KakaoFriendAdapter
 import com.example.gajamap.ui.adapter.PhoneListAdapter
 import com.example.gajamap.viewmodel.ClientViewModel
 
 class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone) {
+
+    // 선택된 클라이언트들을 저장하기 위한 리스트
+    private var selectedClients: MutableList<Clients?> = mutableListOf()
 
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
@@ -84,6 +93,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             contactsList = list
             setContacts()
         }
+        Log.d("phonekakao", contactsList.toString())
     }
 
     // 연락처 리사이클러뷰
@@ -93,6 +103,52 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             adapter = phoneListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             addItemDecoration(PhoneListVerticalItemDecoration())
+        }
+
+        //전체선택
+        binding.settingPhoneCheckEvery.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                selectedClients.addAll(contactsList.map {
+                    Clients(it.name, it.number)
+                } ?: emptyList())
+            }
+            else {
+                selectedClients.clear()
+            }
+            phoneListAdapter?.setAllItemsChecked(isChecked)
+        }
+
+        phoneListAdapter?.setOnItemClickListener(object :
+            PhoneListAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                // 아이템 클릭시 해당 아이템의 선택 여부를 토글하고 선택된 클라이언트 리스트 업데이트
+                val item = contactsList[position]
+                Log.d("selectItem", item.toString())
+                item.let {
+                    if (phoneListAdapter!!.isChecked(position)) {
+                        it.name.let { nickname ->
+                            selectedClients.add(Clients(nickname, it.number))
+                        }
+                    } else {
+                        it.name.let { nickname ->
+                            selectedClients.remove(Clients(nickname, it.number))
+                        }
+                    }
+                }
+                /*val item = friends.elements?.get(position)
+                item?.let {
+                    selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
+                }*/
+            }
+        })
+
+        binding.btnSubmit.setOnClickListener {
+            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, 10))
+            Log.d("select", selectedClients.toString())
+            viewModel.postKakaoPhoneClient.observe(this, Observer {
+
+            })
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
         }
     }
 

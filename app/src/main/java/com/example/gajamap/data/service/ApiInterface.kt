@@ -1,6 +1,7 @@
 package com.example.gajamap.data.service
 
 import com.example.gajamap.data.model.*
+import com.example.gajamap.data.response.CheckGroupResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -27,7 +28,7 @@ interface ApiInterface {
 
     //특정 그룹내에 고객 전부 조회 -> 이름 검색
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClientName(@Query("wordCond")wordCond : String, @Path("groupId")groupId : Int) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClientName(@Path("groupId")groupId : Int, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
 
 
     //특정 그룹내에 고객
@@ -37,16 +38,15 @@ interface ApiInterface {
     //고객 등록
     @Multipart
     @POST("/api/clients")
-    suspend fun postClient(@Part clientName: RequestBody,
-                           @Part groupId : RequestBody,
-                           @Part phoneNumber : RequestBody,
-                           @Part province : RequestBody,
-                           @Part city : RequestBody,
-                           @Part district : RequestBody,
-                           @Part detail : RequestBody,
-                           @Part latitude : RequestBody,
-                           @Part longitude : RequestBody,
-                           @Part clientImage : MultipartBody.Part?
+    suspend fun postClient(@Part("clientName")clientName: RequestBody,
+                           @Part("groupId") groupId : RequestBody,
+                           @Part("phoneNumber") phoneNumber : RequestBody,
+                           @Part("mainAddress") mainAddress : RequestBody,
+                           @Part("detail") detail : RequestBody,
+                           @Part("latitude") latitude : RequestBody,
+                           @Part("longitude") longitude : RequestBody,
+                           @Part clientImage : MultipartBody.Part?,
+                           @Part("isBasicImage") isBasicImage : RequestBody
     ) : Response<Int>
 
     //카카오, 전화번호부 데이터 등록
@@ -62,15 +62,40 @@ interface ApiInterface {
     @PUT("/api/group/{groupId}/clients/{clientId}")
     suspend fun putClient(
         @Path("groupid")groupid : Int, @Path("clientId")clientId: Int,
-        @Part clientName: RequestBody,
-        @Part groupId : RequestBody,
-        @Part phoneNumber : RequestBody,
-        @Part province : RequestBody,
-        @Part city : RequestBody,
-        @Part district : RequestBody,
-        @Part detail : RequestBody,
-        @Part latitude : RequestBody,
-        @Part longitude : RequestBody,
-        @Part clientImage : MultipartBody.Part?
+        @Part("clientName") clientName: RequestBody,
+        @Part("groupId") groupId : RequestBody,
+        @Part("phoneNumber") phoneNumber : RequestBody,
+        @Part("mainAddress") mainAddress : RequestBody,
+        @Part("detail") detail : RequestBody,
+        @Part("latitude") latitude : RequestBody,
+        @Part("longitude") longitude : RequestBody,
+        @Part clientImage : MultipartBody.Part?,
+        @Part("isBasicImage") isBasicImage : RequestBody
     ): Response<BaseResponse>
+
+
+    // 다수 고객 삭제
+    @DELETE("/api/group/{groupId}/clients/bulk")
+    suspend fun deleteAnyClient(@Path("groupId")groupId : Int, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
+
+
+    // 전체 고객 반경 검색 - 이름
+    @GET("/api/clients/nearby")
+    suspend fun allNameRadius(@Query("wordCond")wordCond: String, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+
+    // 전체 고객 반경 검색
+    @GET("/api/clients/nearby")
+    suspend fun allRadius(@Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+
+    //특정 그룹내에 고객 반경 검색 - 이름
+    @GET("/api/group/{groupId}/clients/nearby")
+    suspend fun groupNameRadius(@Path("groupId") groupId : Int, @Query("wordCond")wordCond: String, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+
+    //특정 그룹내에 고객 반경 검색 - 이름
+    @GET("/api/group/{groupId}/clients/nearby")
+    suspend fun groupRadius(@Path("groupId") groupId : Int, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+
+    // 그룹 조회
+    @GET("/api/group/?page=0")
+    suspend fun checkGroup() : Response<CheckGroupResponse>
 }

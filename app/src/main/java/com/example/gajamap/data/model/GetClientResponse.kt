@@ -26,7 +26,7 @@ data class GetAllClientResponse(
     val clients: List<Client>
 )
 
-data class Client(
+data class ClientOne(
     val address: Address,
     val clientId: Int,
     val clientName: String,
@@ -37,7 +37,23 @@ data class Client(
     val phoneNumber: String
 )
 
+data class Client(
+    val address: Address,
+    val clientId: Int,
+    val clientName: String,
+    val distance: Int,
+    val groupInfo: GroupInfo,
+    val image: Image,
+    val location: Location,
+    val phoneNumber: String,
+    val imageUrlPrefix : String
+)
+
 
 data class GetGroupAllClientResponse(
+    val clients: List<Client>
+)
+
+data class GetRadiusResponse(
     val clients: List<Client>
 )

@@ -2,10 +2,7 @@ package com.example.gajamap.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.gajamap.data.model.BaseResponse
-import com.example.gajamap.data.model.GetAllClientResponse
-import com.example.gajamap.data.model.GetGroupAllClientResponse
-import com.example.gajamap.data.model.GetGroupClientResponse
+import com.example.gajamap.data.model.*
 import com.example.gajamap.data.repository.GetClientRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +36,26 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     val deleteClient : LiveData<BaseResponse>
         get() = _deleteClient
 
+    private val _deleteAnyClient = MutableLiveData<BaseResponse>()
+    val deleteAnyClient : LiveData<BaseResponse>
+        get() = _deleteAnyClient
+
+    private val _allNameRadius = MutableLiveData<GetRadiusResponse>()
+    val allNameRadius : LiveData<GetRadiusResponse>
+    get() = _allNameRadius
+
+    private val _allRadius = MutableLiveData<GetRadiusResponse>()
+    val allRadius : LiveData<GetRadiusResponse>
+    get() = _allRadius
+
+    private val _groupNameRadius = MutableLiveData<GetRadiusResponse>()
+    val groupNameRadius : LiveData<GetRadiusResponse>
+    get() = _groupNameRadius
+
+    private val _groupRadius = MutableLiveData<GetRadiusResponse>()
+    val groupRadius : LiveData<GetRadiusResponse>
+    get() = _groupRadius
+
 
     fun deleteClient(groupId : Int, client : Int){
         viewModelScope.launch(Dispatchers.IO) {
@@ -49,6 +66,19 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("deleteClientSuccess", "${response.body()}")
             }else {
                 Log.d("deleteClientError", "deleteClient : ${response.message()}")
+            }
+        }
+    }
+
+    fun deleteAnyClient(groupId : Int, deleteRequest: DeleteRequest){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.deleteAnyClient(groupId, deleteRequest)
+            Log.d("deleteAnyClient", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _deleteAnyClient.postValue(response.body())
+                Log.d("deleteAnyClientSuccess", "${response.body()}")
+            }else {
+                Log.d("deleteAnyClientError", "deleteAnyClient : ${response.message()}")
             }
         }
     }
@@ -94,7 +124,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
 
     fun getGroupAllClientName(wordCond : String, groupId : Int){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getGroupAllClientName(wordCond, groupId)
+            val response = getClientRepository.getGroupAllClientName(groupId, wordCond)
             Log.d("getGroupAllClientName", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
                 _getGroupAllClientName.postValue(response.body())
@@ -118,6 +148,61 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
+    //전체 반경 - 이름
+    fun allNameRadius(wordCond : String, radius: Double, latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO){
+            val response = getClientRepository.allNameRadius(wordCond,radius,latitude,longitude)
+            Log.d("allNameRadius", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _allNameRadius.postValue(response.body())
+                Log.d("allNameRadiusSuccess", "${response.body()}")
+            }else {
+                Log.d("allNameRadiusError", "allNameRadius : ${response.message()}")
+            }
+        }
+    }
+
+    //전체 반경
+    fun allRadius(radius: Double, latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO){
+            val response = getClientRepository.allRadius(radius,latitude,longitude)
+            Log.d("allRadius", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _allRadius.postValue(response.body())
+                Log.d("allRadiusSuccess", "${response.body()}")
+            }else {
+                Log.d("allRadiusError", "allRadius : ${response.message()}")
+            }
+        }
+    }
+
+    //특정 그룹 반경 - 이름
+    fun groupNameRadius(groupId : Int, wordCond : String, radius: Double, latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO){
+            val response = getClientRepository.groupNameRadius(groupId,wordCond,radius,latitude,longitude)
+            Log.d("groupNameRadius", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _groupNameRadius.postValue(response.body())
+                Log.d("groupNameRadiusSuccess", "${response.body()}")
+            }else {
+                Log.d("groupNameRadiusError", "groupNameRadius : ${response.message()}")
+            }
+        }
+    }
+
+    //특정 그룹 반경
+    fun groupRadius(groupId : Int, radius: Double, latitude: Double, longitude: Double){
+        viewModelScope.launch(Dispatchers.IO){
+            val response = getClientRepository.groupRadius(groupId,radius,latitude,longitude)
+            Log.d("groupRadius", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _groupRadius.postValue(response.body())
+                Log.d("groupRadiusSuccess", "${response.body()}")
+            }else {
+                Log.d("groupRadiusError", "groupRadius : ${response.message()}")
+            }
+        }
+    }
 
     class AddViewModelFactory(private val tmp: String)
         : ViewModelProvider.Factory {
