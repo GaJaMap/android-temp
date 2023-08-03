@@ -198,7 +198,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
 
         binding.ibPlus.setOnClickListener{
-
             if (groupNum == 1){
                 // 그룹 삭제 dialog
                 val builder = AlertDialog.Builder(requireContext())
@@ -473,7 +472,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             override fun onResponse(call: Call<ResultSearchKeywordData>, response: Response<ResultSearchKeywordData>) {
                 if (response.isSuccessful){
                     // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
-                    //binding.mapView.removePOIItem(marker)
+                    binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
                     Log.d("LocationSearch", "success")
@@ -516,7 +515,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
-                //binding.mapView.addPOIItem(point)
+                binding.mapView.addPOIItem(point)
             }
             locationSearchAdapter.notifyDataSetChanged()
         } else {
@@ -598,7 +597,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     // 위치추적 시작
     private fun startTracking() {
-        //binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
@@ -614,7 +613,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {
     }
 
+    // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
+        binding.clCardview.visibility = View.GONE
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -637,7 +638,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     }
 
+    // 마커 클릭 시 호출되는 콜백 메서드
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
+        binding.clCardview.visibility = View.VISIBLE
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
