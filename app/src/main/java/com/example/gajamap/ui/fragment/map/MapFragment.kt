@@ -73,6 +73,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var threeCheck = false
     var fiveCheck = false
     var groupNum = 0
+    var countBottomGPS = 0
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -108,6 +109,42 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 // GPS가 꺼져있을 경우
                 Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // 지도에 직접 위치 추가하기 클릭시 보이는 GPS 버튼에 대한 위치 권한 설정
+        binding.ibBottomGps.setOnClickListener {
+            // gps 버튼 클릭 상태로 변경
+            // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+            val bgShape = binding.ibBottomGps.background as GradientDrawable
+            if (countBottomGPS % 2 == 0){
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
+
+                if (checkLocationService()) {
+                    binding.tvLocationAddress.text = "내 위치 검색중..."
+                    // GPS가 켜져있을 경우
+                    val a = permissionCheck()
+
+                    binding.mapView.removePOIItem(marker)
+                    // 지도에서 직접 추가하기 마커 위치
+                    marker = MapPOIItem()
+                    marker.itemName = "Marker"
+                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(a.first, a.second)
+                    marker.markerType = MapPOIItem.MarkerType.RedPin
+                    binding.mapView.addPOIItem(marker)
+                    val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+                    mapGeoCoder.startFindingAddress()
+                    markerCheck = true
+                } else {
+                    // GPS가 꺼져있을 경우
+                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+                bgShape.setColor(resources.getColor(R.color.white))
+                binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
+            }
+            countBottomGPS += 1
         }
 
         // groupListAdapter를 우선적으로 초기화해줘야 함
@@ -172,6 +209,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val addDialog = mBuilder.create()
                 addDialog.setView(mDialogView.root)
                 addDialog.show()
+
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
@@ -270,6 +308,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                     }
                 }
+
                 binding.btn5km.setOnClickListener {
                     if(threeCheck){
                         binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
@@ -312,7 +351,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
-
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 // 버튼 잘 눌리는지 확인 필요
                 btn.setOnClickListener {
@@ -606,7 +644,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 지도에 직접 추가하기 부분 기능들 구현
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
-            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
         }
     }
 
