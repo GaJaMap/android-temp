@@ -75,7 +75,7 @@ interface ApiInterface {
 
 
     // 다수 고객 삭제
-    @DELETE("/api/group/{groupId}/clients/bulk")
+    @POST("/api/group/{groupId}/clients/bulk")
     suspend fun deleteAnyClient(@Path("groupId")groupId : Int, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
 
 
@@ -97,5 +97,13 @@ interface ApiInterface {
 
     // 그룹 조회
     @GET("/api/group/?page=0")
-    suspend fun checkGroup() : Response<CheckGroupResponse>
+    suspend fun checkGroup() : Response<GroupResponse>
+
+    //로그아웃 요청
+    @POST("/api/user/logout")
+    suspend fun logout() : Response<BaseResponse>
+
+    //회원탈퇴
+    @DELETE("/api/user")
+    suspend fun withdraw() : Response<BaseResponse>
 }

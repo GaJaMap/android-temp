@@ -40,4 +40,6 @@ class GetClientRepository {
     //특정 그룹 반경
     suspend fun groupRadius(groupId : Int, radius: Double, latitude: Double, longitude: Double) = getClientClient.groupRadius(groupId,radius,latitude,longitude)
 
+    // 그룹 조회
+    suspend fun checkGroup() = getClientClient.checkGroup()
 }

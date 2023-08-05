@@ -52,6 +52,7 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
         val selectedClientIds = mutableListOf<Int>()
 
         //고객 리스트
+        binding.topTvNumber2.text = it.clients.size.toString()
         val customerAnyListAdapter = CustomerAnyListAdapter(it.clients)
         binding.listRv.apply {
             adapter = customerAnyListAdapter
@@ -98,6 +99,7 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
             CustomerAnyListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val selectedClientId = it.clients[position].clientId
+                binding.topTvNumber1.text = selectedClientIds.size.toString()
                 // 리스트에 클릭한 아이템의 clientId 추가 또는 삭제
                 if (selectedClientIds.contains(selectedClientId)) {
                     selectedClientIds.remove(selectedClientId)
