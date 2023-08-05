@@ -1,26 +1,15 @@
 package com.example.gajamap.ui.adapter
 
-import android.annotation.SuppressLint
-import android.content.ContentUris
-import android.content.Context
-import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.integration.okhttp3.OkHttpStreamFetcher
-import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
 import com.example.gajamap.data.model.Client
-import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ItemListBinding
-import com.example.gajamap.base.path2uri
-import okhttp3.OkHttpClient
-import java.net.URL
 
 class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 
