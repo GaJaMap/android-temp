@@ -39,4 +39,10 @@ class ClientRespository {
                           isBasicImage: RequestBody) = clientClient.putClient(groupid, clientId, clientName,groupId,phoneNumber, mainAddress, detail, latitude, longitude, clientImage, isBasicImage)
 
 
+    // 그룹 조회
+    suspend fun checkGroup() = clientClient.checkGroup()
+
+    suspend fun logout() = clientClient.logout()
+
+    suspend fun withdraw() = clientClient.withdraw()
 }

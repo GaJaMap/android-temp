@@ -175,6 +175,7 @@
             android:layout_width="71dp"
             android:layout_height="26dp"
             android:spinnerMode="dropdown"
+            android:textAlignment="center"
             android:theme="@style/SpinnerTheme"
             android:background="@drawable/fragment_list_category_background"
             android:layout_marginTop="10dp"

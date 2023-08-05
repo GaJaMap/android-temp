@@ -31,8 +31,10 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
     }
 
     // todo: 추후에 수정 예정 -> 서버 연동 코드 작성 예정
+    val clientId = GajaMapApplication.prefs.getString("clientId", "")
+    val groupId = GajaMapApplication.prefs.getString("groupId", "")
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-       viewModel.deleteClient(12, 79)
+       viewModel.deleteClient(groupId.toInt(), clientId.toInt())
         viewModel.deleteClient.observe(viewLifecycleOwner, Observer {
             Log.d("delete", it.toString())
         })
@@ -67,14 +69,16 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         val phone = GajaMapApplication.prefs.getString("phone", "")
 
         //마커 찍는데 사용하기
-        val latitude = GajaMapApplication.prefs.getString("latitude", "")
-        val longitude = GajaMapApplication.prefs.getString("longitude", "")
+        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
+        val longitude = GajaMapApplication.prefs.getString("longitude1", "")
+        val mapView = binding.mapView
         val point = MapPOIItem()
         point.apply {
             mapPoint =
                 MapPoint.mapPointWithGeoCoord(latitude.toDouble(), longitude.toDouble())
             markerType = MapPOIItem.MarkerType.BluePin
             selectedMarkerType = MapPOIItem.MarkerType.RedPin
+            mapView.setMapCenterPoint(mapPoint, true)
         }
 
 

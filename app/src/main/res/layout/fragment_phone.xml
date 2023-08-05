@@ -144,7 +144,7 @@
         android:layout_width="104dp"
         android:layout_height="30dp"
         android:spinnerMode="dropdown"
-        android:theme="@style/SpinnerTheme"
+        android:theme="@style/SpinnerTheme1"
         android:background="@drawable/fragment_add_bottom_gray"
         android:layout_marginTop="16dp"
         android:layout_marginStart="19dp"

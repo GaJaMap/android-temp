@@ -30,9 +30,18 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                     val address = data.address.mainAddress
                     val distance = data.distance.toString()
                     val distance1 = distance + "km"
-                    val file = data.image.filePath
-                    if(file != null){
-                        val filePath = getImageUrl(data.image.filePath)
+                    val filePath = data.image.filePath
+                    val file = data.imageUrlPrefix + data.image.filePath
+                    Log.d("img_file", file.toString())
+                    if(filePath != null){
+                        Glide.with(binding.itemProfileImg.context)
+                            .load(file)
+                            .fitCenter()
+                            .apply(RequestOptions().override(500,500))
+                            .error(R.drawable.profile_img_origin)
+                            .into(binding.itemProfileImg)
+                    }
+                    if(data.imageUrlPrefix == null){
                         Glide.with(binding.itemProfileImg.context)
                             .load(filePath)
                             .fitCenter()

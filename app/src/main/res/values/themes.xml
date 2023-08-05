@@ -35,11 +35,23 @@
         <item name="android:height">30dp</item>
 
     </style>
+    <style name="SpinnerItem" parent="Widget.AppCompat.TextView.SpinnerItem">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
     <style name="SpinnerTheme" parent="Theme.AppCompat">
         <!--spinnerDivideStyle을 먼저 만들어 줘야한다.-->
         <item name="android:dropDownListViewStyle">@style/SpinnerDivideStyle</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="SpinnerTheme1" parent="Theme.AppCompat">
+        <!--spinnerDivideStyle을 먼저 만들어 줘야한다.-->
+        <item name="android:dropDownListViewStyle">@style/SpinnerDivideStyle</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
     </style>
 
 </resources>

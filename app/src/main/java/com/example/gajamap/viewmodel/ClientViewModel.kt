@@ -3,10 +3,7 @@ package com.example.gajamap.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
-import com.example.gajamap.data.model.BaseResponse
-import com.example.gajamap.data.model.PostClientRequest
-import com.example.gajamap.data.model.PostKakaoPhoneRequest
-import com.example.gajamap.data.model.PutClientRequest
+import com.example.gajamap.data.model.*
 import com.example.gajamap.data.repository.ClientRespository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,6 +31,33 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     private val _postKakaoPhoneClient = MutableLiveData<Response<List<Int>>>()
     val postKakaoPhoneClient : LiveData<Response<List<Int>>>
     get() = _postKakaoPhoneClient
+
+    private val _checkGroup = MutableLiveData<GroupResponse>()
+    val checkGroup : LiveData<GroupResponse>
+        get() = _checkGroup
+
+    private val _logout = MutableLiveData<BaseResponse>()
+    val logout : LiveData<BaseResponse>
+    get() =  _logout
+
+    private val _withdraw = MutableLiveData<BaseResponse>()
+    val withdraw : LiveData<BaseResponse>
+    get() = _withdraw
+
+
+    //그룹 조회
+    fun checkGroup(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = clientRepository.checkGroup()
+            Log.d("checkGroup", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _checkGroup.postValue(response.body())
+                Log.d("checkGroupSuccess", "${response.body()}")
+            }else {
+                Log.d("checkGroupError", "checkGroup : ${response.message()}")
+            }
+        }
+    }
 
     fun putClient(groupid : Int, client : Int, clientName: RequestBody,
                   groupId : RequestBody,
@@ -100,6 +124,32 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("postKakaoPhoneClientSuccess", "${response.body()}")
             }else {
                 Log.d("postKakaoPhoneClientError", "postKakaoPhoneClient : ${response.message()}")
+            }
+        }
+    }
+
+    fun logout(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = clientRepository.logout()
+            Log.d("logout", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _logout.postValue(response.body())
+                Log.d("logoutSuccess", "${response.body()}")
+            }else {
+                Log.d("logoutError", "logout : ${response.message()}")
+            }
+        }
+    }
+
+    fun withdraw(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = clientRepository.withdraw()
+            Log.d("withdraw", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _withdraw.postValue(response.body())
+                Log.d("withdrawSuccess", "${response.body()}")
+            }else {
+                Log.d("withdrawError", "withdraw : ${response.message()}")
             }
         }
     }

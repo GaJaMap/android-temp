@@ -15,8 +15,10 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -32,9 +34,12 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.BaseResponse
+import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.data.model.PutClientRequest
 import com.example.gajamap.databinding.FragmentEditProfileBinding
+import com.example.gajamap.ui.fragment.map.MapFragment
 import com.example.gajamap.ui.fragment.setting.SettingFragment
 import com.example.gajamap.viewmodel.ClientViewModel
 import okhttp3.MediaType
@@ -50,7 +55,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
-
+    private var groupId : Int = -1
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
         binding.lifecycleOwner = this@EditProfileFragment
@@ -58,6 +63,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     var imageFile : File? = null
+    private var isCamera = false
 
     companion object {
         // 갤러리 권한 요청
@@ -74,30 +80,81 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         }
 
         //스피너
-        val itemList = listOf("그룹선택", "그룹 2", "그룹 3", "그룹 4")
+        viewModel.checkGroup()
+        viewModel.checkGroup.observe(this, Observer {
+            // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
+            val groupNames = mutableListOf<String>()
+            // groupResponse의 groupInfos에서 각 GroupInfoResponse의 groupName을 추출하여 리스트에 추가합니다.
+            it.groupInfos.forEach { groupInfo ->
+                groupNames.add(groupInfo.groupName)
+            }
+            //groupNames.add(groupNames.size, "그룹 선택")
+            groupNames.add(0,"그룹 선택")
+            //그룹 스피너
+            /*val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.infoProfileGroup.adapter = adapter*/
+            val adapter = object : ArrayAdapter<String>(requireActivity(), R.layout.spinner_list, groupNames) {
+
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val textView = super.getView(position, convertView, parent) as TextView
+                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    return textView
+                }
+
+                override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val textView = super.getDropDownView(position, convertView, parent) as TextView
+                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    return textView
+                }
+
+            }
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.infoProfileGroup.adapter = adapter
+
+        })
+
+        /*val itemList = listOf("그룹선택", "그룹 2", "그룹 3", "그룹 4")
         val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
         binding.infoProfileGroup.adapter = adapter
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)*/
 
-        binding.infoProfileGroup.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+        binding.infoProfileGroup.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
                 //binding.result.text = data[pos] //배열이라서 []로 된다.
                 //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
+                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
+                //if (pos == 0) return
 
-                if(pos != 0) Toast.makeText(requireContext(), itemList[pos], Toast.LENGTH_SHORT).show()
+                if(pos != 0){
+                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                    groupId = selectedGroupInfoResponse.groupId
+                    Log.d("groupId", groupId.toString())
+                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
-
         }
 
-
-
+        val name = GajaMapApplication.prefs.getString("name", "")
+        val address1 = GajaMapApplication.prefs.getString("address1", "")
+        val address2 = GajaMapApplication.prefs.getString("address2", "")
+        val phone = GajaMapApplication.prefs.getString("phone", "")
+        binding.infoProfileNameEt.setText(name)
+        binding.infoProfileAddressTv1.text = address1
+        binding.infoProfileAddressTv2.setText(address2)
+        binding.infoProfilePhoneEt.setText(phone)
 
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
+            isCamera = true
+        }
+        if(!isCamera){
+            sendImage1()
         }
 
     }
@@ -151,7 +208,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
             // 권한 요청
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                AddDirectFragment.REQ_GALLERY
+                EditProfileFragment.REQ_GALLERY
             )
         }else{
             // 권한이 있는 경우 갤러리 실행
@@ -172,26 +229,55 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.btnSubmit.setOnClickListener {
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = 10
+            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
             val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = "서울시 노원구 상상상상"
+            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val detail1 = "2층 205호"
+            val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = 33.12345
+            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
             val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = 127.7777
+            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
             val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient(10, 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            viewModel.putClient( groupId1.toInt(), 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
-                Log.d("edit", it.toString())
+                Log.d("postAddDirect", it.toString())
             })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+        }
+
+    }
+
+    private fun sendImage1(){
+        //확인 버튼
+        binding.btnSubmit.setOnClickListener {
+            val clientName1 = binding.infoProfileNameEt.text
+            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumber1 = binding.infoProfilePhoneEt.text
+            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val detail1 = binding.infoProfileAddressTv2.text
+            val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
+            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
+            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val isBasicImage1 = true
+            val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+            viewModel.putClient( groupId1.toInt(), 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+            viewModel.putClient.observe(viewLifecycleOwner, Observer {
+                Log.d("postAddDirect", it.toString())
+            })
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }

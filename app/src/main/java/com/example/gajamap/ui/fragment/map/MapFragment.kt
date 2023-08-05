@@ -187,7 +187,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
-                //Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                GajaMapApplication.prefs.setString("address", addressString)
                 binding.tvLocationAddress.text = addressString
             }
 
@@ -229,6 +230,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.mapView.setMapCenterPoint(centerPoint, true)
                 marker.itemName = "Marker"
                 marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+                GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
+                GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
                 marker.markerType = MapPOIItem.MarkerType.RedPin
                 binding.mapView.addPOIItem(marker)
                 val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
@@ -311,6 +314,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
+                GajaMapApplication.prefs.setString("latitude", locationSearchList[position].y.toString())
+                GajaMapApplication.prefs.setString("longtitude", locationSearchList[position].x.toString())
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
 
@@ -496,7 +501,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             Log.d("locations", searchResult!!.documents.size.toString())
-
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
@@ -570,6 +574,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             //위도 , 경도
             userLatitude = userNowLocation!!.latitude
             userLongitude = userNowLocation.longitude
+            GajaMapApplication.prefs.setString("userLatitude", userLatitude.toString())
+            GajaMapApplication.prefs.setString("userLongitude", userLongitude.toString())
         }
         return Pair(userLatitude, userLongitude)
     }
@@ -608,6 +614,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
             marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
+            GajaMapApplication.prefs.setString("latitude", p0!!.mapCenterPoint.mapPointGeoCoord.latitude.toString())
+            GajaMapApplication.prefs.setString("longtitude", p0!!.mapCenterPoint.mapPointGeoCoord.longitude.toString())
         }
     }
 

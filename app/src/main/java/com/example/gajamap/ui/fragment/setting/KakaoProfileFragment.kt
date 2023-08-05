@@ -3,6 +3,11 @@ package com.example.gajamap.ui.fragment.setting
 import android.content.ContentValues.TAG
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -10,7 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.Clients
+import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.data.model.PostKakaoPhoneRequest
 import com.example.gajamap.databinding.FragmentKakaoProfileBinding
 import com.example.gajamap.ui.adapter.KakaoFriendAdapter
@@ -22,7 +29,7 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
-
+    private var groupId : Int = -1
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
@@ -34,6 +41,66 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
     }
 
     override fun onCreateAction() {
+//스피너
+        viewModel.checkGroup()
+        viewModel.checkGroup.observe(this, Observer {
+            // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
+            val groupNames = mutableListOf<String>()
+            // groupResponse의 groupInfos에서 각 GroupInfoResponse의 groupName을 추출하여 리스트에 추가합니다.
+            it.groupInfos.forEach { groupInfo ->
+                groupNames.add(groupInfo.groupName)
+            }
+            //groupNames.add(groupNames.size, "그룹 선택")
+            groupNames.add(0,"그룹 선택")
+            //그룹 스피너
+            /*val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.infoProfileGroup.adapter = adapter*/
+            val adapter = object : ArrayAdapter<String>(requireActivity(), R.layout.spinner_list, groupNames) {
+
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val textView = super.getView(position, convertView, parent) as TextView
+                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    return textView
+                }
+
+                override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val textView = super.getDropDownView(position, convertView, parent) as TextView
+                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    return textView
+                }
+
+            }
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.settingPhoneSpinner.adapter = adapter
+
+        })
+
+        /*val itemList = listOf("그룹선택", "그룹 2", "그룹 3", "그룹 4")
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
+        binding.infoProfileGroup.adapter = adapter
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)*/
+
+        binding.settingPhoneSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+                //binding.result.text = data[pos] //배열이라서 []로 된다.
+                //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
+                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
+                //if (pos == 0) return
+
+                if(pos != 0){
+                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                    groupId = selectedGroupInfoResponse.groupId
+                    Log.d("groupId", groupId.toString())
+                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                }
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
 
         binding.topBackBtn.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
@@ -95,7 +162,7 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                 Log.i("kakaoprofile", "$friends")
 
                 Log.d("phonekakao", friends.elements.toString())
-
+                binding.topTvNumber2.text = friends.elements?.size.toString()
                 //카카오 친구목록 리사이클러뷰
                 val kakaoFriendAdapter = friends.elements?.let { KakaoFriendAdapter(it) }
                 binding.phoneListRv.apply {
@@ -115,6 +182,7 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                         selectedClients.clear()
                     }
                     kakaoFriendAdapter?.setAllItemsChecked(isChecked)
+                    updateSelectedClientsCount()
                 }
 
                 kakaoFriendAdapter?.setOnItemClickListener(object :
@@ -134,6 +202,7 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                                 }
                             }
                         }
+                        updateSelectedClientsCount()
                         /*val item = friends.elements?.get(position)
                         item?.let {
                             selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
@@ -144,9 +213,9 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
             }
         }
-
+        val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
         binding.btnSubmit.setOnClickListener {
-            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, 10))
+            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
             Log.d("select", selectedClients.toString())
             viewModel.postKakaoPhoneClient.observe(this, Observer {
 
@@ -155,5 +224,9 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
         }
 
 
+    }
+
+    private fun updateSelectedClientsCount() {
+        binding.topTvNumber1.text = selectedClients.size.toString()
     }
 }

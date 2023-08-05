@@ -56,7 +56,24 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     val groupRadius : LiveData<GetRadiusResponse>
     get() = _groupRadius
 
+    private val _checkGroup = MutableLiveData<GroupResponse>()
+    val checkGroup : LiveData<GroupResponse>
+    get() = _checkGroup
 
+
+    //그룹 조회
+    fun checkGroup(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.checkGroup()
+            Log.d("checkGroup", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _checkGroup.postValue(response.body())
+                Log.d("checkGroupSuccess", "${response.body()}")
+            }else {
+                Log.d("checkGroupError", "checkGroup : ${response.message()}")
+            }
+        }
+    }
     fun deleteClient(groupId : Int, client : Int){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.deleteClient(groupId, client)
