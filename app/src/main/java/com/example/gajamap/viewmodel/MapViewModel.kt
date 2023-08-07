@@ -6,8 +6,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.*
+import com.example.gajamap.data.model.GetAllClientResponse
+import com.example.gajamap.data.model.GetGroupAllClientResponse
 import com.example.gajamap.data.model.GroupListData
 import com.example.gajamap.data.model.RadiusResponse
+import com.example.gajamap.data.repository.GetClientRepository
 import com.example.gajamap.data.repository.GroupRepository
 import com.example.gajamap.data.repository.RadiusRepository
 import com.example.gajamap.data.response.CheckGroupResponse
@@ -19,6 +22,7 @@ import kotlin.random.Random
 class MapViewModel: ViewModel() {
     private val groupRepository = GroupRepository()
     private val radiusRepository = RadiusRepository()
+    private val getClientRepository = GetClientRepository()
 
     // 값이 변경되는 경우 MutableLiveData로 선언한다.
     private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
@@ -136,7 +140,44 @@ class MapViewModel: ViewModel() {
         }
     }
 
-    // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
+    // 특정 그룹 내에 고객 전부 조회
+    private val _groupClients = MutableLiveData<GetGroupAllClientResponse>()
+    val groupClients : LiveData<GetGroupAllClientResponse>
+        get() = _groupClients
+
+    fun getGroupAllClient(groupId : Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.getGroupAllClient(groupId)
+            Log.d("getGroupAllClient", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _groupClients.postValue(response.body())
+                Log.d("getGroupAllClientSuccess", "${response.body()}")
+            }else {
+                Log.d("getGroupAllClientError", "getGroupAllClient : ${response.message()}")
+            }
+        }
+    }
+
+    // 전체 고객 전부 조회
+    private val _allClients = MutableLiveData<GetAllClientResponse>()
+    val allClients : LiveData<GetAllClientResponse>
+        get() = _allClients
+
+    fun getAllClient(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.getAllClient()
+            Log.d("getAllClient", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _allClients.postValue(response.body())
+                Log.d("getAllClientSuccess", "${response.body()}")
+            }else {
+                Log.d("getAllClientError", "getAllClient : ${response.message()}")
+            }
+        }
+    }
+
+
+   // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
     // ViewModel을 통해 전달되는 인자가 있을 때 사용
     class MapViewModelFactory()
         : ViewModelProvider.Factory {

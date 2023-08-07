@@ -188,6 +188,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 itemId = gid
                 binding.tvSearch.text = gname
                 sheetView.tvAddgroupMain.text = gname
+                if (position == 0){
+                    getAllClient()
+                }else{
+                    getGroupClient(gid)
+                }
+
             }
         })
 
@@ -504,6 +510,49 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     }
                     binding.mapView.addPOIItem(point)
                 }
+            }
+        })
+    }
+    // 특정 그룹 내에 고객 전부 조회 api
+    private fun getGroupClient(groupId: Long){
+        viewModel.getGroupAllClient(groupId)
+        viewModel.groupClients.observe(this, Observer {
+            val data = viewModel.groupClients.value!!.clients
+            val num = data.count()
+            binding.mapView.removeAllPOIItems()
+            for (i in 0..num-1) {
+                val itemdata = data.get(i)
+                // 지도에 마커 추가
+                val point = MapPOIItem()
+                point.apply {
+                    itemName = itemdata.clientName
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    markerType = MapPOIItem.MarkerType.BluePin
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                }
+                binding.mapView.addPOIItem(point)
+            }
+        })
+    }
+
+    // 전체 고객 전부 조회 api
+    private fun getAllClient(){
+        viewModel.getAllClient()
+        viewModel.allClients.observe(this, Observer {
+            val data = viewModel.allClients.value!!.clients
+            val num = data.count()
+            binding.mapView.removeAllPOIItems()
+            for (i in 0..num-1) {
+                val itemdata = data.get(i)
+                // 지도에 마커 추가
+                val point = MapPOIItem()
+                point.apply {
+                    itemName = itemdata.clientName
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    markerType = MapPOIItem.MarkerType.BluePin
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                }
+                binding.mapView.addPOIItem(point)
             }
         })
     }
