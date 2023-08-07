@@ -204,8 +204,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
-            // 그룹 조회 서버 연동 함수 호출
-            //checkGroup()
             // 그룹 더보기 바텀 다이얼로그 띄우기
             sheetView.rvAddgroup.adapter = groupListAdapter
 
@@ -606,7 +604,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             Log.d("locations", searchResult!!.documents.size.toString())
-            for (document in searchResult!!.documents) {
+            for (document in searchResult.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
                     document.place_name,
@@ -719,9 +717,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
 
-            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
-            GajaMapApplication.prefs.setString("latitude", p0!!.mapCenterPoint.mapPointGeoCoord.latitude.toString())
-            GajaMapApplication.prefs.setString("longtitude", p0!!.mapCenterPoint.mapPointGeoCoord.longitude.toString())
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
+            GajaMapApplication.prefs.setString("latitude", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
+            GajaMapApplication.prefs.setString("longtitude", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
 
         }
     }
