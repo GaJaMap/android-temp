@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.pm.PackageManager
@@ -11,11 +12,15 @@ import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -96,15 +101,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
-            // gps 버튼 클릭 상태로 변경
-            // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
-            val bgShape = binding.ibGps.background as GradientDrawable
-            bgShape.setColor(resources.getColor(R.color.main))
-            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
 
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
+                // gps 버튼 클릭 상태로 변경
+                // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+                val bgShape = binding.ibGps.background as GradientDrawable
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
             } else {
                 // GPS가 꺼져있을 경우
                 Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
@@ -188,12 +193,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 itemId = gid
                 binding.tvSearch.text = gname
                 sheetView.tvAddgroupMain.text = gname
+
                 if (position == 0){
                     getAllClient()
                 }else{
                     getGroupClient(gid)
                 }
-
             }
         })
 
@@ -363,7 +368,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
-                // 버튼 잘 눌리는지 확인 필요
                 btn.setOnClickListener {
                     // 고객 추가하기 fragment로 이동
                     val addDirectFragment = AddDirectFragment()
@@ -374,13 +378,28 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         })
         // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
-        // edittext 완료 클릭 시 변경하는 방법도 있긴 한데 내 키보드에서는 완료 버튼이 없음....
         binding.tvLocationSearchGo.setOnClickListener {
             binding.clLocationSearch.visibility = View.VISIBLE
             binding.clLocation.visibility = View.GONE
             // 검색 키워드 받기
             keyword = binding.etLocationSearch.text.toString()
             searchKeyword(keyword)
+        }
+        // edittext 완료 클릭 시 화면 전환되는 것으로 추가 구현
+        binding.etLocationSearch.setOnKeyListener { view, i, keyEvent ->
+            // Enter Key Action
+            if (keyEvent.action == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                // 키패드 내리기
+                val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
+                binding.clLocationSearch.visibility = View.VISIBLE
+                binding.clLocation.visibility = View.GONE
+                // 검색 키워드 받기
+                keyword = binding.etLocationSearch.text.toString()
+                searchKeyword(keyword)
+                true
+            }
+            false
         }
 
         binding.tvLocationBtn.setOnClickListener {

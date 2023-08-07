@@ -115,6 +115,8 @@
                 android:textColor="@color/black"
                 android:fontFamily="@font/nanumsquareneo_regular"
                 android:textColorHint="@color/et_hint_gray"
+                android:imeOptions="actionGo"
+                android:singleLine="true"
                 android:layout_marginEnd="40dp"
                 android:layout_marginStart="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -500,7 +502,6 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
