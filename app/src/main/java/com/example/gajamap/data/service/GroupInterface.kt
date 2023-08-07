@@ -1,5 +1,6 @@
 package com.example.gajamap.data.service
 
+import com.example.gajamap.data.model.GetGroupAllClientResponse
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
 import com.example.gajamap.data.response.GroupResponse
@@ -23,4 +24,8 @@ interface GroupInterface {
     // 그룹 수정
     @PUT("/api/group/{groupId}")
     suspend fun modifyGroup(@Path("groupId") groupId : Long, @Body createGroupRequest: CreateGroupRequest) : Response<GroupResponse>
+
+    //특정 그룹내에 고객
+    @GET("/api/group/{groupId}/clients")
+    suspend fun getGroupAllClient(@Path("groupId")groupId : Long) : Response<GetGroupAllClientResponse>
 }
