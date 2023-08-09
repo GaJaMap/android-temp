@@ -25,11 +25,9 @@ interface ApiInterface {
     @GET("/api/clients")
     suspend fun getAllClientName(@Query("wordCond")wordCond : String) : Response<GetAllClientResponse>
 
-
     //특정 그룹내에 고객 전부 조회 -> 이름 검색
     @GET("/api/group/{groupId}/clients")
     suspend fun getGroupAllClientName(@Path("groupId")groupId : Int, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
-
 
     //특정 그룹내에 고객
     @GET("/api/group/{groupId}/clients")

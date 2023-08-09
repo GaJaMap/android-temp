@@ -25,7 +25,11 @@ interface GroupInterface {
     @PUT("/api/group/{groupId}")
     suspend fun modifyGroup(@Path("groupId") groupId : Long, @Body createGroupRequest: CreateGroupRequest) : Response<GroupResponse>
 
-    //특정 그룹내에 고객
+    // 특정 그룹내에 고객
     @GET("/api/group/{groupId}/clients")
     suspend fun getGroupAllClient(@Path("groupId")groupId : Long) : Response<GetGroupAllClientResponse>
+
+    // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색
+    @GET("/api/group/{groupId}/clients")
+    suspend fun getGroupAllClientName(@Path("groupId")groupId : Long, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
 }

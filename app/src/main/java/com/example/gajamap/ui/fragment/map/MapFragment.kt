@@ -11,6 +11,8 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -21,6 +23,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -32,15 +35,13 @@ import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.setPref
-import com.example.gajamap.data.response.CheckGroupResponse
-import com.example.gajamap.data.response.CreateGroupRequest
-import com.example.gajamap.data.response.LocationSearchData
-import com.example.gajamap.data.response.ResultSearchKeywordData
+import com.example.gajamap.data.response.*
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
+import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -70,6 +71,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // LocationSearch recyclerview
     private val locationSearchList = arrayListOf<LocationSearchData>()
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
+    // SearchResult recyclerview
+    private val searchResultList = arrayListOf<SearchResultData>()
+    private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
@@ -96,6 +100,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
         binding.mapView.setMapViewEventListener(this)
+        binding.mapView.setPOIItemEventListener(this)
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
 
@@ -245,6 +250,46 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
+        // todo : 수정 필요
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                searchResultList.add(SearchResultData("조예진"))
+//                searchResultList.add(SearchResultData("하이하이"))
+//                searchResultList.add(SearchResultData("제발"))
+//                binding.rvSearch.adapter = searchResultAdapter
+//                searchResultAdapter.notifyDataSetChanged()
+
+                binding.clSearchResult.visibility = View.VISIBLE
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+        })
+        // SearchResult recyclerview
+//        binding.etSearch.setOnClickListener {
+//            searchResultList.add(SearchResultData("조예진"))
+//            searchResultList.add(SearchResultData("하이하이"))
+//            searchResultList.add(SearchResultData("제발"))
+//            searchResultAdapter.notifyDataSetChanged()
+//            binding.rvSearch.adapter = searchResultAdapter
+//        }
+//
+//        // recyclerview 아이템 클릭 시 해당 위치로 이동
+//        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
+//            override fun onClick(v: View, position: Int) {
+//                val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
+//
+//                binding.mapView.setMapCenterPoint(mapPoint, true)
+//
+//            }
+//        })
+
         binding.ibPlus.setOnClickListener{
             if (groupNum == 1){
                 // 그룹 삭제 dialog
@@ -309,10 +354,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
                             if (binding.tvSearch.text == "전체"){
-                                wholeRadius(3000.0, a.first, a.second)
+                                wholeRadius(3000, a.first, a.second)
                             }
                             else{
-                                specificRadius(3000.0, a.first, a.second, itemId)
+                                specificRadius(3000, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -335,10 +380,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
                             if (binding.tvSearch.text == "전체"){
-                                wholeRadius(5000.0, a.first, a.second)
+                                wholeRadius(5000, a.first, a.second)
                             }
                             else{
-                                specificRadius(5000.0, a.first, a.second, itemId)
+                                specificRadius(5000, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -462,7 +507,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 전체 고객 대상 반경 검색 api
-    private fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
+    private fun wholeRadius(radius: Int, latitude: Double, longitude: Double){
         viewModel.wholeRadius(radius, latitude, longitude)
 
         viewModel.wholeRadius.observe(this, Observer {
@@ -488,10 +533,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
-                    /*
-                    val hasMarker = binding.mapView.poiItems.any {
-                        mark
-                    }*/
                     binding.mapView.addPOIItem(point)
                 }
             }
@@ -499,7 +540,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 특정 그룹 내에 고객 대상 반경 검색 api
-    private fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
+    private fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModel.specificRadius(radius, latitude, longitude, groupId)
 
         viewModel.wholeRadius.observe(this, Observer {
@@ -557,6 +598,50 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.getAllClient()
         viewModel.allClients.observe(this, Observer {
             val data = viewModel.allClients.value!!.clients
+            val num = data.count()
+            binding.mapView.removeAllPOIItems()
+            for (i in 0..num-1) {
+                val itemdata = data.get(i)
+                // 지도에 마커 추가
+                val point = MapPOIItem()
+                point.apply {
+                    itemName = itemdata.clientName
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    markerType = MapPOIItem.MarkerType.BluePin
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                }
+                binding.mapView.addPOIItem(point)
+            }
+        })
+    }
+
+    // 전체 고객 검색 -> 조회할 고객 이름 검색 api
+    private fun getAllClientName(name : String){
+        viewModel.getAllClientName(name)
+        viewModel.allClientsName.observe(this, Observer {
+            val data = viewModel.allClientsName.value!!.clients
+            val num = data.count()
+            binding.mapView.removeAllPOIItems()
+            for (i in 0..num-1) {
+                val itemdata = data.get(i)
+                // 지도에 마커 추가
+                val point = MapPOIItem()
+                point.apply {
+                    itemName = itemdata.clientName
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    markerType = MapPOIItem.MarkerType.BluePin
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                }
+                binding.mapView.addPOIItem(point)
+            }
+        })
+    }
+
+    // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색 api
+    private fun getGroupAllClientName(name : String, groupId: Long){
+        viewModel.getGroupAllClientName(name, groupId)
+        viewModel.groupClientsName.observe(this, Observer {
+            val data = viewModel.groupClientsName.value!!.clients
             val num = data.count()
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
@@ -660,10 +745,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val builder = AlertDialog.Builder(requireContext())
                     builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
                     builder.setPositiveButton("확인") { dialog, which ->
-
                     }
                     builder.setNegativeButton("취소") { dialog, which ->
-
                     }
                     builder.show()
                 }
@@ -716,11 +799,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 지도에 직접 추가하기 부분 기능들 구현
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
-
             marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
             GajaMapApplication.prefs.setString("latitude", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
             GajaMapApplication.prefs.setString("longtitude", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
-
         }
     }
 
@@ -730,6 +811,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
         binding.clCardview.visibility = View.GONE
+        binding.ibPlus.visibility = View.VISIBLE
+        binding.ibGps.visibility = View.VISIBLE
+        binding.ibKm.visibility = View.VISIBLE
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -751,10 +835,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
 
     }
-
     // 마커 클릭 시 호출되는 콜백 메서드
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
         binding.clCardview.visibility = View.VISIBLE
+        binding.ibPlus.visibility = View.GONE
+        binding.ibGps.visibility = View.GONE
+        binding.ibKm.visibility = View.GONE
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
@@ -769,5 +855,4 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
     }
-
 }
