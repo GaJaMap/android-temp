@@ -84,7 +84,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var threeCheck = false
     var fiveCheck = false
     var groupNum = 0
-    var countBottomGPS = 0
+    var plusBtn = false
+    var bottomGPSBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -127,11 +128,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibBottomGps.setOnClickListener {
             // gps 버튼 클릭 상태로 변경
             // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
-            val bgShape = binding.ibBottomGps.background as GradientDrawable
-            if (countBottomGPS % 2 == 0){
+            if(!bottomGPSBtn){
+                bottomGPSBtn = true
+                val bgShape = binding.ibBottomGps.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
-
                 if (checkLocationService()) {
                     binding.tvLocationAddress.text = "내 위치 검색중..."
                     // GPS가 켜져있을 경우
@@ -152,11 +153,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
             }
-            else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+            // 두 번 클릭 시 원상태로 돌아오게 하기 및 위치 추적 중지
+            else {
+                bottomGPSBtn = false
+                val bgShape = binding.ibBottomGps.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
+                stopTracking()
             }
-            countBottomGPS += 1
         }
 
         // groupListAdapter를 우선적으로 초기화해줘야 함
@@ -293,9 +297,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 //            }
 //        })
 
+        // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
             if (groupNum == 1){
-                // 그룹 삭제 dialog
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("현재 생성된 그룹이 없습니다.")
                     .setMessage("그룹을 등록해주시기 바랍니다.")
@@ -305,32 +309,42 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 alertDialog.show()
             }
             else{
-                // plus 버튼 클릭 상태로 변경
-                val bgShape = binding.ibPlus.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
+                if (!plusBtn){
+                    // plus 버튼 클릭 상태로 변경
+                    plusBtn = true
+                    val bgShape = binding.ibPlus.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
 
-                // 화면 변경
-                binding.clSearchWhole.visibility = View.GONE
-                binding.clSearchLocation.visibility = View.VISIBLE
-                binding.clLocation.visibility = View.VISIBLE
-                binding.ibPlus.visibility = View.GONE
-                binding.ibGps.visibility = View.GONE
-                binding.ibKm.visibility = View.GONE
+                    // 화면 변경
+                    binding.clSearchWhole.visibility = View.GONE
+                    binding.clSearchLocation.visibility = View.VISIBLE
+                    binding.clLocation.visibility = View.VISIBLE
+                    binding.ibPlus.visibility = View.GONE
+                    binding.ibGps.visibility = View.GONE
+                    binding.ibKm.visibility = View.GONE
 
-                // 지도에서 직접 추가하기 마커 위치
-                val centerPoint = binding.mapView.mapCenterPoint
-                marker = MapPOIItem()
-                binding.mapView.setMapCenterPoint(centerPoint, true)
-                marker.itemName = "Marker"
-                marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
-                GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
-                GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
-                marker.markerType = MapPOIItem.MarkerType.RedPin
-                binding.mapView.addPOIItem(marker)
-                val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
-                mapGeoCoder.startFindingAddress()
-                markerCheck = true
+                    // 지도에서 직접 추가하기 마커 위치
+                    val centerPoint = binding.mapView.mapCenterPoint
+                    marker = MapPOIItem()
+                    binding.mapView.setMapCenterPoint(centerPoint, true)
+                    marker.itemName = "Marker"
+                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+                    GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
+                    GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
+                    marker.markerType = MapPOIItem.MarkerType.RedPin
+                    binding.mapView.addPOIItem(marker)
+                    val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+                    mapGeoCoder.startFindingAddress()
+                    markerCheck = true
+                }
+                else{
+                    // plus 버튼 클릭하지 않은 상태로 변경
+                    plusBtn = false
+                    val bgShape = binding.ibPlus.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.white))
+                    binding.ibPlus.setImageResource(R.drawable.ic_plus)
+                }
             }
         }
 
@@ -812,6 +826,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
+    // 위치추적 중지
+    private fun stopTracking() {
+        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
+    }
 
     override fun onMapViewInitialized(p0: MapView?) {
     }
@@ -834,6 +852,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.VISIBLE
         binding.ibGps.visibility = View.VISIBLE
         binding.ibKm.visibility = View.VISIBLE
+
+        if(plusBtn){
+            plusBtn = false
+            val bgShape = binding.ibPlus.background as GradientDrawable
+            bgShape.setColor(resources.getColor(R.color.white))
+            binding.ibPlus.setImageResource(R.drawable.ic_plus)
+            binding.clSearchWhole.visibility = View.VISIBLE
+            binding.clSearchLocation.visibility = View.GONE
+            binding.clLocation.visibility = View.GONE
+            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+        }
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -861,6 +890,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.GONE
         binding.ibGps.visibility = View.GONE
         binding.ibKm.visibility = View.GONE
+        binding.clKm.visibility = View.GONE
         if(pos == 0){
             getAllClientName(p1!!.itemName)
         }
