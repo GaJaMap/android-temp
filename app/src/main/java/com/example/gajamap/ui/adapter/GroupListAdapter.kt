@@ -16,7 +16,7 @@ import com.example.gajamap.databinding.ItemGroupListBinding
 
 class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     var datalist = mutableListOf<GroupListData>()
-    private var selectedPosition = RecyclerView.NO_POSITION
+    private var selectedPosition = 0
 
     inner class ViewHolder(private val binding: ItemGroupListBinding): RecyclerView.ViewHolder(binding.root) {
         val bgShape = binding.ivGroup.background as GradientDrawable

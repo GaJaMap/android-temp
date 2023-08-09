@@ -151,7 +151,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                                 GroupClientSearchRV(it)
                             })
                         }
-
                     }
                     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                         //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
@@ -171,9 +170,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                         }
                     }
                 })
-
-
-
                 Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -220,7 +216,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                             viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
                                 listRadius(it)
                             })
-
                         }
                         if(position != 0){
                             val searchName = binding.etSearch.text
@@ -238,7 +233,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                             viewModel.allRadius.observe(viewLifecycleOwner, Observer {
                                 listRadius(it)
                             })
-
                         }
                         if(position != 0){
                             val searchName = binding.etSearch.text
@@ -257,7 +251,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                             viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
                                 listRadius(it)
                             })
-
                         }
                         if(position != 0){
                             val searchName = binding.etSearch.text
@@ -273,9 +266,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
-
         }
-
 
         //GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
@@ -291,7 +282,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
     // GPS가 켜져있는지 확인
@@ -403,7 +393,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
-
                 parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
             }
         })
@@ -449,7 +438,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("phone", phone)
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
-
 
                 parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
             }
@@ -501,12 +489,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
-
                 parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
             }
         })
     }
-
-
-
 }

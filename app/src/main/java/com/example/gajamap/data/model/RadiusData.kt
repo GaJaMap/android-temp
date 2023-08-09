@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 data class RadiusResponse(
     @SerializedName("clients")
-    var clients: List<RadiusClient> = arrayListOf()
+    var clients: List<RadiusClient> = arrayListOf(),
+    @SerializedName("imageUrlPrefix")
+    val imageUrlPrefix : String
 )
 data class RadiusClient(
     @SerializedName("clientId")
@@ -22,7 +24,9 @@ data class RadiusClient(
     @SerializedName("image")
     val image: ImageData?,
     @SerializedName("distance")
-    val distance: Double
+    val distance: Double,
+    @SerializedName("createdAt")
+    val createdAt : String
 )
 data class GroupInfoData(
     @SerializedName("groupId")
@@ -31,12 +35,8 @@ data class GroupInfoData(
     val groupName: String
 )
 data class AddressData(
-    @SerializedName("province")
-    val province: String,
-    @SerializedName("city")
-    val city: String,
-    @SerializedName("district")
-    val district: String,
+    @SerializedName("mainAddress")
+    val mainAddress: String,
     @SerializedName("detail")
     val detail: String
 )

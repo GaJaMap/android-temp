@@ -6,10 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.*
-import com.example.gajamap.data.model.GetAllClientResponse
-import com.example.gajamap.data.model.GetGroupAllClientResponse
-import com.example.gajamap.data.model.GroupListData
-import com.example.gajamap.data.model.RadiusResponse
+import com.example.gajamap.data.model.*
 import com.example.gajamap.data.repository.GetClientRepository
 import com.example.gajamap.data.repository.GroupRepository
 import com.example.gajamap.data.repository.RadiusRepository
@@ -109,7 +106,7 @@ class MapViewModel: ViewModel() {
     val wholeRadius : LiveData<RadiusResponse>
         get() = _wholeRadius
 
-    fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
+    fun wholeRadius(radius: Int, latitude: Double, longitude: Double){
         viewModelScope.launch(Dispatchers.IO) {
             val response = radiusRepository.wholeRadius(radius, latitude, longitude)
             Log.d("wholeRadius", "$response\n${response.code()}")
@@ -125,8 +122,8 @@ class MapViewModel: ViewModel() {
         }
     }
 
-    // 특정 그룹 내에 고객 대상 반경 검색
-    fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
+    // 특정 그룹 내 고객 대상 반경 검색
+    fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = radiusRepository.specificRadius(groupId, radius, latitude, longitude)
             Log.d("specificRadius", "$response\n${response.code()}")
@@ -140,7 +137,7 @@ class MapViewModel: ViewModel() {
         }
     }
 
-    // 특정 그룹 내에 고객 전부 조회
+    // 특정 그룹 내 고객 전부 조회
     private val _groupClients = MutableLiveData<GetGroupAllClientResponse>()
     val groupClients : LiveData<GetGroupAllClientResponse>
         get() = _groupClients
@@ -176,6 +173,41 @@ class MapViewModel: ViewModel() {
         }
     }
 
+    // 전체 고객 검색 -> 조회할 고객 이름 검색
+    private val _allClientsName = MutableLiveData<GetAllClientResponse>()
+    val allClientsName : LiveData<GetAllClientResponse>
+        get() = _allClientsName
+
+    fun getAllClientName(wordCond : String){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getClientRepository.getAllClientName(wordCond)
+            Log.d("getAllClientName", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _allClientsName.postValue(response.body())
+                Log.d("getAllClientNameSuccess", "${response.body()}")
+            }else {
+                Log.d("getAllClientNameError", "getAllClientName : ${response.message()}")
+            }
+        }
+    }
+
+    // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색
+    private val _groupClientsName = MutableLiveData<GetGroupAllClientResponse>()
+    val groupClientsName : LiveData<GetGroupAllClientResponse>
+        get() = _groupClientsName
+
+    fun getGroupAllClientName(wordCond : String, groupId : Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.getGroupAllClientName(groupId, wordCond)
+            Log.d("getGroupAllClientName", "${response.body()}\n${response.code()}")
+            if(response.isSuccessful){
+                _groupClientsName.postValue(response.body())
+                Log.d("getGroupAllClientNameSuccess", "${response.body()}")
+            }else {
+                Log.d("getGroupAllClientNameError", "getGroupAllClientName : ${response.message()}")
+            }
+        }
+    }
 
    // ViewModelFactory는 생성자 매개 변수를 사용하거나 사용하지 않고 ViewModel 개체를 인스턴스화함
     // ViewModel을 통해 전달되는 인자가 있을 때 사용

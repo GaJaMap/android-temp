@@ -4,21 +4,30 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide
 import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
@@ -27,15 +36,13 @@ import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.setPref
-import com.example.gajamap.data.response.CheckGroupResponse
-import com.example.gajamap.data.response.CreateGroupRequest
-import com.example.gajamap.data.response.LocationSearchData
-import com.example.gajamap.data.response.ResultSearchKeywordData
+import com.example.gajamap.data.response.*
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
 import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
+import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -50,6 +57,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.round
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -65,6 +73,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // LocationSearch recyclerview
     private val locationSearchList = arrayListOf<LocationSearchData>()
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
+    // SearchResult recyclerview
+    private val searchResultList = arrayListOf<SearchResultData>()
+    private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
     var countkm = 0
     var gid: Long = 0
@@ -73,7 +84,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var threeCheck = false
     var fiveCheck = false
     var groupNum = 0
-    var countBottomGPS = 0
+    var plusBtn = false
+    var bottomGPSBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -91,20 +103,21 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
         binding.mapView.setMapViewEventListener(this)
+        binding.mapView.setPOIItemEventListener(this)
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
 
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
-            // gps 버튼 클릭 상태로 변경
-            // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
-            val bgShape = binding.ibGps.background as GradientDrawable
-            bgShape.setColor(resources.getColor(R.color.main))
-            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
 
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
+                // gps 버튼 클릭 상태로 변경
+                // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+                val bgShape = binding.ibGps.background as GradientDrawable
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
             } else {
                 // GPS가 꺼져있을 경우
                 Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
@@ -115,11 +128,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibBottomGps.setOnClickListener {
             // gps 버튼 클릭 상태로 변경
             // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
-            val bgShape = binding.ibBottomGps.background as GradientDrawable
-            if (countBottomGPS % 2 == 0){
+            if(!bottomGPSBtn){
+                bottomGPSBtn = true
+                val bgShape = binding.ibBottomGps.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
-
                 if (checkLocationService()) {
                     binding.tvLocationAddress.text = "내 위치 검색중..."
                     // GPS가 켜져있을 경우
@@ -140,11 +153,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
             }
-            else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+            // 두 번 클릭 시 원상태로 돌아오게 하기 및 위치 추적 중지
+            else {
+                bottomGPSBtn = false
+                val bgShape = binding.ibBottomGps.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
+                stopTracking()
             }
-            countBottomGPS += 1
         }
 
         // groupListAdapter를 우선적으로 초기화해줘야 함
@@ -171,6 +187,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 addDialog.setView(mDialogView.root)
                 addDialog.show()
                 gid = id
+                pos = position
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
@@ -188,19 +205,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 itemId = gid
                 binding.tvSearch.text = gname
                 sheetView.tvAddgroupMain.text = gname
+                pos = position
+
                 if (position == 0){
                     getAllClient()
                 }else{
                     getGroupClient(gid)
                 }
-
             }
         })
 
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
-            // 그룹 조회 서버 연동 함수 호출
-            //checkGroup()
             // 그룹 더보기 바텀 다이얼로그 띄우기
             sheetView.rvAddgroup.adapter = groupListAdapter
 
@@ -242,9 +258,48 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
+        // todo : 수정 필요
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                searchResultList.add(SearchResultData("조예진"))
+//                searchResultList.add(SearchResultData("하이하이"))
+//                binding.rvSearch.adapter = searchResultAdapter
+//                searchResultAdapter.notifyDataSetChanged()
+
+//                binding.clSearchResult.visibility = View.VISIBLE
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+        })
+        // SearchResult recyclerview
+//        binding.etSearch.setOnClickListener {
+//            searchResultList.add(SearchResultData("조예진"))
+//            searchResultList.add(SearchResultData("하이하이"))
+//            searchResultList.add(SearchResultData("제발"))
+//            searchResultAdapter.notifyDataSetChanged()
+//            binding.rvSearch.adapter = searchResultAdapter
+//        }
+//
+//        // recyclerview 아이템 클릭 시 해당 위치로 이동
+//        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
+//            override fun onClick(v: View, position: Int) {
+//                val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
+//
+//                binding.mapView.setMapCenterPoint(mapPoint, true)
+//
+//            }
+//        })
+
+        // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
             if (groupNum == 1){
-                // 그룹 삭제 dialog
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("현재 생성된 그룹이 없습니다.")
                     .setMessage("그룹을 등록해주시기 바랍니다.")
@@ -254,32 +309,42 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 alertDialog.show()
             }
             else{
-                // plus 버튼 클릭 상태로 변경
-                val bgShape = binding.ibPlus.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
+                if (!plusBtn){
+                    // plus 버튼 클릭 상태로 변경
+                    plusBtn = true
+                    val bgShape = binding.ibPlus.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
 
-                // 화면 변경
-                binding.clSearchWhole.visibility = View.GONE
-                binding.clSearchLocation.visibility = View.VISIBLE
-                binding.clLocation.visibility = View.VISIBLE
-                binding.ibPlus.visibility = View.GONE
-                binding.ibGps.visibility = View.GONE
-                binding.ibKm.visibility = View.GONE
+                    // 화면 변경
+                    binding.clSearchWhole.visibility = View.GONE
+                    binding.clSearchLocation.visibility = View.VISIBLE
+                    binding.clLocation.visibility = View.VISIBLE
+                    binding.ibPlus.visibility = View.GONE
+                    binding.ibGps.visibility = View.GONE
+                    binding.ibKm.visibility = View.GONE
 
-                // 지도에서 직접 추가하기 마커 위치
-                val centerPoint = binding.mapView.mapCenterPoint
-                marker = MapPOIItem()
-                binding.mapView.setMapCenterPoint(centerPoint, true)
-                marker.itemName = "Marker"
-                marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
-                GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
-                GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
-                marker.markerType = MapPOIItem.MarkerType.RedPin
-                binding.mapView.addPOIItem(marker)
-                val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
-                mapGeoCoder.startFindingAddress()
-                markerCheck = true
+                    // 지도에서 직접 추가하기 마커 위치
+                    val centerPoint = binding.mapView.mapCenterPoint
+                    marker = MapPOIItem()
+                    binding.mapView.setMapCenterPoint(centerPoint, true)
+                    marker.itemName = "Marker"
+                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
+                    GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
+                    GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
+                    marker.markerType = MapPOIItem.MarkerType.RedPin
+                    binding.mapView.addPOIItem(marker)
+                    val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+                    mapGeoCoder.startFindingAddress()
+                    markerCheck = true
+                }
+                else{
+                    // plus 버튼 클릭하지 않은 상태로 변경
+                    plusBtn = false
+                    val bgShape = binding.ibPlus.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.white))
+                    binding.ibPlus.setImageResource(R.drawable.ic_plus)
+                }
             }
         }
 
@@ -306,10 +371,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
                             if (binding.tvSearch.text == "전체"){
-                                wholeRadius(3000.0, a.first, a.second)
+                                wholeRadius(3000, a.first, a.second)
                             }
                             else{
-                                specificRadius(3000.0, a.first, a.second, itemId)
+                                specificRadius(3000, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -332,10 +397,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         val a = permissionCheck()
                         if (a.first != 0.0 && a.second != 0.0){
                             if (binding.tvSearch.text == "전체"){
-                                wholeRadius(5000.0, a.first, a.second)
+                                wholeRadius(5000, a.first, a.second)
                             }
                             else{
-                                specificRadius(5000.0, a.first, a.second, itemId)
+                                specificRadius(5000, a.first, a.second, itemId)
                             }
                         }
                     } else {
@@ -363,7 +428,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
-                // 버튼 잘 눌리는지 확인 필요
                 btn.setOnClickListener {
                     // 고객 추가하기 fragment로 이동
                     val addDirectFragment = AddDirectFragment()
@@ -374,13 +438,28 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         })
         // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
-        // edittext 완료 클릭 시 변경하는 방법도 있긴 한데 내 키보드에서는 완료 버튼이 없음....
         binding.tvLocationSearchGo.setOnClickListener {
             binding.clLocationSearch.visibility = View.VISIBLE
             binding.clLocation.visibility = View.GONE
             // 검색 키워드 받기
             keyword = binding.etLocationSearch.text.toString()
             searchKeyword(keyword)
+        }
+        // edittext 완료 클릭 시 화면 전환되는 것으로 추가 구현
+        binding.etLocationSearch.setOnKeyListener { view, i, keyEvent ->
+            // Enter Key Action
+            if (keyEvent.action == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                // 키패드 내리기
+                val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
+                binding.clLocationSearch.visibility = View.VISIBLE
+                binding.clLocation.visibility = View.GONE
+                // 검색 키워드 받기
+                keyword = binding.etLocationSearch.text.toString()
+                searchKeyword(keyword)
+                true
+            }
+            false
         }
 
         binding.tvLocationBtn.setOnClickListener {
@@ -445,7 +524,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 전체 고객 대상 반경 검색 api
-    private fun wholeRadius(radius: Double, latitude: Double, longitude: Double){
+    private fun wholeRadius(radius: Int, latitude: Double, longitude: Double){
         viewModel.wholeRadius(radius, latitude, longitude)
 
         viewModel.wholeRadius.observe(this, Observer {
@@ -471,10 +550,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
-                    /*
-                    val hasMarker = binding.mapView.poiItems.any {
-                        mark
-                    }*/
                     binding.mapView.addPOIItem(point)
                 }
             }
@@ -482,7 +557,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 특정 그룹 내에 고객 대상 반경 검색 api
-    private fun specificRadius(radius: Double, latitude: Double, longitude: Double, groupId: Long){
+    private fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModel.specificRadius(radius, latitude, longitude, groupId)
 
         viewModel.wholeRadius.observe(this, Observer {
@@ -557,6 +632,67 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         })
     }
 
+    // 전체 고객 검색 -> 조회할 고객 이름 검색 api
+    private fun getAllClientName(name : String){
+        viewModel.getAllClientName(name)
+        viewModel.allClientsName.observe(this, Observer {
+            val data = viewModel.allClientsName.value?.clients
+            val itemdata = data?.get(0)
+            if(itemdata?.image?.filePath != null){
+                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+            }
+            binding.tvCardName.text = itemdata?.clientName
+            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
+            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
+            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+
+//            val num = data.count()
+//            binding.mapView.removeAllPOIItems()
+//            for (i in 0..num-1) {
+//                val itemdata = data.get(i)
+//                // 지도에 마커 추가
+//                val point = MapPOIItem()
+//                point.apply {
+//                    itemName = itemdata.clientName
+//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+//                    markerType = MapPOIItem.MarkerType.BluePin
+//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+//                }
+//                binding.mapView.addPOIItem(point)
+//            }
+        })
+    }
+
+    // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색 api
+    private fun getGroupAllClientName(name : String, groupId: Long){
+        viewModel.getGroupAllClientName(name, groupId)
+        viewModel.groupClientsName.observe(this, Observer {
+            val data = viewModel.groupClientsName.value?.clients
+            val itemdata = data?.get(0)
+            if(itemdata?.image?.filePath != null){
+                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+            }
+            binding.tvCardName.text = itemdata?.clientName
+            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
+            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
+            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+//            val num = data.count()
+//            binding.mapView.removeAllPOIItems()
+//            for (i in 0..num-1) {
+//                val itemdata = data.get(i)
+//                // 지도에 마커 추가
+//                val point = MapPOIItem()
+//                point.apply {
+//                    itemName = itemdata.clientName
+//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+//                    markerType = MapPOIItem.MarkerType.BluePin
+//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+//                }
+//                binding.mapView.addPOIItem(point)
+//            }
+        })
+    }
+
     // 키워드 검색 함수
     private fun searchKeyword(keyword: String) {
         // API 서버에 요청
@@ -587,7 +723,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             Log.d("locations", searchResult!!.documents.size.toString())
-            for (document in searchResult!!.documents) {
+            for (document in searchResult.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
                     document.place_name,
@@ -643,10 +779,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val builder = AlertDialog.Builder(requireContext())
                     builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
                     builder.setPositiveButton("확인") { dialog, which ->
-
                     }
                     builder.setNegativeButton("취소") { dialog, which ->
-
                     }
                     builder.show()
                 }
@@ -692,6 +826,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
+    // 위치추적 중지
+    private fun stopTracking() {
+        binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
+    }
 
     override fun onMapViewInitialized(p0: MapView?) {
     }
@@ -699,11 +837,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 지도에 직접 추가하기 부분 기능들 구현
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
-
-            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0!!.mapCenterPoint.mapPointGeoCoord.longitude)
-            GajaMapApplication.prefs.setString("latitude", p0!!.mapCenterPoint.mapPointGeoCoord.latitude.toString())
-            GajaMapApplication.prefs.setString("longtitude", p0!!.mapCenterPoint.mapPointGeoCoord.longitude.toString())
-
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
+            GajaMapApplication.prefs.setString("latitude", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
+            GajaMapApplication.prefs.setString("longtitude", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
         }
     }
 
@@ -713,6 +849,20 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
         binding.clCardview.visibility = View.GONE
+        binding.ibPlus.visibility = View.VISIBLE
+        binding.ibGps.visibility = View.VISIBLE
+        binding.ibKm.visibility = View.VISIBLE
+
+        if(plusBtn){
+            plusBtn = false
+            val bgShape = binding.ibPlus.background as GradientDrawable
+            bgShape.setColor(resources.getColor(R.color.white))
+            binding.ibPlus.setImageResource(R.drawable.ic_plus)
+            binding.clSearchWhole.visibility = View.VISIBLE
+            binding.clSearchLocation.visibility = View.GONE
+            binding.clLocation.visibility = View.GONE
+            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+        }
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -734,10 +884,19 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
 
     }
-
     // 마커 클릭 시 호출되는 콜백 메서드
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
         binding.clCardview.visibility = View.VISIBLE
+        binding.ibPlus.visibility = View.GONE
+        binding.ibGps.visibility = View.GONE
+        binding.ibKm.visibility = View.GONE
+        binding.clKm.visibility = View.GONE
+        if(pos == 0){
+            getAllClientName(p1!!.itemName)
+        }
+        else{
+            getGroupAllClientName(p1!!.itemName, itemId)
+        }
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
@@ -752,5 +911,4 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
     }
-
 }
