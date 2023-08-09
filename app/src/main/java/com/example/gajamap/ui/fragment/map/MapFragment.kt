@@ -27,6 +27,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide
 import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
 import com.example.gajamap.BuildConfig.KAKAO_API_KEY
@@ -56,6 +57,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.round
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -181,6 +183,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 addDialog.setView(mDialogView.root)
                 addDialog.show()
                 gid = id
+                pos = position
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
@@ -198,6 +201,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 itemId = gid
                 binding.tvSearch.text = gname
                 sheetView.tvAddgroupMain.text = gname
+                pos = position
 
                 if (position == 0){
                     getAllClient()
@@ -259,11 +263,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 //                searchResultList.add(SearchResultData("조예진"))
 //                searchResultList.add(SearchResultData("하이하이"))
-//                searchResultList.add(SearchResultData("제발"))
 //                binding.rvSearch.adapter = searchResultAdapter
 //                searchResultAdapter.notifyDataSetChanged()
 
-                binding.clSearchResult.visibility = View.VISIBLE
+//                binding.clSearchResult.visibility = View.VISIBLE
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -619,21 +622,30 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun getAllClientName(name : String){
         viewModel.getAllClientName(name)
         viewModel.allClientsName.observe(this, Observer {
-            val data = viewModel.allClientsName.value!!.clients
-            val num = data.count()
-            binding.mapView.removeAllPOIItems()
-            for (i in 0..num-1) {
-                val itemdata = data.get(i)
-                // 지도에 마커 추가
-                val point = MapPOIItem()
-                point.apply {
-                    itemName = itemdata.clientName
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-                    markerType = MapPOIItem.MarkerType.BluePin
-                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-                }
-                binding.mapView.addPOIItem(point)
+            val data = viewModel.allClientsName.value?.clients
+            val itemdata = data?.get(0)
+            if(itemdata?.image?.filePath != null){
+                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
+            binding.tvCardName.text = itemdata?.clientName
+            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
+            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
+            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+
+//            val num = data.count()
+//            binding.mapView.removeAllPOIItems()
+//            for (i in 0..num-1) {
+//                val itemdata = data.get(i)
+//                // 지도에 마커 추가
+//                val point = MapPOIItem()
+//                point.apply {
+//                    itemName = itemdata.clientName
+//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+//                    markerType = MapPOIItem.MarkerType.BluePin
+//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+//                }
+//                binding.mapView.addPOIItem(point)
+//            }
         })
     }
 
@@ -641,21 +653,29 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun getGroupAllClientName(name : String, groupId: Long){
         viewModel.getGroupAllClientName(name, groupId)
         viewModel.groupClientsName.observe(this, Observer {
-            val data = viewModel.groupClientsName.value!!.clients
-            val num = data.count()
-            binding.mapView.removeAllPOIItems()
-            for (i in 0..num-1) {
-                val itemdata = data.get(i)
-                // 지도에 마커 추가
-                val point = MapPOIItem()
-                point.apply {
-                    itemName = itemdata.clientName
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-                    markerType = MapPOIItem.MarkerType.BluePin
-                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-                }
-                binding.mapView.addPOIItem(point)
+            val data = viewModel.groupClientsName.value?.clients
+            val itemdata = data?.get(0)
+            if(itemdata?.image?.filePath != null){
+                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
+            binding.tvCardName.text = itemdata?.clientName
+            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
+            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
+            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+//            val num = data.count()
+//            binding.mapView.removeAllPOIItems()
+//            for (i in 0..num-1) {
+//                val itemdata = data.get(i)
+//                // 지도에 마커 추가
+//                val point = MapPOIItem()
+//                point.apply {
+//                    itemName = itemdata.clientName
+//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+//                    markerType = MapPOIItem.MarkerType.BluePin
+//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+//                }
+//                binding.mapView.addPOIItem(point)
+//            }
         })
     }
 
@@ -841,6 +861,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.GONE
         binding.ibGps.visibility = View.GONE
         binding.ibKm.visibility = View.GONE
+        if(pos == 0){
+            getAllClientName(p1!!.itemName)
+        }
+        else{
+            getGroupAllClientName(p1!!.itemName, itemId)
+        }
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
