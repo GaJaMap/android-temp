@@ -86,6 +86,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var plusBtn = false
     var bottomGPSBtn = false
     var kmBtn = false
+    var GPSBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -109,18 +110,27 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
-
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-                // gps 버튼 클릭 상태로 변경
-                // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+            if(!GPSBtn){
+                if (checkLocationService()) {
+                    GPSBtn = true
+                    // GPS가 켜져있을 경우
+                    permissionCheck()
+                    // gps 버튼 클릭 상태로 변경
+                    // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+                    val bgShape = binding.ibGps.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibGps.setImageResource(R.drawable.ic_white_gps)
+                } else {
+                    // GPS가 꺼져있을 경우 클릭한 상태가 아님
+                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else{
+                GPSBtn = false
                 val bgShape = binding.ibGps.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                bgShape.setColor(resources.getColor(R.color.white))
+                binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
+                stopTracking()
             }
         }
 
@@ -129,14 +139,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             // gps 버튼 클릭 상태로 변경
             // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
             if(!bottomGPSBtn){
-                bottomGPSBtn = true
-                val bgShape = binding.ibBottomGps.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
                 if (checkLocationService()) {
+                    bottomGPSBtn = true
                     binding.tvLocationAddress.text = "내 위치 검색중..."
                     // GPS가 켜져있을 경우
                     val a = permissionCheck()
+
+                    val bgShape = binding.ibBottomGps.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
 
                     binding.mapView.removePOIItem(marker)
                     // 지도에서 직접 추가하기 마커 위치
@@ -389,6 +400,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     // 3km 버튼이 이미 눌려있을 경우
                     else{
                         threeCheck = false
+                        binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                         binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
                         binding.btn3km.setTextColor(resources.getColor(R.color.main))
                     }
@@ -424,6 +436,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     // 5km 버튼이 이미 눌려있을 경우
                     else{
                         fiveCheck = false
+                        binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                         binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
                         binding.btn5km.setTextColor(resources.getColor(R.color.main))
                     }
