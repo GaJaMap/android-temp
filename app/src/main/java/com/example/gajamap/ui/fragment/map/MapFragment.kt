@@ -77,15 +77,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
-    var countkm = 0
     var gid: Long = 0
     var itemId: Long = 0
+    var groupNum = 0
     // 반경 3km, 5km 버튼 클릭되었는지 check
     var threeCheck = false
     var fiveCheck = false
-    var groupNum = 0
     var plusBtn = false
     var bottomGPSBtn = false
+    var kmBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -348,73 +348,94 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
+        // km 메인 버튼 클릭 이벤트, 3km와 5km 버튼 띄우기
         binding.ibKm.setOnClickListener {
-            val bgShape = binding.ibKm.background as GradientDrawable
-            if (countkm % 2 == 0){
+            if(!kmBtn){
                 // km 버튼 클릭 상태로 변경
+                kmBtn = true
+                val bgShape = binding.ibKm.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.main))
                 binding.ibKm.setImageResource(R.drawable.ic_white_km)
                 binding.clKm.visibility = View.VISIBLE
 
                 // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
                 binding.btn3km.setOnClickListener {
-                    if(fiveCheck){
-                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
-                        binding.btn5km.setTextColor(resources.getColor(R.color.main))
-                        fiveCheck = false
-                    }
-                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
-                    binding.btn3km.setTextColor(resources.getColor(R.color.white))
-                    threeCheck = true
-                    // GPS가 켜져있을 경우
-                    if (checkLocationService()) {
-                        val a = permissionCheck()
-                        if (a.first != 0.0 && a.second != 0.0){
-                            if (binding.tvSearch.text == "전체"){
-                                wholeRadius(3000, a.first, a.second)
-                            }
-                            else{
-                                specificRadius(3000, a.first, a.second, itemId)
-                            }
+                    if(!threeCheck){
+                        if(fiveCheck){
+                            fiveCheck = false
+                            binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                            binding.btn5km.setTextColor(resources.getColor(R.color.main))
                         }
-                    } else {
-                        // GPS가 꺼져있을 경우
-                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        threeCheck = true
+                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
+                        binding.btn3km.setTextColor(resources.getColor(R.color.white))
+
+                        // GPS가 켜져있을 경우
+                        if (checkLocationService()) {
+                            val a = permissionCheck()
+                            if (a.first != 0.0 && a.second != 0.0){
+                                if (binding.tvSearch.text == "전체"){
+                                    wholeRadius(3000, a.first, a.second)
+                                }
+                                else{
+                                    specificRadius(3000, a.first, a.second, itemId)
+                                }
+                            }
+                        } else {
+                            // GPS가 꺼져있을 경우
+                            Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    // 3km 버튼이 이미 눌려있을 경우
+                    else{
+                        threeCheck = false
+                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn3km.setTextColor(resources.getColor(R.color.main))
                     }
                 }
 
                 binding.btn5km.setOnClickListener {
-                    if(threeCheck){
-                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
-                        binding.btn3km.setTextColor(resources.getColor(R.color.main))
-                        threeCheck = false
-                    }
-                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
-                    binding.btn5km.setTextColor(resources.getColor(R.color.white))
-                    fiveCheck = true
-                    // GPS가 켜져있을 경우
-                    if (checkLocationService()) {
-                        val a = permissionCheck()
-                        if (a.first != 0.0 && a.second != 0.0){
-                            if (binding.tvSearch.text == "전체"){
-                                wholeRadius(5000, a.first, a.second)
-                            }
-                            else{
-                                specificRadius(5000, a.first, a.second, itemId)
-                            }
+                    if(!fiveCheck){
+                        if(threeCheck){
+                            threeCheck = false
+                            binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                            binding.btn3km.setTextColor(resources.getColor(R.color.main))
                         }
-                    } else {
-                        // GPS가 꺼져있을 경우
-                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        fiveCheck = true
+                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
+                        binding.btn5km.setTextColor(resources.getColor(R.color.white))
+
+                        // GPS가 켜져있을 경우
+                        if (checkLocationService()) {
+                            val a = permissionCheck()
+                            if (a.first != 0.0 && a.second != 0.0){
+                                if (binding.tvSearch.text == "전체"){
+                                    wholeRadius(5000, a.first, a.second)
+                                }
+                                else{
+                                    specificRadius(5000, a.first, a.second, itemId)
+                                }
+                            }
+                        } else {
+                            // GPS가 꺼져있을 경우
+                            Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    // 5km 버튼이 이미 눌려있을 경우
+                    else{
+                        fiveCheck = false
+                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn5km.setTextColor(resources.getColor(R.color.main))
                     }
                 }
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+                kmBtn = false
+                val bgShape = binding.ibKm.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibKm.setImageResource(R.drawable.ic_km)
-                binding.clKm.visibility = View.INVISIBLE
+                binding.clKm.visibility = View.GONE
             }
-            countkm += 1
         }
 
         // LocationSearch recyclerview
