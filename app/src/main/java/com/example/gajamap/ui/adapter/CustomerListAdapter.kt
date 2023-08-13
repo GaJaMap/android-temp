@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.Client
 import com.example.gajamap.databinding.ItemListBinding
 
@@ -20,9 +21,16 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                     val distance = data.distance.toString()
                     val distance1 = distance + "km"
                     val filePath = data.image.filePath
-                    val file = data.imageUrlPrefix + data.image.filePath
+                    val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+                    val file = imageUrl + data.image.filePath
                     Log.d("img_file", file.toString())
-                    if(filePath != null){
+                    Glide.with(binding.itemProfileImg.context)
+                        .load(file)
+                        .fitCenter()
+                        .apply(RequestOptions().override(500,500))
+                        .error(R.drawable.profile_img_origin)
+                        .into(binding.itemProfileImg)
+                    /*if(filePath != null){
                         Glide.with(binding.itemProfileImg.context)
                             .load(file)
                             .fitCenter()
@@ -30,9 +38,9 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                             .error(R.drawable.profile_img_origin)
                             .into(binding.itemProfileImg)
                     }
-                    if(data.imageUrlPrefix == null){
+                    if(imageUrl == null){
                         Glide.with(binding.itemProfileImg.context)
-                            .load(filePath)
+                            .load(file)
                             .fitCenter()
                             .apply(RequestOptions().override(500,500))
                             .error(R.drawable.profile_img_origin)
@@ -45,7 +53,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                             .apply(RequestOptions().override(500,500))
                             .error(R.drawable.profile_img_origin)
                             .into(binding.itemProfileImg)
-                    }
+                    }*/
                     binding.itemProfileAddressDetail.text = address
                     binding.itemProfileName.text = data.clientName
                     binding.itemProfilePhoneDetail.text = data.phoneNumber

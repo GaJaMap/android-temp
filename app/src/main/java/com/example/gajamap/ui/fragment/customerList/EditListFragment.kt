@@ -49,6 +49,7 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
 
     fun ListRv(it : GetAllClientResponse){
         // 리스트를 저장할 변수
+        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         val selectedClientIds = mutableListOf<Int>()
 
         //고객 리스트

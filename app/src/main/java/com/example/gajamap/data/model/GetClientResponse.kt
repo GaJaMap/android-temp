@@ -26,7 +26,8 @@ data class Image(
 )
 
 data class GetAllClientResponse(
-    val clients: List<Client>
+    val clients: List<Client>,
+    val imageUrlPrefix : String
 )
 
 data class ClientOne(
@@ -55,11 +56,13 @@ data class Client(
 
 
 data class GetGroupAllClientResponse(
-    val clients: List<Client>
+    val clients: List<Client>,
+    val imageUrlPrefix : String
 )
 
 data class GetRadiusResponse(
-    val clients: List<Client>
+    val clients: List<Client>,
+    val imageUrlPrefix : String
 )
 
 data class GroupResponse(

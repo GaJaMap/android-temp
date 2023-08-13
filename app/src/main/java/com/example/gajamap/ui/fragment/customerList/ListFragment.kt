@@ -380,6 +380,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         customerListAdapter.setOnItemClickListener(object :
             CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
+                val clientId = it.clients[position].clientId
+                GajaMapApplication.prefs.setString("clientId", clientId.toString())
                 val name = it.clients[position].clientName
                 val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail
@@ -399,6 +401,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
     fun ListRv(it : GetAllClientResponse){
+        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
@@ -446,7 +449,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
 
     fun GroupClientSearchRV(it : GetGroupAllClientResponse){
-
+        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
