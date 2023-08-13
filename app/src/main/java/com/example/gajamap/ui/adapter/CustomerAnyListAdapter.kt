@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.Client
 import com.example.gajamap.databinding.FragmentEditListBinding
 import com.example.gajamap.databinding.ItemAnyListBinding
@@ -27,11 +28,26 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             RecyclerView.ViewHolder(binding.root){
         fun bind(data: Client, background: Drawable?){
             val address = data.address.mainAddress
-            val file = data.image.filePath
-            if(file != null){
-                val filePath = getImageUrl(data.image.filePath)
+            val filePath = data.image.filePath
+            val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+            val file = imageUrl + data.image.filePath
+            Glide.with(binding.itemProfileImg.context)
+                .load(file)
+                .fitCenter()
+                .apply(RequestOptions().override(500,500))
+                .error(R.drawable.profile_img_origin)
+                .into(binding.itemProfileImg)
+            /*if(filePath != null){
                 Glide.with(binding.itemProfileImg.context)
-                    .load(filePath)
+                    .load(file)
+                    .fitCenter()
+                    .apply(RequestOptions().override(500,500))
+                    .error(R.drawable.profile_img_origin)
+                    .into(binding.itemProfileImg)
+            }
+            if(imageUrl == null){
+                Glide.with(binding.itemProfileImg.context)
+                    .load(file)
                     .fitCenter()
                     .apply(RequestOptions().override(500,500))
                     .error(R.drawable.profile_img_origin)
@@ -44,7 +60,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
                     .apply(RequestOptions().override(500,500))
                     .error(R.drawable.profile_img_origin)
                     .into(binding.itemProfileImg)
-            }
+            }*/
             binding.itemProfileAddressDetail.text = address
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
@@ -97,18 +113,4 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     private lateinit var itemClickListener : OnItemClickListener
 
 
-    fun getImageUrl(imageName: String): String {
-        Log.d("img", imageName)
-        /*val filePath = "/path/to/images/$imageName"
-        val url = URL("file://$filePath")*/
-        val url = "content://media/external/images/$imageName"
-        //val url = URL("content://media/external/images/$imageName")
-
-        return url.toString()
-
-    }
-
-    private fun updateItemBackgrounds() {
-
-    }
 }

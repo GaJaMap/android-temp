@@ -227,6 +227,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     private fun sendImage(clientImage: MultipartBody.Part){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
+            val clientId = GajaMapApplication.prefs.getString("clientId", "")
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
@@ -244,7 +245,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient( groupId1.toInt(), 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("postAddDirect", it.toString())
             })
@@ -256,6 +257,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     private fun sendImage1(){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
+            val clientId = GajaMapApplication.prefs.getString("clientId", "")
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
@@ -273,7 +275,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient( groupId1.toInt(), 78, clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+            viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("postAddDirect", it.toString())
             })
