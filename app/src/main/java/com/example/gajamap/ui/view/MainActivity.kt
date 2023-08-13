@@ -1,5 +1,12 @@
 package com.example.gajamap.ui.view
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
+import android.util.Log
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -13,6 +20,8 @@ import com.example.gajamap.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
+    private val ACCESS_FINE_LOCATION = 1000   // Request Code
+    private var mapFragment: MapFragment? = null
     override val viewModel by viewModels<MainViewModel> {
         MainViewModel.MainViewModelFactory("tmp")
     }
@@ -32,7 +41,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bnMain = binding.navBn
         // 맨 처음 화면을 켰을 때 map 탭이 보여지도록
         bnMain.selectedItemId = R.id.menu_map
-        supportFragmentManager.beginTransaction().add(R.id.nav_fl, MapFragment()).commit()
+        // 프래그먼트 초기화 및 추가
+        mapFragment = MapFragment()
+        supportFragmentManager.beginTransaction().add(R.id.nav_fl, mapFragment!!).commit()
 
         bnMain.setOnItemSelectedListener {
             when (it.itemId) {
@@ -64,4 +75,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         supportFragmentManager.beginTransaction().replace(R.id.nav_fl, fragment).commit()
     }
 
+    // MapFragment에서 위치 권한 요청 후 행동
+    @SuppressLint("ResourceAsColor")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == ACCESS_FINE_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한 요청 후 승인됨 (추적 시작)
+                Toast.makeText(this, "위치 권한 승인", Toast.LENGTH_SHORT).show()
+                mapFragment?.startTracking()
+            } else {
+                // 권한 요청 후 거절됨 (다시 요청 or 토스트)
+                Toast.makeText(this, "위치 권한 거절", Toast.LENGTH_SHORT).show()
+                mapFragment?.permissionCheck()
+                findViewById<ImageButton>(R.id.ib_gps).setImageResource(R.drawable.ic_gray_gps)
+            }
+        }
+    }
 }

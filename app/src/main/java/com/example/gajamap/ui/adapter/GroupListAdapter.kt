@@ -1,14 +1,11 @@
 package com.example.gajamap.ui.adapter
 
-import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.os.persistableBundleOf
-import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gajamap.R
 import com.example.gajamap.data.model.GroupListData
@@ -17,6 +14,7 @@ import com.example.gajamap.databinding.ItemGroupListBinding
 class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     var datalist = mutableListOf<GroupListData>()
     private var selectedPosition = 0
+    var previousSelectedPosition = 0
 
     inner class ViewHolder(private val binding: ItemGroupListBinding): RecyclerView.ViewHolder(binding.root) {
         val bgShape = binding.ivGroup.background as GradientDrawable
@@ -46,23 +44,36 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     // 적절한 데이터를 가져와서 그 데이터를 사용하여 뷰홀더의 레이아웃 채움
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
-        if (position == 0){
+
+        // todo: 수정 필요!!!
+//        if (position == 0){
+//            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
+//            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
+//        }
+        if(datalist[position].whole && previousSelectedPosition == position && selectedPosition == 0) {
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
         // 아이템의 배경 설정
-        if(position == selectedPosition){
+        if(datalist[position].isSelected){
             holder.itemView.setBackgroundResource(R.color.inform)
+
         }else{
             holder.itemView.setBackgroundResource(R.color.white)
+        }
+        if(!datalist[position].whole && selectedPosition != 0 && position != 0){
+            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.VISIBLE
+            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.VISIBLE
         }
         // 아이템 클릭 이벤트
         holder.itemView.setOnClickListener {
             // 이전에 선택된 아이템의 배경을 변경
-            val previousSelectedPosition = selectedPosition
+            previousSelectedPosition = selectedPosition
+            datalist[previousSelectedPosition].isSelected = false
             selectedPosition = holder.position
+            datalist[selectedPosition].isSelected = true
+//            // 이전 & 현재 클릭된 아이템의 배경을 변경
             notifyItemChanged(previousSelectedPosition)
-            // 현재 클릭된 아이템의 배경을 변경
             notifyItemChanged(selectedPosition)
 
             itemClickListener.onClick(it, position, datalist[position].id, datalist[position].name)
