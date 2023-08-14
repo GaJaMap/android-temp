@@ -21,13 +21,6 @@ class MapViewModel: ViewModel() {
     private val radiusRepository = RadiusRepository()
     private val getClientRepository = GetClientRepository()
 
-//    private val _GPSBtn = MutableLiveData<Boolean>()
-//    val GPSBtn : LiveData<Boolean>
-//        get() = _GPSBtn
-//
-//    fun gpsBtn(gpsbtn : Boolean){
-//        _GPSBtn.value = gpsbtn
-//    }
     // 값이 변경되는 경우 MutableLiveData로 선언한다.
     private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
     val checkGroup : LiveData<ArrayList<GroupListData>>

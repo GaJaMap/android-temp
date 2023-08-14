@@ -50,7 +50,7 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
 //            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
 //            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
 //        }
-        if(datalist[position].whole && previousSelectedPosition == position && selectedPosition == 0) {
+        if(datalist[position].whole && position == 0) {
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
@@ -61,6 +61,7 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         }else{
             holder.itemView.setBackgroundResource(R.color.white)
         }
+
         if(!datalist[position].whole && selectedPosition != 0 && position != 0){
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.VISIBLE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.VISIBLE

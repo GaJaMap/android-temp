@@ -38,7 +38,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.viewModel = this.viewModel
     }
 
-
     override fun onCreateAction() {
         // 이곳에 화면 기능 구현
         //카카오 해시키
