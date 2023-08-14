@@ -36,7 +36,7 @@ class MapViewModel: ViewModel() {
             if(response.isSuccessful){
                 val data = response.body()
                 // MapFragment에서 observer가 실행되기 위해서는 postValue가 필요하다!
-                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0"))
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0", false, false))
                 _checkGroup.postValue(checkItems)
                 Log.d("createGroupSuccess", "${response.body()}")
             }else {
@@ -56,11 +56,11 @@ class MapViewModel: ViewModel() {
                 Log.d("checkGroupSuccess", "${response.body()}")
                 val num = data!!.groupInfos.count()
                 var count = 0
-                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 0, name = "전체", person = "0"))
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 0, name = "전체", person = "0", true, true))
                 for (i in 0..num-1) {
                     val itemdata = data.groupInfos.get(i)
                     count += itemdata.clientCount
-                    checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = itemdata.groupId, name = itemdata.groupName, person = itemdata.clientCount.toString()))
+                    checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = itemdata.groupId, name = itemdata.groupName, person = itemdata.clientCount.toString(), false, false))
                 }
                 checkItems[0].person = count.toString()
                 _checkGroup.value = checkItems

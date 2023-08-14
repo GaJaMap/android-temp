@@ -11,19 +11,19 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -35,7 +35,6 @@ import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
-import com.example.gajamap.base.setPref
 import com.example.gajamap.data.response.*
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
@@ -46,9 +45,6 @@ import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.delay
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -57,7 +53,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.math.round
+import kotlin.properties.Delegates
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -77,15 +73,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
-    var countkm = 0
     var gid: Long = 0
     var itemId: Long = 0
+    var groupNum = 0
     // 반경 3km, 5km 버튼 클릭되었는지 check
     var threeCheck = false
     var fiveCheck = false
-    var groupNum = 0
     var plusBtn = false
     var bottomGPSBtn = false
+    var kmBtn = false
+    var GPSBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -106,21 +103,30 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.mapView.setPOIItemEventListener(this)
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
-
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
+            if(!GPSBtn){
+                if (checkLocationService()) {
+                    GPSBtn = true
 
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-                // gps 버튼 클릭 상태로 변경
-                // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+                    // GPS가 켜져있을 경우
+                    permissionCheck()
+                    // gps 버튼 클릭 상태로 변경
+                    // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
+                    val bgShape = binding.ibGps.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibGps.setImageResource(R.drawable.ic_white_gps)
+                } else {
+                    // GPS가 꺼져있을 경우 클릭한 상태가 아님
+                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else{
+                GPSBtn = false
                 val bgShape = binding.ibGps.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                bgShape.setColor(resources.getColor(R.color.white))
+                binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
+                stopTracking()
             }
         }
 
@@ -129,14 +135,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             // gps 버튼 클릭 상태로 변경
             // 원을 유지한 상태로 drawable 색상만 변경할 때 사용
             if(!bottomGPSBtn){
-                bottomGPSBtn = true
-                val bgShape = binding.ibBottomGps.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
                 if (checkLocationService()) {
+                    bottomGPSBtn = true
                     binding.tvLocationAddress.text = "내 위치 검색중..."
                     // GPS가 켜져있을 경우
                     val a = permissionCheck()
+
+                    val bgShape = binding.ibBottomGps.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibBottomGps.setImageResource(R.drawable.ic_white_gps)
 
                     binding.mapView.removePOIItem(marker)
                     // 지도에서 직접 추가하기 마커 위치
@@ -265,37 +272,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                searchResultList.add(SearchResultData("조예진"))
-//                searchResultList.add(SearchResultData("하이하이"))
-//                binding.rvSearch.adapter = searchResultAdapter
-//                searchResultAdapter.notifyDataSetChanged()
+                searchResultList.add(SearchResultData("조예진"))
+                searchResultList.add(SearchResultData("하이하이"))
+                binding.rvSearch.adapter = searchResultAdapter
+                searchResultAdapter.notifyDataSetChanged()
 
-//                binding.clSearchResult.visibility = View.VISIBLE
+                binding.clSearchResult.visibility = View.VISIBLE
             }
 
             override fun afterTextChanged(p0: Editable?) {
 
             }
-
         })
-        // SearchResult recyclerview
-//        binding.etSearch.setOnClickListener {
-//            searchResultList.add(SearchResultData("조예진"))
-//            searchResultList.add(SearchResultData("하이하이"))
-//            searchResultList.add(SearchResultData("제발"))
-//            searchResultAdapter.notifyDataSetChanged()
-//            binding.rvSearch.adapter = searchResultAdapter
-//        }
-//
-//        // recyclerview 아이템 클릭 시 해당 위치로 이동
-//        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
-//            override fun onClick(v: View, position: Int) {
-//                val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
-//
-//                binding.mapView.setMapCenterPoint(mapPoint, true)
-//
-//            }
-//        })
 
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
@@ -348,73 +336,88 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
+        // km 메인 버튼 클릭 이벤트, 3km와 5km 버튼 띄우기
         binding.ibKm.setOnClickListener {
-            val bgShape = binding.ibKm.background as GradientDrawable
-            if (countkm % 2 == 0){
+            if(!kmBtn){
                 // km 버튼 클릭 상태로 변경
-                bgShape.setColor(resources.getColor(R.color.main))
-                binding.ibKm.setImageResource(R.drawable.ic_white_km)
-                binding.clKm.visibility = View.VISIBLE
+                // GPS가 켜져있을 경우
+                if (checkLocationService()) {
+                    val a = permissionCheck()
+                    kmBtn = true
+                    val bgShape = binding.ibKm.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.main))
+                    binding.ibKm.setImageResource(R.drawable.ic_white_km)
+                    binding.clKm.visibility = View.VISIBLE
 
-                // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
-                binding.btn3km.setOnClickListener {
-                    if(fiveCheck){
-                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
-                        binding.btn5km.setTextColor(resources.getColor(R.color.main))
-                        fiveCheck = false
-                    }
-                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
-                    binding.btn3km.setTextColor(resources.getColor(R.color.white))
-                    threeCheck = true
-                    // GPS가 켜져있을 경우
-                    if (checkLocationService()) {
-                        val a = permissionCheck()
-                        if (a.first != 0.0 && a.second != 0.0){
-                            if (binding.tvSearch.text == "전체"){
-                                wholeRadius(3000, a.first, a.second)
+                    // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
+                    binding.btn3km.setOnClickListener {
+                        if(!threeCheck){
+                            if(fiveCheck){
+                                fiveCheck = false
+                                binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                                binding.btn5km.setTextColor(resources.getColor(R.color.main))
                             }
-                            else{
-                                specificRadius(3000, a.first, a.second, itemId)
+                            threeCheck = true
+                            binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
+                            binding.btn3km.setTextColor(resources.getColor(R.color.white))
+
+                            if (a.first != 0.0 && a.second != 0.0){
+                                if (binding.tvSearch.text == "전체"){
+                                    wholeRadius(3000, a.first, a.second)
+                                }
+                                else{
+                                    specificRadius(3000, a.first, a.second, itemId)
+                                }
                             }
                         }
-                    } else {
-                        // GPS가 꺼져있을 경우
-                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        // 3km 버튼이 이미 눌려있을 경우
+                        else{
+                            threeCheck = false
+                            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                            binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                            binding.btn3km.setTextColor(resources.getColor(R.color.main))
+                        }
                     }
-                }
 
-                binding.btn5km.setOnClickListener {
-                    if(threeCheck){
-                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
-                        binding.btn3km.setTextColor(resources.getColor(R.color.main))
-                        threeCheck = false
-                    }
-                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
-                    binding.btn5km.setTextColor(resources.getColor(R.color.white))
-                    fiveCheck = true
-                    // GPS가 켜져있을 경우
-                    if (checkLocationService()) {
-                        val a = permissionCheck()
-                        if (a.first != 0.0 && a.second != 0.0){
-                            if (binding.tvSearch.text == "전체"){
-                                wholeRadius(5000, a.first, a.second)
+                    binding.btn5km.setOnClickListener {
+                        if(!fiveCheck) {
+                            if (threeCheck) {
+                                threeCheck = false
+                                binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                                binding.btn3km.setTextColor(resources.getColor(R.color.main))
                             }
-                            else{
-                                specificRadius(5000, a.first, a.second, itemId)
+                            fiveCheck = true
+                            binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
+                            binding.btn5km.setTextColor(resources.getColor(R.color.white))
+
+                            if (a.first != 0.0 && a.second != 0.0) {
+                                if (binding.tvSearch.text == "전체") {
+                                    wholeRadius(5000, a.first, a.second)
+                                } else {
+                                    specificRadius(5000, a.first, a.second, itemId)
+                                }
                             }
                         }
-                    } else {
-                        // GPS가 꺼져있을 경우
-                        Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                        // 5km 버튼이 이미 눌려있을 경우
+                        else{
+                            fiveCheck = false
+                            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                            binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                            binding.btn5km.setTextColor(resources.getColor(R.color.main))
+                        }
                     }
+                }else {
+                    // GPS가 꺼져있을 경우
+                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+                kmBtn = false
+                val bgShape = binding.ibKm.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibKm.setImageResource(R.drawable.ic_km)
-                binding.clKm.visibility = View.INVISIBLE
+                binding.clKm.visibility = View.GONE
             }
-            countkm += 1
         }
 
         // LocationSearch recyclerview
@@ -437,6 +440,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
             }
         })
+
         // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
         binding.tvLocationSearchGo.setOnClickListener {
             binding.clLocationSearch.visibility = View.VISIBLE
@@ -477,17 +481,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
     val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
         Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 다른 화면에 갔다가 다시 돌아왔을 때 버튼 색상 원래대로 되돌리기
-        val bgShapekm = binding.ibKm.background as GradientDrawable
-        bgShapekm.setColor(resources.getColor(R.color.white))
-        val bgShapeplus = binding.ibPlus.background as GradientDrawable
-        bgShapeplus.setColor(resources.getColor(R.color.white))
-        val bgShapegps = binding.ibGps.background as GradientDrawable
-        bgShapegps.setColor(resources.getColor(R.color.white))
     }
 
     // 그룹 생성 api
@@ -588,6 +581,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         })
     }
+
     // 특정 그룹 내에 고객 전부 조회 api
     private fun getGroupClient(groupId: Long){
         viewModel.getGroupAllClient(groupId)
@@ -645,21 +639,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
             binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
-
-//            val num = data.count()
-//            binding.mapView.removeAllPOIItems()
-//            for (i in 0..num-1) {
-//                val itemdata = data.get(i)
-//                // 지도에 마커 추가
-//                val point = MapPOIItem()
-//                point.apply {
-//                    itemName = itemdata.clientName
-//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-//                    markerType = MapPOIItem.MarkerType.BluePin
-//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-//                }
-//                binding.mapView.addPOIItem(point)
-//            }
         })
     }
 
@@ -703,8 +682,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
-                    Log.d("LocationSearch", "success")
-
                 }else{  /// 이곳은 에러 발생할 경우 실행됨
                     Log.d("LocationSearch", "fail : ${response.code()}")
                 }
@@ -752,7 +729,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 위치 권한 확인
-    private fun permissionCheck(): Pair<Double, Double> {
+    fun permissionCheck(): Pair<Double, Double> {
         val preference = requireActivity().getPreferences(MODE_PRIVATE)
         val isFirstCheck = preference.getBoolean("isFirstPermissionCheck", true)
         var userLatitude = 0.0
@@ -780,8 +757,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
                     builder.setPositiveButton("확인") { dialog, which ->
                     }
-                    builder.setNegativeButton("취소") { dialog, which ->
-                    }
                     builder.show()
                 }
             }
@@ -800,22 +775,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         return Pair(userLatitude, userLongitude)
     }
 
-    // 권한 요청 후 행동
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한 요청 후 승인됨 (추적 시작)
-                Toast.makeText(requireContext(), "위치 권한 승인", Toast.LENGTH_SHORT).show()
-                startTracking()
-            } else {
-                // 권한 요청 후 거절됨 (다시 요청 or 토스트)
-                Toast.makeText(requireContext(), "위치 권한 거절", Toast.LENGTH_SHORT).show()
-                permissionCheck()
-            }
-        }
-    }
-
     // GPS가 켜져있는지 확인
     private fun checkLocationService(): Boolean {
         val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -823,7 +782,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 위치추적 시작
-    private fun startTracking() {
+    fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
     // 위치추적 중지

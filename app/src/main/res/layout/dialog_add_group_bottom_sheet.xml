@@ -69,11 +69,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_addgroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="228dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"
             android:overScrollMode="never"
