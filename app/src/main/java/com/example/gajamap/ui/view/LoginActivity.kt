@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -12,8 +13,10 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.response.SearchResultData
 import com.example.gajamap.databinding.ActivityLoginBinding
 import com.example.gajamap.databinding.ActivityMainBinding
+import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.viewmodel.LoginViewModel
 import com.example.gajamap.viewmodel.MainViewModel
 import com.kakao.sdk.auth.model.OAuthToken
@@ -26,6 +29,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login) {
+    // SearchResult recyclerview
+    private val searchResultList = arrayListOf<SearchResultData>()
+    private val searchResultAdapter = SearchResultAdapter(searchResultList)
 
     override val viewModel by viewModels<LoginViewModel> {
         LoginViewModel.LoginViewModelFactory("tmp")
@@ -38,6 +44,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     }
 
     override fun onCreateAction() {
+
     }
 
     fun kakaoLogin(){

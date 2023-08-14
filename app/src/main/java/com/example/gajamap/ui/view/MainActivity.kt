@@ -4,8 +4,6 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
-import android.util.Log
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -50,7 +48,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bnMain.selectedItemId = R.id.menu_map
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
-//        supportFragmentManager.beginTransaction().add(R.id.nav_fl, mapFragment!!).commit()
 
         bnMain.setOnItemSelectedListener {
             when (it.itemId) {

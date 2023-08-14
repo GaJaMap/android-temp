@@ -45,15 +45,11 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(datalist[position])
 
-        // todo: 수정 필요!!!
-//        if (position == 0){
-//            holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
-//            holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
-//        }
         if(datalist[position].whole && position == 0) {
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
+
         // 아이템의 배경 설정
         if(datalist[position].isSelected){
             holder.itemView.setBackgroundResource(R.color.inform)
@@ -73,7 +69,7 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
             datalist[previousSelectedPosition].isSelected = false
             selectedPosition = holder.position
             datalist[selectedPosition].isSelected = true
-//            // 이전 & 현재 클릭된 아이템의 배경을 변경
+            // 이전 & 현재 클릭된 아이템의 배경을 변경
             notifyItemChanged(previousSelectedPosition)
             notifyItemChanged(selectedPosition)
 

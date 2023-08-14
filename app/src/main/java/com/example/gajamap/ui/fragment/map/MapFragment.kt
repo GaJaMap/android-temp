@@ -272,37 +272,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                searchResultList.add(SearchResultData("조예진"))
-//                searchResultList.add(SearchResultData("하이하이"))
-//                binding.rvSearch.adapter = searchResultAdapter
-//                searchResultAdapter.notifyDataSetChanged()
+                searchResultList.add(SearchResultData("조예진"))
+                searchResultList.add(SearchResultData("하이하이"))
+                binding.rvSearch.adapter = searchResultAdapter
+                searchResultAdapter.notifyDataSetChanged()
 
-//                binding.clSearchResult.visibility = View.VISIBLE
+                binding.clSearchResult.visibility = View.VISIBLE
             }
 
             override fun afterTextChanged(p0: Editable?) {
 
             }
-
         })
-        // SearchResult recyclerview
-//        binding.etSearch.setOnClickListener {
-//            searchResultList.add(SearchResultData("조예진"))
-//            searchResultList.add(SearchResultData("하이하이"))
-//            searchResultList.add(SearchResultData("제발"))
-//            searchResultAdapter.notifyDataSetChanged()
-//            binding.rvSearch.adapter = searchResultAdapter
-//        }
-//
-//        // recyclerview 아이템 클릭 시 해당 위치로 이동
-//        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
-//            override fun onClick(v: View, position: Int) {
-//                val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
-//
-//                binding.mapView.setMapCenterPoint(mapPoint, true)
-//
-//            }
-//        })
 
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
@@ -502,29 +483,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 다른 화면에 갔다가 다시 돌아왔을 때 버튼 색상 원래대로 되돌리기
-//        val bgShapeplus = binding.ibPlus.background as GradientDrawable
-//        bgShapeplus.setColor(resources.getColor(R.color.white))
-
-//        Log.d("gpsResume", GPSBtn.toString())
-//        if(GPSBtn){
-//            val bgShape = binding.ibGps.background as GradientDrawable
-//            bgShape.setColor(resources.getColor(R.color.main))
-//            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
-//        }
-//        else{
-//            val bgShapegps = binding.ibGps.background as GradientDrawable
-//            bgShapegps.setColor(resources.getColor(R.color.white))
-//            binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
-//        }
-//        val bgShapekm = binding.ibKm.background as GradientDrawable
-//        bgShapekm.setColor(resources.getColor(R.color.white))
-    //
-
-    }
-
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
@@ -681,21 +639,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
             binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
-
-//            val num = data.count()
-//            binding.mapView.removeAllPOIItems()
-//            for (i in 0..num-1) {
-//                val itemdata = data.get(i)
-//                // 지도에 마커 추가
-//                val point = MapPOIItem()
-//                point.apply {
-//                    itemName = itemdata.clientName
-//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-//                    markerType = MapPOIItem.MarkerType.BluePin
-//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-//                }
-//                binding.mapView.addPOIItem(point)
-//            }
         })
     }
 
@@ -739,8 +682,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
-                    Log.d("LocationSearch", "success")
-
                 }else{  /// 이곳은 에러 발생할 경우 실행됨
                     Log.d("LocationSearch", "fail : ${response.code()}")
                 }
