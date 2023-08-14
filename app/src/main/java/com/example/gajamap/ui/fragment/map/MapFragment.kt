@@ -19,6 +19,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
@@ -81,7 +82,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var plusBtn = false
     var bottomGPSBtn = false
     var kmBtn = false
-    private var GPSBtn = false
+    var GPSBtn = false
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -91,18 +92,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.setVariable(BR.viewModel, viewModel)
         binding.lifecycleOwner = this@MapFragment
         binding.fragment = this@MapFragment
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if(savedInstanceState != null){
-            GPSBtn = savedInstanceState.getBoolean("gpsbtn", false)
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("gpsbtn", GPSBtn)
     }
 
     @SuppressLint("ResourceAsColor")
@@ -516,20 +505,20 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onResume() {
         super.onResume()
         // 다른 화면에 갔다가 다시 돌아왔을 때 버튼 색상 원래대로 되돌리기
-        val bgShapeplus = binding.ibPlus.background as GradientDrawable
-        bgShapeplus.setColor(resources.getColor(R.color.white))
+//        val bgShapeplus = binding.ibPlus.background as GradientDrawable
+//        bgShapeplus.setColor(resources.getColor(R.color.white))
 
-        Log.d("gpsResume", GPSBtn.toString())
-        if(GPSBtn){
-            val bgShape = binding.ibGps.background as GradientDrawable
-            bgShape.setColor(resources.getColor(R.color.main))
-            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
-        }
-        else{
-            val bgShapegps = binding.ibGps.background as GradientDrawable
-            bgShapegps.setColor(resources.getColor(R.color.white))
-            binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
-        }
+//        Log.d("gpsResume", GPSBtn.toString())
+//        if(GPSBtn){
+//            val bgShape = binding.ibGps.background as GradientDrawable
+//            bgShape.setColor(resources.getColor(R.color.main))
+//            binding.ibGps.setImageResource(R.drawable.ic_white_gps)
+//        }
+//        else{
+//            val bgShapegps = binding.ibGps.background as GradientDrawable
+//            bgShapegps.setColor(resources.getColor(R.color.white))
+//            binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
+//        }
 //        val bgShapekm = binding.ibKm.background as GradientDrawable
 //        bgShapekm.setColor(resources.getColor(R.color.white))
     //
@@ -853,7 +842,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     // 위치추적 시작
     fun startTracking() {
-        Log.d("GPS", "3")
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
     // 위치추적 중지
