@@ -45,6 +45,11 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
     override fun onCreateAction() {
 
+        viewModel.autoLogin()
+        viewModel.autoLogin.observe(this, Observer {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        })
     }
 
     fun kakaoLogin(){
@@ -90,7 +95,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         viewModel.login.observe(this, Observer {
 
-            GajaMapApplication.prefs.setString("groupIdLogin", it.groupId.toString())
+            GajaMapApplication.prefs.setString("authority", it.authority.toString())
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

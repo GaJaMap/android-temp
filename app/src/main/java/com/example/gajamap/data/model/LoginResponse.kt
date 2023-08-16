@@ -6,7 +6,8 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
-    val groupId : Int,
-    val authority : String
+    val email : String,
+    val authority : String,
+    val createdDate : String
 )
 

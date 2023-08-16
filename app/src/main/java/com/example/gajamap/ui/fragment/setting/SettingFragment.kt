@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.databinding.FragmentSettingBinding
 import com.example.gajamap.ui.view.LoginActivity
 import com.example.gajamap.viewmodel.ClientViewModel
@@ -49,6 +50,18 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
 
     override fun onCreateAction() {
 
+        val authority = GajaMapApplication.prefs.getString("authority", "")
+        if(authority == "FREE"){
+            binding.infoProfileImg.setBackgroundResource(R.drawable.setting_profile)
+            binding.settingLevelTv.setText(R.string.setting_level)
+            binding.settingLevelTv.resources.getColor(R.color.setting_level_yellow)
+        }
+        else if (authority == "VIP"){
+            binding.infoProfileImg.setBackgroundResource(R.drawable.setting_profile_vip)
+            binding.settingLevelTv.setText(R.string.setting_level_vip)
+            binding.settingLevelTv.resources.getColor(R.color.setting_level_purple)
+            binding.settingLevelTv.setBackgroundResource(R.color.setting_level_purple_background)
+        }
 
         //문의하기
         binding.settingInquireTv.setOnClickListener {

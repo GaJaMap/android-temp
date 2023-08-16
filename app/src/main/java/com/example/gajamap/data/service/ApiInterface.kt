@@ -4,6 +4,7 @@ import com.example.gajamap.data.model.*
 import com.example.gajamap.data.response.CheckGroupResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -104,4 +105,8 @@ interface ApiInterface {
     //회원탈퇴
     @DELETE("/api/user")
     suspend fun withdraw() : Response<BaseResponse>
+
+    //자동로그인
+    @GET("/api/user/auto-login")
+    suspend fun autoLogin() : Response<AutoLoginResponse>
 }

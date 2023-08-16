@@ -41,6 +41,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     private var radius = 0
 
     private val ACCESS_FINE_LOCATION = 1000
+    private val CALL_PHONE_PERMISSION_CODE = 101
 
     private var cate1 = false
     private var cate2 = false
@@ -74,8 +75,15 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     override fun onCreateAction() {
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
-        val groupIdLogin = GajaMapApplication.prefs.getString("groupIdLogin", "")
-        if(groupIdLogin != null){
+        /*viewModel.getGroupAllClient(10)
+        viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
+            GroupClientSearchRV(it)
+        })*/
+        viewModel.getAllClient()
+        viewModel.getAllClient.observe(this, Observer {
+            ListRv(it)
+        })
+        /*if(groupIdLogin != null){
             viewModel.getAllClient()
             viewModel.getAllClient.observe(this, Observer {
                 ListRv(it)
@@ -86,7 +94,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
                 GroupClientSearchRV(it)
             })
-        }
+        }*/
 
         binding.fragmentEditBtn.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, EditListFragment()).addToBackStack(null).commit()
@@ -496,4 +504,5 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             }
         })
     }
+
 }
