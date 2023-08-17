@@ -84,7 +84,3 @@ data class GroupInfoResponse(
     val clientCount: Int,
     val groupName: String
 )
-
-data class KakaoMapImage(
-    @SerializedName("image_url") val imageUrl: String
-)

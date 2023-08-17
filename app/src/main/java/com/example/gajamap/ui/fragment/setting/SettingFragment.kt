@@ -39,6 +39,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
        viewModel.withdraw()
         viewModel.withdraw.observe(this, Observer {
             Toast.makeText(requireContext(), "탈퇴", Toast.LENGTH_SHORT).show()
+            GajaMapApplication.prefs.clearAllPreferences()
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
             activity?.finish()
@@ -88,6 +89,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
         binding.settingLogoutTv.setOnClickListener {
             viewModel.logout()
             viewModel.logout.observe(this, Observer {
+                GajaMapApplication.prefs.clearAllPreferences()
                 val intent = Intent(activity, LoginActivity::class.java)
                 startActivity(intent)
                 activity?.finish()

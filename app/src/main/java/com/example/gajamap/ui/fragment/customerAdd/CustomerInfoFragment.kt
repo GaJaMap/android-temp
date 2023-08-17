@@ -72,27 +72,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         val phone = GajaMapApplication.prefs.getString("phone", "")
         val latitude = GajaMapApplication.prefs.getString("latitude1", "")
         val longitude = GajaMapApplication.prefs.getString("longitude1", "")
-        //val latitude = 33.12345
-        //val longitude = 127.7777
-        /*Log.d("address", latitude.toString())
-        val apiKey = BuildConfig.KAKAO_API_KEY
-        val zoomLevel = 3
-        val width = 336
-        val height = 300
-        val imageUrl = "https://dapi.kakao.com/v2/maps/staticmap?appkey=$apiKey&center=$longitude,$latitude&level=$zoomLevel&width=$width&height=$height&markers=$longitude,$latitude"
-        Glide.with(this)
-            .load(imageUrl)
-            .into(binding.mapImage)*/
 
-        val width = 336
-        val height = 300
-        val level = 3
-        val center = "$latitude,$longitude"
-        viewModel.getMapImage(center, width, height, level).observe(this) { imageUrl ->
-            Glide.with(this)
-                .load(imageUrl)
-                .into(binding.mapImage)
-        }
         //마커 찍는데 사용하기
         /*val latitude = GajaMapApplication.prefs.getString("latitude1", "")
         val longitude = GajaMapApplication.prefs.getString("longitude1", "")
