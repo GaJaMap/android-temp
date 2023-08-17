@@ -38,6 +38,14 @@ class LoginViewModel(private val tmp: String): ViewModel() {
             }
         }
     }
+
+    fun autoLoginKakao(){
+        viewModelScope.launch  (Dispatchers.IO){
+            val response = loginRepository.autoLogin()
+            Log.d("autoLogin", "${response}\n${response.code()}")
+            _autoLogin.postValue(response.body())
+        }
+    }
     fun postLogin(loginRequest: LoginRequest){
         viewModelScope.launch  (Dispatchers.IO) {
             val response = loginRepository.postLogin(loginRequest)

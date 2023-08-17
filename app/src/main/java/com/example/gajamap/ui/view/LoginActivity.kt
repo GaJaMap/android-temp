@@ -47,6 +47,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         viewModel.autoLogin()
         viewModel.autoLogin.observe(this, Observer {
+            GajaMapApplication.prefs.saveAutoLoginResponse(it)
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
@@ -92,14 +93,17 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         Log.d("kakoAccessToken_1", token)
 
         viewModel.postLogin(LoginRequest(token))
-
         viewModel.login.observe(this, Observer {
 
+            viewModel.autoLogin.observe(this, Observer {
+                GajaMapApplication.prefs.saveAutoLoginResponse(it)
+            })
             GajaMapApplication.prefs.setString("authority", it.authority.toString())
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
         )
     }
+
 
 }

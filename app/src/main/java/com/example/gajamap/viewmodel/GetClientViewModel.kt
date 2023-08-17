@@ -220,10 +220,6 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
             }
         }
     }
-    private val repository = GetClientRepository()
-    fun getMapImage(center: String, width: Int, height: Int, level: Int): LiveData<String> {
-        return repository.getMapImage(center, width, height, level)
-    }
 
     class AddViewModelFactory(private val tmp: String)
         : ViewModelProvider.Factory {
