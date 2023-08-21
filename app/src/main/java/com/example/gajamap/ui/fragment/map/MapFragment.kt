@@ -83,6 +83,37 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
+    // 상태를 저장할 번들 객체
+//    private var savedState: Bundle? = null
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        savedState = savedInstanceState
+//    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        // 상태 저장
+//        outState.putBoolean("GPSBtn", GPSBtn)
+//        savedState = outState
+//    }
+//
+//    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+//        super.onViewStateRestored(savedInstanceState)
+//        // 저장된 상태 복원
+//        if (savedState != null) {
+//            // 필요한 UI 상태 복원 로직
+//            GPSBtn = savedInstanceState!!.getBoolean("GPSBtn")
+//            if(GPSBtn){
+//                val bgShape = binding.ibGps.background as GradientDrawable
+//                bgShape.setColor(resources.getColor(R.color.main))
+//                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
+//            }else{
+//                val bgShape = binding.ibGps.background as GradientDrawable
+//                bgShape.setColor(resources.getColor(R.color.white))
+//                binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
+//            }
+//        }
+//    }
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()

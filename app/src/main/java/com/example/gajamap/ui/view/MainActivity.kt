@@ -48,6 +48,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bnMain.selectedItemId = R.id.menu_map
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
+//        supportFragmentManager.beginTransaction().add(R.id.nav_fl, mapFragment!!).commit()
 
         bnMain.setOnItemSelectedListener {
             when (it.itemId) {
@@ -57,6 +58,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
             true
         }
+//        bnMain.setOnItemSelectedListener {
+//            when (it.itemId) {
+//                R.id.menu_map -> {
+//                    loadFragment(MapFragment())
+//                    true
+//                }
+//                R.id.menu_list -> {
+//                    loadFragment(ListFragment())
+//                    true
+//                }
+//                R.id.menu_setting -> {
+//                    loadFragment(SettingFragment())
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
         // 탭 버튼 재 호출시 이벤트 없이 처리
         bnMain.setOnItemReselectedListener {
             when (it.itemId) {
@@ -66,7 +84,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
     }
-
+//    fun loadFragment(fragment: Fragment) {
+//        supportFragmentManager.beginTransaction().replace(R.id.nav_fl, fragment).commit()
+//    }
     // fragment 상태 유지를 위한 컨트롤 함수
     fun setFragment(tag: String, fragment: Fragment) {
         val manager : FragmentManager = supportFragmentManager
