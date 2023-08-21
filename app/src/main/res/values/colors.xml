@@ -30,5 +30,7 @@
     <color name="phone_gray_1">#D9D9D9</color>
     <color name="group_total">#6416E3</color>
     <color name="location_address">#6F6F6F</color>
+    <color name="setting_level_purple">#E7BAFF</color>
+    <color name="setting_level_purple_background">#40128B</color>
 
 </resources>

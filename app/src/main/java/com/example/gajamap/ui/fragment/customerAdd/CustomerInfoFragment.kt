@@ -8,11 +8,14 @@ import androidx.fragment.app.ListFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide
+import com.example.gajamap.BuildConfig
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.databinding.FragmentCustomerInfoBinding
 import com.example.gajamap.viewmodel.GetClientViewModel
+import com.squareup.picasso.Picasso
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 
@@ -67,9 +70,11 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         val address1 = GajaMapApplication.prefs.getString("address1", "")
         val address2 = GajaMapApplication.prefs.getString("address2", "")
         val phone = GajaMapApplication.prefs.getString("phone", "")
+        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
+        val longitude = GajaMapApplication.prefs.getString("longitude1", "")
 
         //마커 찍는데 사용하기
-        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
+        /*val latitude = GajaMapApplication.prefs.getString("latitude1", "")
         val longitude = GajaMapApplication.prefs.getString("longitude1", "")
         val mapView = binding.mapView
         val point = MapPOIItem()
@@ -79,7 +84,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             markerType = MapPOIItem.MarkerType.BluePin
             selectedMarkerType = MapPOIItem.MarkerType.RedPin
             mapView.setMapCenterPoint(mapPoint, true)
-        }
+        }*/
 
 
         binding.infoProfileNameTv.text = name

@@ -42,4 +42,5 @@ class GetClientRepository {
 
     // 그룹 조회
     suspend fun checkGroup() = getClientClient.checkGroup()
+
 }

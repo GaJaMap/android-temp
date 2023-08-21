@@ -2,6 +2,16 @@ package com.example.gajamap.data.model
 
 import com.google.gson.annotations.SerializedName
 
+data class AutoLoginResponse(
+    val clientListResponse : GetAllClientResponse,
+    val groupInfo : AutoLoginGroupInfo
+)
+
+data class AutoLoginGroupInfo(
+    val groupId : Int,
+    val clientCount : Int,
+    val groupName : String
+)
 //특정 그룹내에 특정 고객 조회
 data class GetGroupClientResponse(
     val address: Address,

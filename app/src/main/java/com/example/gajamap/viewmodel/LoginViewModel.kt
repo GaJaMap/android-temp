@@ -3,6 +3,8 @@ package com.example.gajamap.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.data.model.AutoLoginResponse
+import com.example.gajamap.data.model.BaseResponse
 import com.example.gajamap.data.model.LoginRequest
 import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.repository.LoginRepository
@@ -18,7 +20,32 @@ class LoginViewModel(private val tmp: String): ViewModel() {
     val login : LiveData<LoginResponse>
         get() = _login
 
+    private val _autoLogin = MutableLiveData<AutoLoginResponse>()
+    val autoLogin : LiveData<AutoLoginResponse>
+    get() = _autoLogin
 
+
+    fun autoLogin(){
+        viewModelScope.launch  (Dispatchers.IO){
+            val response = loginRepository.autoLogin()
+            Log.d("autoLogin", "${response}\n${response.code()}")
+            //response.body()?.let { handleAutoLoginResponse(response.code(), it) }
+            if(response.isSuccessful){
+                _autoLogin.postValue(response.body())
+                Log.d("autologinSuccess", "${response.body()}")
+            }else {
+                Log.d("autologinError", "autologin : ${response.message()}")
+            }
+        }
+    }
+
+    fun autoLoginKakao(){
+        viewModelScope.launch  (Dispatchers.IO){
+            val response = loginRepository.autoLogin()
+            Log.d("autoLogin", "${response}\n${response.code()}")
+            _autoLogin.postValue(response.body())
+        }
+    }
     fun postLogin(loginRequest: LoginRequest){
         viewModelScope.launch  (Dispatchers.IO) {
             val response = loginRepository.postLogin(loginRequest)
