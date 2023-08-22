@@ -15,9 +15,6 @@ import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.databinding.FragmentCustomerInfoBinding
 import com.example.gajamap.viewmodel.GetClientViewModel
-import com.squareup.picasso.Picasso
-import net.daum.mf.map.api.MapPOIItem
-import net.daum.mf.map.api.MapPoint
 
 class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.fragment_customer_info) {
 

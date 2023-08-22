@@ -1,6 +1,5 @@
 package com.example.gajamap.ui.view
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
@@ -28,6 +27,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val TAG_MAP = "map_fragment"
     private val TAG_LIST = "list_fragment"
     private val TAG_SETTING = "setting_fragment"
+    private val TAG_EDITLIST = "editList_fragment"
+    private val TAG_CUSTOMERINFO = "customerInfo_fragment"
 
     override val viewModel by viewModels<MainViewModel> {
         MainViewModel.MainViewModelFactory("tmp")
@@ -109,6 +110,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         val map = manager.findFragmentByTag(TAG_MAP)
         val list = manager.findFragmentByTag(TAG_LIST)
         val setting = manager.findFragmentByTag(TAG_SETTING)
+        val editList = manager.findFragmentByTag(TAG_EDITLIST)
+        val customerInfo = manager.findFragmentByTag(TAG_CUSTOMERINFO)
 
         //위에서 생성한 fragment들을
         //우선 전부 hide 시킨 후
@@ -120,6 +123,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
         if (setting != null) {
             bt.hide(setting)
+        }
+        if (editList != null) {
+            bt.hide(editList)
+        }
+        if (customerInfo != null) {
+            bt.hide(customerInfo)
         }
 
         //tag로 입력받은 fragment만 show를 통해 보여주도록 합니다.
@@ -136,6 +145,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         else if (tag == TAG_SETTING) {
             if (setting != null) {
                 bt.show(setting)
+            }
+        }
+        else if (tag == TAG_EDITLIST) {
+            if (editList != null) {
+                bt.show(editList)
+            }
+        }
+        else if (tag == TAG_CUSTOMERINFO) {
+            if (customerInfo != null) {
+                bt.show(customerInfo)
             }
         }
         bt.commitAllowingStateLoss()

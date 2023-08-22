@@ -24,6 +24,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -73,6 +75,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
+    private val TAG_ADDDIRECT = "addDirect_fragment"
     var gid: Long = 0
     var itemId: Long = 0
     var groupNum = 0
@@ -83,37 +86,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
-    // 상태를 저장할 번들 객체
-//    private var savedState: Bundle? = null
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        savedState = savedInstanceState
-//    }
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        // 상태 저장
-//        outState.putBoolean("GPSBtn", GPSBtn)
-//        savedState = outState
-//    }
-//
-//    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-//        super.onViewStateRestored(savedInstanceState)
-//        // 저장된 상태 복원
-//        if (savedState != null) {
-//            // 필요한 UI 상태 복원 로직
-//            GPSBtn = savedInstanceState!!.getBoolean("GPSBtn")
-//            if(GPSBtn){
-//                val bgShape = binding.ibGps.background as GradientDrawable
-//                bgShape.setColor(resources.getColor(R.color.main))
-//                binding.ibGps.setImageResource(R.drawable.ic_white_gps)
-//            }else{
-//                val bgShape = binding.ibGps.background as GradientDrawable
-//                bgShape.setColor(resources.getColor(R.color.white))
-//                binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
-//            }
-//        }
-//    }
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -464,10 +436,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 btn.setOnClickListener {
                     // 고객 추가하기 fragment로 이동
-                    val addDirectFragment = AddDirectFragment()
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_fl, addDirectFragment)
-                        .commitNow()
+                    setFragment(TAG_ADDDIRECT, AddDirectFragment())
+//                    val addDirectFragment = AddDirectFragment()
+//                    requireActivity().supportFragmentManager.beginTransaction()
+//                        .replace(R.id.nav_fl, addDirectFragment)
+//                        .commitNow()
                 }
             }
         })
@@ -499,11 +472,41 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         binding.tvLocationBtn.setOnClickListener {
             // 고객 추가하기 fragment로 이동
-            val addDirectFragment = AddDirectFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_fl, addDirectFragment)
-                .commitNow()
+            setFragment(TAG_ADDDIRECT, AddDirectFragment())
+//            val addDirectFragment = AddDirectFragment()
+//            requireActivity().supportFragmentManager.beginTransaction()
+//                .replace(R.id.nav_fl, addDirectFragment)
+//                .commitNow()
         }
+    }
+
+    // todo : fragment 간 이동 잘 되는지 확인하기
+    // fragment 상태 유지를 위한 컨트롤 함수
+    fun setFragment(tag: String, fragment: Fragment) {
+        val manager : FragmentManager = requireActivity().supportFragmentManager
+        val bt = manager.beginTransaction()
+
+        //바텀 네비게이션의 tag(즉, 메뉴)가 선택 되었을 때 생성되있지 않을 경우
+        //바로 생성(add) 해줍니다.
+        if (manager.findFragmentByTag(tag) == null) {
+            bt.add(R.id.nav_fl, fragment, tag)
+        }
+        //코드 작성에 용이하게 따로 변수로 할당
+        val addDirect = manager.findFragmentByTag(TAG_ADDDIRECT)
+
+        //위에서 생성한 fragment를
+        //우선 전부 hide 시킨 후
+        if (addDirect != null) {
+            bt.hide(addDirect)
+        }
+
+        //tag로 입력받은 fragment만 show를 통해 보여주도록 합니다.
+        if (tag == TAG_ADDDIRECT) {
+            if (addDirect != null) {
+                bt.show(addDirect)
+            }
+        }
+        bt.commitAllowingStateLoss()
     }
 
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->

@@ -1,15 +1,9 @@
 package com.example.gajamap.ui.fragment.customerAdd
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -19,13 +13,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.ListFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -35,9 +25,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
-import com.example.gajamap.data.model.BaseResponse
 import com.example.gajamap.data.model.GroupInfoResponse
-import com.example.gajamap.data.model.PutClientRequest
 import com.example.gajamap.databinding.FragmentEditProfileBinding
 import com.example.gajamap.ui.fragment.map.MapFragment
 import com.example.gajamap.ui.fragment.setting.SettingFragment
