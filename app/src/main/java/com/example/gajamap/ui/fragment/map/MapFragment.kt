@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
@@ -44,7 +45,8 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.adapter.SearchResultAdapter
-import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
+import com.example.gajamap.ui.view.AddDirectActivity
+import com.example.gajamap.ui.view.EditListActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
@@ -75,7 +77,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
-    private val TAG_ADDDIRECT = "addDirect_fragment"
     var gid: Long = 0
     var itemId: Long = 0
     var groupNum = 0
@@ -435,12 +436,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 btn.setOnClickListener {
-                    // 고객 추가하기 fragment로 이동
-                    setFragment(TAG_ADDDIRECT, AddDirectFragment())
-//                    val addDirectFragment = AddDirectFragment()
-//                    requireActivity().supportFragmentManager.beginTransaction()
-//                        .replace(R.id.nav_fl, addDirectFragment)
-//                        .commitNow()
+                    // 고객 추가하기 activity로 이동
+                    val intent = Intent(getActivity(), AddDirectActivity::class.java)
+                    startActivity(intent)
                 }
             }
         })
@@ -471,42 +469,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
 
         binding.tvLocationBtn.setOnClickListener {
-            // 고객 추가하기 fragment로 이동
-            setFragment(TAG_ADDDIRECT, AddDirectFragment())
-//            val addDirectFragment = AddDirectFragment()
-//            requireActivity().supportFragmentManager.beginTransaction()
-//                .replace(R.id.nav_fl, addDirectFragment)
-//                .commitNow()
+            // 고객 추가하기 activity로 이동
+            val intent = Intent(getActivity(), AddDirectActivity::class.java)
+            startActivity(intent)
         }
-    }
-
-    // todo : fragment 간 이동 잘 되는지 확인하기
-    // fragment 상태 유지를 위한 컨트롤 함수
-    fun setFragment(tag: String, fragment: Fragment) {
-        val manager : FragmentManager = requireActivity().supportFragmentManager
-        val bt = manager.beginTransaction()
-
-        //바텀 네비게이션의 tag(즉, 메뉴)가 선택 되었을 때 생성되있지 않을 경우
-        //바로 생성(add) 해줍니다.
-        if (manager.findFragmentByTag(tag) == null) {
-            bt.add(R.id.nav_fl, fragment, tag)
-        }
-        //코드 작성에 용이하게 따로 변수로 할당
-        val addDirect = manager.findFragmentByTag(TAG_ADDDIRECT)
-
-        //위에서 생성한 fragment를
-        //우선 전부 hide 시킨 후
-        if (addDirect != null) {
-            bt.hide(addDirect)
-        }
-
-        //tag로 입력받은 fragment만 show를 통해 보여주도록 합니다.
-        if (tag == TAG_ADDDIRECT) {
-            if (addDirect != null) {
-                bt.show(addDirect)
-            }
-        }
-        bt.commitAllowingStateLoss()
     }
 
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->

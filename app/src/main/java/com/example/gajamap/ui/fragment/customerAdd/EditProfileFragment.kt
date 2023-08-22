@@ -60,11 +60,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
     override fun onCreateAction() {
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            // todo: editprofilefragment도 activity로 변경 후 아래 코드 수정해야 함
+            // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
         }
 
         binding.btnSubmit.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            // todo: editprofilefragment도 activity로 변경 후 아래 코드 수정해야 함
+            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
         }
 
         //스피너
