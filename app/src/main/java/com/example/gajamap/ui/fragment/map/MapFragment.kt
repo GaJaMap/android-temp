@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
@@ -24,6 +25,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -42,7 +45,8 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.adapter.SearchResultAdapter
-import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
+import com.example.gajamap.ui.view.AddDirectActivity
+import com.example.gajamap.ui.view.EditListActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
@@ -432,11 +436,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 btn.setOnClickListener {
-                    // 고객 추가하기 fragment로 이동
-                    val addDirectFragment = AddDirectFragment()
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_fl, addDirectFragment)
-                        .commitNow()
+                    // 고객 추가하기 activity로 이동
+                    val intent = Intent(getActivity(), AddDirectActivity::class.java)
+                    startActivity(intent)
                 }
             }
         })
@@ -467,11 +469,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
 
         binding.tvLocationBtn.setOnClickListener {
-            // 고객 추가하기 fragment로 이동
-            val addDirectFragment = AddDirectFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_fl, addDirectFragment)
-                .commitNow()
+            // 고객 추가하기 activity로 이동
+            val intent = Intent(getActivity(), AddDirectActivity::class.java)
+            startActivity(intent)
         }
     }
 

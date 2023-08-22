@@ -1,57 +1,52 @@
-package com.example.gajamap.ui.fragment.customerAdd
+package com.example.gajamap.ui.view
 
 import android.Manifest
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.BR
 import com.example.gajamap.R
-import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.GroupInfoResponse
-import com.example.gajamap.databinding.FragmentAddDirectBinding
+import com.example.gajamap.databinding.ActivityAddDirectBinding
 import com.example.gajamap.ui.fragment.map.MapFragment
-import com.example.gajamap.ui.fragment.setting.SettingFragment
 import com.example.gajamap.viewmodel.ClientViewModel
-import com.example.gajamap.viewmodel.GetClientViewModel
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
-class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragment_add_direct) {
-
+class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activity_add_direct) {
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
 
     private var groupId : Int = -1
     override fun initViewModel(viewModel: ViewModel) {
-        binding.setVariable(BR.viewModel, viewModel)
-        binding.lifecycleOwner = this@AddDirectFragment
-        binding.fragment = this@AddDirectFragment
+        binding.lifecycleOwner = this@AddDirectActivity
+        binding.viewModel = this.viewModel
     }
+
     var imageFile : File? = null
     private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
     private var isCamera = false
@@ -60,10 +55,9 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         // 갤러리 권한 요청
         const val REQ_GALLERY = 1
     }
-
     override fun onCreateAction() {
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            finish()
         }
         //주소 데이터 가져오기
         val address = GajaMapApplication.prefs.getString("address", "")
@@ -84,7 +78,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
             /*val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.infoProfileGroup.adapter = adapter*/
-            val adapter = object : ArrayAdapter<String>(requireActivity(), R.layout.spinner_list, groupNames) {
+            val adapter = object : ArrayAdapter<String>(this, R.layout.spinner_list, groupNames) {
 
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                     val textView = super.getView(position, convertView, parent) as TextView
@@ -110,7 +104,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         binding.infoProfileGroup.adapter = adapter
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)*/
 
-        binding.infoProfileGroup.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
+        binding.infoProfileGroup.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
                 //binding.result.text = data[pos] //배열이라서 []로 된다.
                 //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
@@ -143,12 +137,8 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
 
         binding.topBackBtn.setOnClickListener {
             // 지도 fragment로 이동
-            val mapFragment = MapFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_fl, mapFragment)
-                .commitNow()
+            finish()
         }
-
     }
 
     // 필수 입력사항에 값이 변경될 때 확인 버튼 활성화 시킬 함수 호출
@@ -207,7 +197,7 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
         }
         var columnIndex = 0
         val proj = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = activity?.contentResolver?.query(uri, proj, null,null,null)
+        val cursor = contentResolver.query(uri, proj, null,null,null)
         if(cursor!!.moveToFirst()){
             columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
         }
@@ -217,15 +207,13 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
     }
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+        val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val readPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
         // 권한 확인
         if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
             // 권한 요청
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                AddDirectFragment.REQ_GALLERY
-            )
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQ_GALLERY)
         }else{
             // 권한이 있는 경우 갤러리 실행
             val intent = Intent(Intent.ACTION_PICK)
@@ -263,10 +251,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
-            viewModel.postClient.observe(viewLifecycleOwner, Observer {
+            viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
             })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            finish()
+            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }
@@ -292,10 +281,11 @@ class AddDirectFragment: BaseFragment<FragmentAddDirectBinding>(R.layout.fragmen
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
-            viewModel.postClient.observe(viewLifecycleOwner, Observer {
+            viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
             })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            finish()
+            // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }

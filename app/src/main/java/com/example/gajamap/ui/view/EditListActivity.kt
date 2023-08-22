@@ -1,50 +1,44 @@
-package com.example.gajamap.ui.fragment.customerList
+package com.example.gajamap.ui.view
 
-import android.content.res.Resources.Theme
 import android.graphics.drawable.Drawable
 import android.view.View
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Delete
-import com.example.gajamap.BR
 import com.example.gajamap.R
-import com.example.gajamap.base.BaseFragment
+import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.DeleteRequest
 import com.example.gajamap.data.model.GetAllClientResponse
-import com.example.gajamap.databinding.FragmentEditListBinding
+import com.example.gajamap.databinding.ActivityEditListBinding
 import com.example.gajamap.ui.adapter.CustomerAnyListAdapter
-import com.example.gajamap.ui.adapter.CustomerListAdapter
-import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
-import com.example.gajamap.ui.fragment.setting.SettingFragment
-import com.example.gajamap.viewmodel.ClientViewModel
+import com.example.gajamap.ui.fragment.customerList.CustomerListVerticalItemDecoration
 import com.example.gajamap.viewmodel.GetClientViewModel
 
-class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_edit_list) {
-
-    private var isPurpleBackground: Boolean = false
+class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity_edit_list) {
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
     }
 
     override fun initViewModel(viewModel: ViewModel) {
-        binding.setVariable(BR.viewModel, viewModel)
-        binding.lifecycleOwner = this@EditListFragment
-        binding.fragment = this@EditListFragment
+        binding.lifecycleOwner = this@EditListActivity
+        binding.viewModel = this.viewModel
     }
-
     override fun onCreateAction() {
-
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
         viewModel.getAllClient()
         viewModel.getAllClient.observe(this, Observer {
             ListRv(it)
         })
+
+        binding.topBackBtn.setOnClickListener {
+            // 리스트 fragment로 이동
+            finish()
+        }
     }
 
     fun ListRv(it : GetAllClientResponse){
@@ -60,10 +54,6 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         }
 
-        binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, ListFragment()).commit()
-        }
-
         //전체 선택
         binding.checkEvery.setOnCheckedChangeListener { _, isChecked ->
             // 선택한 모든 clientId들을 selectedClientIds 리스트에 추가 또는 삭제
@@ -72,28 +62,23 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
             if(isChecked){
                 selectedClientIds.addAll(it.clients.map { client -> client.clientId })
                 // 배경색 변경
-                val backgroundDrawable: Drawable? =
-                    context?.let { it1 -> ContextCompat.getDrawable(it1, R.drawable.fragment_list_tool_purple) }
+                val backgroundDrawable: Drawable? by lazy {ContextCompat.getDrawable(this, R.drawable.fragment_list_tool_purple) }
                 customerAnyListAdapter.updateItemBackground(backgroundDrawable)
             }
             else{
                 // 배경색 변경
                 selectedClientIds.removeAll { true }
-                val backgroundDrawable: Drawable? =
-                    context?.let { it1 -> ContextCompat.getDrawable(it1, R.drawable.fragment_list_tool) }
+                val backgroundDrawable: Drawable? by lazy { ContextCompat.getDrawable(this, R.drawable.fragment_list_tool) }
                 customerAnyListAdapter.updateItemBackground(backgroundDrawable)
             }
-
         }
 
         binding.topDeleteBtn.setOnClickListener {
             val deleteRequest = DeleteRequest(selectedClientIds)
             viewModel.deleteAnyClient(10, deleteRequest)
             viewModel.deleteAnyClient.observe(this, Observer {
-
             })
         }
-
 
         //리사이클러뷰 클릭
         customerAnyListAdapter.setOnItemClickListener(object :
@@ -107,7 +92,6 @@ class EditListFragment: BaseFragment<FragmentEditListBinding>(R.layout.fragment_
                 } else {
                     selectedClientIds.add(selectedClientId)
                 }
-
             }
         })
     }

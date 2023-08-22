@@ -11,7 +11,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.Client
-import com.example.gajamap.databinding.FragmentEditListBinding
 import com.example.gajamap.databinding.ItemAnyListBinding
 
 class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerAnyListAdapter.ViewHolder>() {

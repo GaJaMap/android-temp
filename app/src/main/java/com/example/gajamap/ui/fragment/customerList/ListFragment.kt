@@ -1,6 +1,5 @@
 package com.example.gajamap.ui.fragment.customerList
 
-
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -8,6 +7,7 @@ import android.widget.Toast
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
@@ -27,12 +27,11 @@ import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.*
 import com.example.gajamap.databinding.FragmentListBinding
-import com.example.gajamap.databinding.FragmentPhoneBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
-import com.example.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
-import com.example.gajamap.viewmodel.ClientViewModel
+import com.example.gajamap.ui.view.AddDirectActivity
+import com.example.gajamap.ui.view.CustomerInfoActivity
+import com.example.gajamap.ui.view.EditListActivity
 import com.example.gajamap.viewmodel.GetClientViewModel
-import com.example.gajamap.viewmodel.MapViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
@@ -51,15 +50,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         //ClientViewModel.SettingViewModelFactory("tmp")
         MapViewModel.MapViewModelFactory("tmp")
     }*/
-
-    // Request Code
-
-    //더미데이터
-    /*private var customerList: ArrayList<Customer> = arrayListOf(
-        Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km"),
-        Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km"),
-        Customer(R.drawable.item_list_img, "한고객", "서울특별시 강남구", "010-2166-1769","5.0km")
-    )*/
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -97,7 +87,9 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }*/
 
         binding.fragmentEditBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, EditListFragment()).addToBackStack(null).commit()
+            // 고객 편집하기 activity로 이동
+            val intent = Intent(getActivity(), EditListActivity::class.java)
+            startActivity(intent)
         }
 
         //최신순은 보라색으로 시작
@@ -356,10 +348,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }
     }
 
-    private fun startTracking() {
-
-    }
-
     fun listRadius(it : GetRadiusResponse){
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
@@ -403,7 +391,9 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
-                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+                // 고객 상세 정보 activity로 이동
+                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                startActivity(intent)
             }
         })
     }
@@ -450,7 +440,9 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
-                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+                // 고객 상세 정보 activity로 이동
+                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                startActivity(intent)
             }
         })
     }
@@ -500,9 +492,10 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
-                parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+                // 고객 상세 정보 activity로 이동
+                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                startActivity(intent)
             }
         })
     }
-
 }

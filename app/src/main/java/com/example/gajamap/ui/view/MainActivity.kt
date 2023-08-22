@@ -1,6 +1,5 @@
 package com.example.gajamap.ui.view
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
@@ -65,6 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
             true
         }
+
         // 탭 버튼 재 호출시 이벤트 없이 처리
         bnMain.setOnItemReselectedListener {
             when (it.itemId) {
