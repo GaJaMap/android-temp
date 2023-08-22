@@ -13,6 +13,7 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.data.model.LoginRequest
+import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.response.SearchResultData
 import com.example.gajamap.databinding.ActivityLoginBinding
 import com.example.gajamap.databinding.ActivityMainBinding
@@ -92,18 +93,23 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         Log.d("kakoAccessToken_1", token)
 
-        viewModel.postLogin(LoginRequest(token))
-        viewModel.login.observe(this, Observer {
+        CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.IO) {  // 비동기 작업 시작
+                viewModel.postLogin(LoginRequest(token))// postLogin 호출 및 결과 대기
+                //viewModel.autoLogin()
+            }
 
-            viewModel.autoLogin.observe(this, Observer {
+        }
+
+        viewModel.login.observe(this, Observer {
+            viewModel.autoLogin.observe(this@LoginActivity, Observer {
                 GajaMapApplication.prefs.saveAutoLoginResponse(it)
+                // autoLogin이 완료된 후에 MainActivity로 이동합니다.
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                finish()
             })
             GajaMapApplication.prefs.setString("authority", it.authority.toString())
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-        )
+        })
     }
-
 
 }

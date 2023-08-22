@@ -51,6 +51,7 @@ class LoginViewModel(private val tmp: String): ViewModel() {
             val response = loginRepository.postLogin(loginRequest)
             Log.d("postLogin", "${response}\n${response.code()}")
             if(response.isSuccessful){
+                autoLogin()
                 _login.postValue(response.body())
                 val header = response.headers()
                 val contentType = header["Set-Cookie"]?.split(";")?.get(0)
