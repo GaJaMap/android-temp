@@ -55,7 +55,9 @@ class LoginViewModel(private val tmp: String): ViewModel() {
                 _login.postValue(response.body())
                 val header = response.headers()
                 val contentType = header["Set-Cookie"]?.split(";")?.get(0)
+                //val session = header["Set-Cookie"]?.split(";")?.get(0)
                 val session = contentType?.replace("SESSION=","")
+                //val session = contentType?.replace("","")
                 Log.d("session", "$session")
                 if (session != null) {
                     GajaMapApplication.prefs.setString("session", session)
