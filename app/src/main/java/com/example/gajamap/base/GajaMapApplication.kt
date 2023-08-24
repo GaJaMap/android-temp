@@ -1,27 +1,15 @@
 package com.example.gajamap.base
 
 import android.app.Application
-import android.content.ContentUris
+import android.content.Context
 import android.content.SharedPreferences
-import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import com.example.gajamap.BuildConfig
-
 import com.kakao.sdk.common.KakaoSdk
-import okhttp3.Interceptor
-import okhttp3.JavaNetCookieJar
-import okhttp3.OkHttpClient
-import okhttp3.ResponseBody
-import retrofit2.Converter
 import okhttp3.*
-import okhttp3.Response
 import retrofit2.*
-import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import java.lang.reflect.Type
-import java.net.CookieManager
 import java.util.concurrent.TimeUnit
 
 class GajaMapApplication : Application() {
@@ -37,6 +25,25 @@ class GajaMapApplication : Application() {
         // Retrofit 인스턴스, 앱 실행시 한번만 생성하여 사용합니다.
         lateinit var sRetrofit: Retrofit
 
+        private const val PREF_NAME = "SessionPref"
+        private const val KEY_SESSION_ID = "session_id"
+
+
+    }
+
+    private var sessionCookie: Cookie? = null
+
+    private fun saveSessionCookie(sessionId: String, url: HttpUrl) {
+        sessionCookie = Cookie.Builder()
+            .domain(url.host)
+            .path("/")
+            .name("SESSION")
+            .value(sessionId)
+            .build()
+    }
+
+    private fun getSessionCookie(): Cookie? {
+        return sessionCookie
     }
 
     override fun onCreate() {
@@ -51,9 +58,39 @@ class GajaMapApplication : Application() {
 
     private fun initRetrofitInstance(){
 
+        val cookieJar = object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+
+                val cookie = extractSessionValue(cookies)
+                Log.d("sessioncookies", cookie.toString())
+
+
+            }
+
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+               //val sessionId = getSavedSessionId()
+                val sessionId = GajaMapApplication.prefs.getString("session","")
+                Log.d("sessionId", sessionId.toString())
+                return if (sessionId != null) {
+                    val sessionCookie = Cookie.Builder()
+                        .domain(url.host)
+                        .path("/")
+                        .name("SESSION")
+                        .value(sessionId)
+                        .build()
+                    listOf(sessionCookie)
+                } else {
+                    emptyList()
+                }
+
+            }
+
+        }
+
         val builder = OkHttpClient().newBuilder()
         val okHttpClient = builder
-            .cookieJar(JavaNetCookieJar(CookieManager()))
+            //.cookieJar(JavaNetCookieJar(CookieManager()))
+            .cookieJar(cookieJar)
             .readTimeout(10000, TimeUnit.MILLISECONDS)
             .connectTimeout(10000, TimeUnit.MILLISECONDS)
             // 로그캣에 okhttp.OkHttpClient로 검색하면 http 통신 내용을 보여줍니다.
@@ -96,7 +133,7 @@ class GajaMapApplication : Application() {
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
-            val session = "JSESSIONID=" + GajaMapApplication.prefs.getString("session","")
+            val session = GajaMapApplication.prefs.getString("session","")
             Log.d("application", session)
             //val session = GajaMapApplication.prefs.getString("session","")
             val newRequest = request().newBuilder()
@@ -106,6 +143,13 @@ class GajaMapApplication : Application() {
         }
 
     }*/
+
+    fun extractSessionValue(cookieString: List<Cookie>): String? {
+        val regex = Regex("SESSION=([A-Za-z0-9]+);")
+        val matchResult = regex.find(cookieString.toString())
+        return matchResult?.value
+    }
+
     
 
 }

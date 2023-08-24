@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gajamap.R
 import com.example.gajamap.data.response.LocationSearchData
-import com.example.gajamap.ui.fragment.customerAdd.AddDirectFragment
+
 
 class LocationSearchAdapter(val itemList: ArrayList<LocationSearchData>): RecyclerView.Adapter<LocationSearchAdapter.ViewHolder>() {
     private var selectedPosition = RecyclerView.NO_POSITION
