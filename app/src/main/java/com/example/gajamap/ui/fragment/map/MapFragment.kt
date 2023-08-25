@@ -638,7 +638,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+            binding.tvCardDistance.text = String.format("%.2f",
+                itemdata!!.distance?.times(0.001)
+            )
         })
     }
 
@@ -654,7 +656,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance * 0.001)
+
+            if (itemdata != null) {
+                binding.tvCardDistance.text = String.format("%.2f",
+                    itemdata.distance?.times(0.001)
+                )
+            }
 //            val num = data.count()
 //            binding.mapView.removeAllPOIItems()
 //            for (i in 0..num-1) {
