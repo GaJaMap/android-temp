@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -27,6 +28,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         val button4 : TextView = binding.itemProfileAddress
         val button5 : TextView = binding.itemProfilePhoneDetail
         val button6 : TextView = binding.itemProfilePhone
+        val buttonNavi : ConstraintLayout = binding.itemProfileCarBtn
         init {
             binding.itemProfilePhoneBtn.setOnClickListener {
                 Log.d("phone", "why")
@@ -96,9 +98,16 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         holder.button6.setOnClickListener{
             itemClickListener.onClick(it, position)
         }
+        holder.buttonNavi.setOnClickListener {
+            naviClickListener.onClick(it, position)
+        }
     }
 
     interface OnItemClickListener {
+        fun onClick(v: View, position: Int)
+    }
+
+    interface ItemClickListener{
         fun onClick(v: View, position: Int)
     }
 
@@ -106,7 +115,12 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         this.itemClickListener = onItemClickListener
     }
 
+    fun setItemClickListener(itemClickListener : ItemClickListener){
+        this.naviClickListener = itemClickListener
+    }
+
     private lateinit var itemClickListener : OnItemClickListener
+    private lateinit var naviClickListener : ItemClickListener
 
     fun updateData(newDataList: List<Client>) {
         dataList = newDataList

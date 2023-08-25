@@ -111,4 +111,7 @@ dependencies {
     // 카드뷰
     implementation("androidx.cardview:cardview:1.0.0")
     implementation 'com.squareup.picasso:picasso:2.8'
+
+    //카카오 내비
+    implementation "com.kakao.sdk:v2-navi:2.15.0" // 카카오내비
 }
