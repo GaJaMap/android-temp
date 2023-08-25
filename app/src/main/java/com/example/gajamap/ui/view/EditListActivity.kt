@@ -88,7 +88,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                 binding.topTvNumber1.text = selectedClientIds.size.toString()
                 // 리스트에 클릭한 아이템의 clientId 추가 또는 삭제
                 if (selectedClientIds.contains(selectedClientId)) {
-                    selectedClientIds.remove(selectedClientId)
+                    //selectedClientIds.remove(selectedClientId)
                 } else {
                     selectedClientIds.add(selectedClientId)
                 }

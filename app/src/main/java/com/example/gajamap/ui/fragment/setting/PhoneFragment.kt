@@ -197,8 +197,8 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                             selectedClients.remove(Clients(nickname, it.number))
                         }
                     }
+                    updateSelectedClientsCount()
                 }
-                updateSelectedClientsCount()
                 /*val item = friends.elements?.get(position)
                 item?.let {
                     selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
