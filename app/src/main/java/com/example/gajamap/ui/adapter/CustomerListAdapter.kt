@@ -48,8 +48,15 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
 
         fun bind(data: Client){
                     val address = data.address.mainAddress
-                    val distance = data.distance.toString()
-                    val distance1 = distance + "km"
+            if(data.distance.toString() == "null"){
+                val distance1 = "- " + "km"
+                binding.itemProfileDistance.text = distance1
+            }else {
+                val distance = data.distance.toString()
+                Log.d("distance", distance.toString())
+                val distance1 = distance + "km"
+                binding.itemProfileDistance.text = distance1
+            }
                     val filePath = data.image.filePath
                     val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
                     val file = imageUrl + data.image.filePath
@@ -63,7 +70,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                     binding.itemProfileAddressDetail.text = address
                     binding.itemProfileName.text = data.clientName
                     binding.itemProfilePhoneDetail.text = data.phoneNumber
-                    binding.itemProfileDistance.text = distance1
+
 
                 }
             }
