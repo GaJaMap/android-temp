@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
@@ -32,6 +33,11 @@ import com.example.gajamap.ui.view.AddDirectActivity
 import com.example.gajamap.ui.view.CustomerInfoActivity
 import com.example.gajamap.ui.view.EditListActivity
 import com.example.gajamap.viewmodel.GetClientViewModel
+import com.kakao.sdk.navi.Constants
+import com.kakao.sdk.navi.NaviClient
+import com.kakao.sdk.navi.model.CoordType
+import com.kakao.sdk.navi.model.Location
+import com.kakao.sdk.navi.model.NaviOption
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
@@ -63,6 +69,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateAction() {
+
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
         /*viewModel.getGroupAllClient(10)
@@ -348,7 +355,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }
     }
 
-    fun listRadius(it : GetRadiusResponse){
+    /*fun listRadius(it : GetRadiusResponse){
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
@@ -396,7 +403,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 startActivity(intent)
             }
         })
-    }
+    }*/
 
     fun ListRv(it : GetAllClientResponse){
         GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
@@ -445,6 +452,40 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 startActivity(intent)
             }
         })
+
+        //내비게이션
+        customerListAdapter.setItemClickListener(object :
+        CustomerListAdapter.ItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val latitude = it.clients[position].location.latitude
+                val longitude = it.clients[position].location.longitude
+                Log.d("navi", latitude.toString())
+                Log.d("navi", longitude.toString())
+                //카카오내비
+                // 카카오내비 앱으로 길 안내
+                if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
+                    // 카카오내비 앱으로 길 안내 - WGS84
+                    startActivity(
+                        NaviClient.instance.navigateIntent(
+                            //위도 경도를 장소이름으로 바꿔주기
+                            Location("회사", latitude.toString(), longitude.toString()),
+                            NaviOption(coordType = CoordType.WGS84)
+                        )
+                    )
+                } else {
+                    // 카카오내비 설치 페이지로 이동
+                    startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(Constants.WEB_NAVI_INSTALL)
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    )
+                }
+
+            }
+
+        })
+
     }
 
 
@@ -496,6 +537,37 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
                 startActivity(intent)
             }
+        })
+
+        //내비게이션
+        customerListAdapter.setItemClickListener(object :
+            CustomerListAdapter.ItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                val latitude = it.clients[position].location.latitude
+                val longitude = it.clients[position].location.longitude
+                //카카오내비
+                // 카카오내비 앱으로 길 안내
+                if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
+                    // 카카오내비 앱으로 길 안내 - WGS84
+                    startActivity(
+                        NaviClient.instance.navigateIntent(
+                            //위도 경도를 장소이름으로 바꿔주기
+                            Location("회사", latitude.toString(), longitude.toString()),
+                            NaviOption(coordType = CoordType.WGS84)
+                        )
+                    )
+                } else {
+                    // 카카오내비 설치 페이지로 이동
+                    startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(Constants.WEB_NAVI_INSTALL)
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    )
+                }
+
+            }
+
         })
     }
 }
