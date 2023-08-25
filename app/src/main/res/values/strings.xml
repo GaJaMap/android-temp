@@ -105,7 +105,7 @@
     <string name="setting_excel_6">PC로 통한 웹사이트 접속을 권장합니다.</string>
     <string name="setting_phone_1">연락처 선택</string>
     <string name="setting_phone_2">(</string>
-    <string name="setting_phone_3">1000</string>
+    <string name="setting_phone_3">0</string>
     <string name="setting_phone_4">/</string>
     <string name="setting_phone_5">1000</string>
     <string name="setting_phone_6">)</string>

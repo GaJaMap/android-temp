@@ -175,7 +175,7 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                 binding.settingPhoneCheckEvery.setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         selectedClients.addAll(friends.elements?.map {
-                            it.profileNickname?.let { it1 -> Clients(it1, "010-1111-1111") }
+                            it.profileNickname?.let { it1 -> Clients(it1, "") }
                         } ?: emptyList())
                     }
                     else {
@@ -194,19 +194,17 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                         item?.let {
                             if (kakaoFriendAdapter.isChecked(position)) {
                                 it.profileNickname?.let { nickname ->
-                                    selectedClients.add(Clients(nickname, "010-1111-1111"))
+                                    selectedClients.add(Clients(nickname, ""))
                                 }
+                                Log.d("selected", selectedClients.toString())
                             } else {
                                 it.profileNickname?.let { nickname ->
-                                    selectedClients.remove(Clients(nickname, "010-1111-1111"))
+                                    selectedClients.remove(Clients(nickname, ""))
+                                    Log.d("selected", selectedClients.toString())
                                 }
                             }
+                            updateSelectedClientsCount()
                         }
-                        updateSelectedClientsCount()
-                        /*val item = friends.elements?.get(position)
-                        item?.let {
-                            selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
-                        }*/
                     }
                 })
 
@@ -227,6 +225,8 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
     }
 
     private fun updateSelectedClientsCount() {
-        binding.topTvNumber1.text = selectedClients.size.toString()
+        val selectedCount = selectedClients.size.toString()
+        binding.topTvNumber1.text = selectedCount
+        Log.d("SelectedCount", "Updated to $selectedCount")
     }
 }

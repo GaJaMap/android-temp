@@ -15,6 +15,7 @@ import com.example.gajamap.databinding.ItemAnyListBinding
 
 class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerAnyListAdapter.ViewHolder>() {
 
+
     private var selectPos :Boolean = false
     private var pos : Int = -1
 
@@ -78,7 +79,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(dataList[position], itemBackground)
+       holder.bind(dataList[position], itemBackground)
 
         if(!selectPos){
             holder.itemView.setOnClickListener{
@@ -87,13 +88,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
                 selectPos = true
             }
         }
-        /*if(selectPos){
-            holder.itemView.setOnClickListener{
-                itemClickListener.onClick(it, position)
-                holder.itemView.setBackgroundResource(R.drawable.fragment_list_tool)
-                selectPos = false
-            }
-        }*/
+
     }
 
     fun updateItemBackground(background: Drawable?) {
@@ -110,6 +105,5 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     }
 
     private lateinit var itemClickListener : OnItemClickListener
-
 
 }

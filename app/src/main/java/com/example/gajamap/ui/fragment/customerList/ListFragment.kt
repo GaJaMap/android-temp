@@ -96,7 +96,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
         binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
         binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-        binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+        //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
 
         // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
         viewModel.checkGroup()
@@ -178,7 +178,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }
 
         //반경 스피너
-        val userLatitude = GajaMapApplication.prefs.getString("userLatitude", "")
+        /*val userLatitude = GajaMapApplication.prefs.getString("userLatitude", "")
         val userLongitude = GajaMapApplication.prefs.getString("userLongitude", "")
 
         val itemList = listOf("반경", "3KM", "5KM")
@@ -266,14 +266,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
-        }
+        }*/
 
         //GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
-            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             if (checkLocationService()) {
                 // GPS가 켜져있을 경우
                 permissionCheck()
@@ -360,14 +360,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
-            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             customerListAdapter.updateData(it.clients)
         }
         binding.fragmentListCategory2.setOnClickListener {view->
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
-            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             val reversedList = it.clients.reversed()
             customerListAdapter.updateData(reversedList)
         }
@@ -411,14 +411,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
-            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             customerListAdapter.updateData(it.clients)
         }
         binding.fragmentListCategory2.setOnClickListener {view->
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
-            binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
+            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
             val reversedList = it.clients.reversed()
             customerListAdapter.updateData(reversedList)
         }
