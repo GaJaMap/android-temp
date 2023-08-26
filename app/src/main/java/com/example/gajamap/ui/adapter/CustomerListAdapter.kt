@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -27,6 +28,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         val button4 : TextView = binding.itemProfileAddress
         val button5 : TextView = binding.itemProfilePhoneDetail
         val button6 : TextView = binding.itemProfilePhone
+        val buttonNavi : ConstraintLayout = binding.itemProfileCarBtn
         init {
             binding.itemProfilePhoneBtn.setOnClickListener {
                 Log.d("phone", "why")
@@ -46,8 +48,15 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
 
         fun bind(data: Client){
                     val address = data.address.mainAddress
-                    val distance = data.distance.toString()
-                    val distance1 = distance + "km"
+            if(data.distance.toString() == "null"){
+                val distance1 = "- " + "km"
+                binding.itemProfileDistance.text = distance1
+            }else {
+                val distance = data.distance.toString()
+                Log.d("distance", distance.toString())
+                val distance1 = distance + "km"
+                binding.itemProfileDistance.text = distance1
+            }
                     val filePath = data.image.filePath
                     val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
                     val file = imageUrl + data.image.filePath
@@ -61,7 +70,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
                     binding.itemProfileAddressDetail.text = address
                     binding.itemProfileName.text = data.clientName
                     binding.itemProfilePhoneDetail.text = data.phoneNumber
-                    binding.itemProfileDistance.text = distance1
+
 
                 }
             }
@@ -96,9 +105,16 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         holder.button6.setOnClickListener{
             itemClickListener.onClick(it, position)
         }
+        holder.buttonNavi.setOnClickListener {
+            naviClickListener.onClick(it, position)
+        }
     }
 
     interface OnItemClickListener {
+        fun onClick(v: View, position: Int)
+    }
+
+    interface ItemClickListener{
         fun onClick(v: View, position: Int)
     }
 
@@ -106,7 +122,12 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         this.itemClickListener = onItemClickListener
     }
 
+    fun setItemClickListener(itemClickListener : ItemClickListener){
+        this.naviClickListener = itemClickListener
+    }
+
     private lateinit var itemClickListener : OnItemClickListener
+    private lateinit var naviClickListener : ItemClickListener
 
     fun updateData(newDataList: List<Client>) {
         dataList = newDataList

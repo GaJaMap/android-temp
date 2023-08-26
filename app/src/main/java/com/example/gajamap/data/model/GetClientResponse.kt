@@ -1,5 +1,7 @@
 package com.example.gajamap.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class AutoLoginResponse(
     var clientListResponse : GetAllClientResponse,
     var groupInfo : AutoLoginGroupInfo
@@ -15,7 +17,7 @@ data class GetGroupClientResponse(
     var address: Address,
     var clientId: Int,
     var clientName: String,
-    var distance: Int,
+    var distance: Double?=null,
     var groupInfo: GroupInfo,
     var image: Image,
     var location: Location,
@@ -38,11 +40,22 @@ data class GetAllClientResponse(
     var imageUrlPrefix : String
 )
 
+data class ClientOne(
+    var address: Address,
+    var clientId: Int,
+    var clientName: String,
+    var distance: Double?=null,
+    var groupInfo: GroupInfo,
+    var image: Image,
+    var location: Location,
+    var phoneNumber: String
+)
+
 data class Client(
     var address: Address,
     var clientId: Int,
     var clientName: String,
-    var distance: Int,
+    var distance: Double?=null,
     var groupInfo: GroupInfo,
     var image: Image,
     var location: Location,

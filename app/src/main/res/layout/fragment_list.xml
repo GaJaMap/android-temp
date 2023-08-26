@@ -170,7 +170,7 @@
             app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
             app:layout_constraintStart_toEndOf="@+id/fragment_list_category2"/>
 
-        <Spinner
+        <!--<Spinner
             android:id="@+id/radius_spinner"
             android:layout_width="71dp"
             android:layout_height="26dp"
@@ -181,7 +181,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginStart="8dp"
             app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
-            app:layout_constraintStart_toEndOf="@+id/fragment_list_category3"/>
+            app:layout_constraintStart_toEndOf="@+id/fragment_list_category3"/>-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list_rv"
