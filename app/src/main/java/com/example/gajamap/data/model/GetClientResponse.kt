@@ -36,19 +36,8 @@ data class Image(
 )
 
 data class GetAllClientResponse(
-    var clients: List<Client>,
+    var clients: MutableList<Client>,
     var imageUrlPrefix : String
-)
-
-data class ClientOne(
-    var address: Address,
-    var clientId: Int,
-    var clientName: String,
-    var distance: Double?=null,
-    var groupInfo: GroupInfo,
-    var image: Image,
-    var location: Location,
-    var phoneNumber: String
 )
 
 data class Client(

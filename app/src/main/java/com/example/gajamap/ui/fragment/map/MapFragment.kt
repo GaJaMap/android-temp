@@ -45,6 +45,7 @@ import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.view.AddDirectActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.kakao.sdk.user.model.User
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -61,6 +62,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var gName: String = ""
     var pos: Int = 0
+    var posDelete: Int = 0
     var markerCheck = false
     // 지도에서 직접 추가하기를 위한 중심 위치 point
     private lateinit var marker: MapPOIItem
@@ -103,7 +105,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val clientList = UserData.clientListResponse
         val groupInfo = UserData.groupinfo
 
-        // todo : 제대로 마커가 찍히는지 확인하기
         // MapFragment 띄우자마자 현재 선택된 고객들의 위치 마커 찍기
         binding.mapView.removeAllPOIItems()
         val clientNum = clientList!!.clients.size
@@ -120,6 +121,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
             binding.mapView.addPOIItem(point)
         }
+
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
         binding.tvSearch.text = groupInfo!!.groupName
@@ -204,12 +206,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("해당 그룹을 삭제하시겠습니까?")
                     .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                    .setPositiveButton("확인",positiveButtonClick)
-                    .setNegativeButton("취소", negativeButtonClick)
+                    .setPositiveButton("확인", { dialogInterface: DialogInterface, i: Int ->
+                        // 그룹 삭제 서버 연동 함수 호출
+                        deleteGroup(gid, position)
+                    })
+                    .setNegativeButton("취소", { dialogInterface: DialogInterface, i: Int ->
+                        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
+                    })
                 val alertDialog = builder.create()
                 alertDialog.show()
                 gName = name
-                pos = position
+                posDelete = position
                 gid = id
             }
         }, object : GroupListAdapter.GroupEditListener{
@@ -221,7 +228,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 addDialog.setView(mDialogView.root)
                 addDialog.show()
                 gid = id
-                pos = position
+
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
@@ -499,14 +506,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
     }
 
-    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        // 그룹 삭제 서버 연동 함수 호출
-        deleteGroup(gid, pos)
-    }
-    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
-    }
-
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
@@ -530,8 +529,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup.observe(this, Observer {
             groupListAdapter.setData(it)
             // 현재 선택한 리사이클러뷰 아이템의 그룹을 삭제했을 경우
-            if(pos == position){
-
+            // 전체 고객을 조회하는 api 호출 후 전체 고객 마커 찍고 UserData 값 변경
+            if(posDelete == position){
+                getAllClient()
+                binding.tvSearch.text = "전체"
+                sheetView!!.tvAddgroupMain.text = "전체"
             }
         })
     }
@@ -541,7 +543,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.modifyGroup(groupId, CreateGroupRequest(name), position)
         viewModel.checkGroup.observe(this, Observer {
             groupListAdapter.setData(it)
-            // todo : 변경 잘 되는지 확인
+
             // 변경한 그룹 이름 저장 데이터에도 갱신
             UserData.groupinfo!!.groupName = name
 
@@ -645,8 +647,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun getAllClient(){
         viewModel.getAllClient()
         viewModel.allClients.observe(this, Observer {
+
             val data = viewModel.allClients.value!!.clients
             val num = data.count()
+
+            Log.d("deleteResponse", UserData.clientListResponse.toString())
+            // 우선 clientListResponse값 전체를 비운다
+            UserData.clientListResponse = null
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -659,7 +666,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
                 binding.mapView.addPOIItem(point)
+                // for문을 돌면서 response 값인 itemdata를 하나씩 추가한다
+                UserData.clientListResponse?.clients?.add(i, itemdata)
             }
+
         })
     }
 
