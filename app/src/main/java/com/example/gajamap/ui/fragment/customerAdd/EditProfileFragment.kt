@@ -244,6 +244,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             })
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
             parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
     }
@@ -274,7 +275,8 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 Log.d("postAddDirect", it.toString())
             })
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
-            parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
+            //parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
     }

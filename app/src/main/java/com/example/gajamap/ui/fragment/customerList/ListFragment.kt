@@ -12,9 +12,12 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -68,6 +71,15 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.fragment = this@ListFragment
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        Log.d("hi", "hi")
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateAction() {
 
@@ -97,7 +109,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
 
         // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
-        viewModel.checkGroup()
+        /*viewModel.checkGroup()
         viewModel.checkGroup.observe(this, Observer {
             // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
             val groupNames = mutableListOf<String>()
@@ -111,9 +123,13 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerSearch.adapter = adapter
-        })
+        })*/
+        if (groupInfo != null) {
+            binding.spinnerSearch.text = groupInfo.groupName
+        }
 
-        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+        // todo: 스피너 없앤 버전으로 바꾸기
+        /*binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
                 if(position != 0){
@@ -171,97 +187,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
-        }
-
-        //반경 스피너
-        /*val userLatitude = GajaMapApplication.prefs.getString("userLatitude", "")
-        val userLongitude = GajaMapApplication.prefs.getString("userLongitude", "")
-
-        val itemList = listOf("반경", "3KM", "5KM")
-        val adapterRadius = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
-        binding.radiusSpinner.adapter = adapterRadius
-        adapterRadius.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.radiusSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
-                if(position != 0){
-                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(position - 1) ?: return
-                    groupId = selectedGroupInfoResponse.groupId
-                    Log.d("groupId", groupId.toString())
-                }
-                if(position != 0){
-                    binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.radiusSpinner.setBackgroundResource(R.drawable.list_distance_purple)
-                }
-
-                if(position == 1){
-                    radius = 3000
-                }
-                if(position == 2){
-                    radius = 5000
-                }
-
-                binding.etSearch.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {
-                        //입력이 끝날 때 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupNameRadius(groupId, searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                    }
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //입력 하기 전에 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allRadius( radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupRadius(groupId, radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-
-                    }
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupNameRadius(groupId, searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                    }
-                })
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
         }*/

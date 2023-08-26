@@ -36,6 +36,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         viewModel.deleteClient(groupId.toInt(), clientId.toInt())
         viewModel.deleteClient.observe(this, Observer {
             Log.d("delete", it.toString())
+            customerInfoActivity!!.finish()
         })
         // 액티비티 꺼지게 하는 코드 추가
         Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
