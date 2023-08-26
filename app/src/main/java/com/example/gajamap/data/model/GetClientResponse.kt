@@ -3,84 +3,84 @@ package com.example.gajamap.data.model
 import com.google.gson.annotations.SerializedName
 
 data class AutoLoginResponse(
-    val clientListResponse : GetAllClientResponse,
-    val groupInfo : AutoLoginGroupInfo
+    var clientListResponse : GetAllClientResponse,
+    var groupInfo : AutoLoginGroupInfo
 )
 
 data class AutoLoginGroupInfo(
-    val groupId : Int,
-    val clientCount : Int,
-    val groupName : String
+    var groupId : Int,
+    var clientCount : Int,
+    var groupName : String
 )
 //특정 그룹내에 특정 고객 조회
 data class GetGroupClientResponse(
-    val address: Address,
-    val clientId: Int,
-    val clientName: String,
-    val distance: Double?=null,
-    val groupInfo: GroupInfo,
-    val image: Image,
-    val location: Location,
-    val createdAt : String,
-    val phoneNumber: String
+    var address: Address,
+    var clientId: Int,
+    var clientName: String,
+    var distance: Double?=null,
+    var groupInfo: GroupInfo,
+    var image: Image,
+    var location: Location,
+    var createdAt : String,
+    var phoneNumber: String
 )
 
 data class GroupInfo(
-    val groupId: Int,
-    val groupName: String
+    var groupId: Int,
+    var groupName: String
 )
 
 data class Image(
-    val filePath: String,
-    val originalFileName: String
+    var filePath: String,
+    var originalFileName: String
 )
 
 data class GetAllClientResponse(
-    val clients: List<Client>,
-    val imageUrlPrefix : String
+    var clients: List<Client>,
+    var imageUrlPrefix : String
 )
 
 data class ClientOne(
-    val address: Address,
-    val clientId: Int,
-    val clientName: String,
-    val distance: Double?=null,
-    val groupInfo: GroupInfo,
-    val image: Image,
-    val location: Location,
-    val phoneNumber: String
+    var address: Address,
+    var clientId: Int,
+    var clientName: String,
+    var distance: Double?=null,
+    var groupInfo: GroupInfo,
+    var image: Image,
+    var location: Location,
+    var phoneNumber: String
 )
 
 data class Client(
-    val address: Address,
-    val clientId: Int,
-    val clientName: String,
-    val distance: Double?=null,
-    val groupInfo: GroupInfo,
-    val image: Image,
-    val location: Location,
-    val phoneNumber: String,
-    val createdAt : String,
-    val imageUrlPrefix : String
+    var address: Address,
+    var clientId: Int,
+    var clientName: String,
+    var distance: Double?=null,
+    var groupInfo: GroupInfo,
+    var image: Image,
+    var location: Location,
+    var phoneNumber: String,
+    var createdAt : String,
+    var imageUrlPrefix : String
 )
 
 
 data class GetGroupAllClientResponse(
-    val clients: List<Client>,
-    val imageUrlPrefix : String
+    var clients: List<Client>,
+    var imageUrlPrefix : String
 )
 
 data class GetRadiusResponse(
-    val clients: List<Client>,
-    val imageUrlPrefix : String
+    var clients: List<Client>,
+    var imageUrlPrefix : String
 )
 
 data class GroupResponse(
-    val hasNext : Boolean,
+    var hasNext : Boolean,
     var groupInfos: List<GroupInfoResponse>
 )
 data class GroupInfoResponse(
-    val groupId: Int,
-    val clientCount: Int,
-    val groupName: String
+    var groupId: Int,
+    var clientCount: Int,
+    var groupName: String
 )

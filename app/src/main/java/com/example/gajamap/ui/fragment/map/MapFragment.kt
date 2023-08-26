@@ -12,7 +12,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -20,13 +19,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -38,6 +34,7 @@ import com.example.gajamap.R
 import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.data.response.*
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
@@ -46,7 +43,6 @@ import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.view.AddDirectActivity
-import com.example.gajamap.ui.view.EditListActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import net.daum.mf.map.api.MapPOIItem
@@ -57,14 +53,13 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.properties.Delegates
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
-    var groupName: String = ""
+    var gName: String = ""
     var pos: Int = 0
     var markerCheck = false
     // 지도에서 직접 추가하기를 위한 중심 위치 point
@@ -102,6 +97,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onCreateAction() {
         val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
         val sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+        // 자동 로그인 response 데이터 값 받아오기
+        val clientList = UserData.clientListResponse
+        val groupInfo = UserData.groupinfo
+
+        binding.tvSearch.text = groupInfo!!.groupName
+        sheetView.tvAddgroupMain.text = groupInfo.groupName
 
         binding.mapView.setMapViewEventListener(this)
         binding.mapView.setPOIItemEventListener(this)
@@ -185,7 +187,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     .setNegativeButton("취소", negativeButtonClick)
                 val alertDialog = builder.create()
                 alertDialog.show()
-                groupName = name
+                gName = name
                 pos = position
                 gid = id
             }

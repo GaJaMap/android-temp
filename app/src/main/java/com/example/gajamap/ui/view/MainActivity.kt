@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.data.model.AutoLoginResponse
 import com.example.gajamap.databinding.ActivityMainBinding
 import com.example.gajamap.ui.fragment.customerList.ListFragment
 import com.example.gajamap.ui.fragment.map.MapFragment
@@ -39,10 +40,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override fun onCreateAction() {
         //자동로그인에서 저장한 값 가져오는 코드
-        val autoLoginResponse = GajaMapApplication.prefs.getAutoLoginResponse()
-        if(autoLoginResponse != null){
-           Log.d("automain", autoLoginResponse.toString())
-        }
+//        val autoLoginResponse = GajaMapApplication.prefs.getAutoLoginResponse()
+//        if(autoLoginResponse != null){
+//           Log.d("automain", autoLoginResponse.toString())
+//        }
 
         // 이곳에 화면 기능 구현
         //카카오 해시키

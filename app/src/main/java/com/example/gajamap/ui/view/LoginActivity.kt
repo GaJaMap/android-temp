@@ -12,6 +12,9 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.Address
+import com.example.gajamap.data.model.AutoLoginResponse
 import com.example.gajamap.data.model.LoginRequest
 import com.example.gajamap.data.model.LoginResponse
 import com.example.gajamap.data.response.SearchResultData
@@ -39,7 +42,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     }
 
     override fun initViewModel(viewModel: ViewModel) {
-        //binding.setVariable(BR.viewModel, viewModel)
         binding.lifecycleOwner = this@LoginActivity
         binding.activity = this@LoginActivity
     }
@@ -48,7 +50,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         viewModel.autoLogin()
         viewModel.autoLogin.observe(this, Observer {
-            GajaMapApplication.prefs.saveAutoLoginResponse(it)
+            // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
+            UserData.clientListResponse = it.clientListResponse
+            UserData.groupinfo = it.groupInfo
+//            GajaMapApplication.prefs.saveAutoLoginResponse(it)
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
