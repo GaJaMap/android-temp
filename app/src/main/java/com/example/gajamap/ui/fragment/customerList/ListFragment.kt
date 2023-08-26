@@ -450,6 +450,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
+                val name = it.clients[position].clientName
                 Log.d("navi", latitude.toString())
                 Log.d("navi", longitude.toString())
                 //카카오내비
@@ -459,7 +460,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                     startActivity(
                         NaviClient.instance.navigateIntent(
                             //위도 경도를 장소이름으로 바꿔주기
-                            Location("회사", latitude.toString(), longitude.toString()),
+                            Location(name, longitude.toString(), latitude.toString()),
                             NaviOption(coordType = CoordType.WGS84)
                         )
                     )
@@ -536,6 +537,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
+                val name = it.clients[position].clientName
                 //카카오내비
                 // 카카오내비 앱으로 길 안내
                 if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
@@ -543,7 +545,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                     startActivity(
                         NaviClient.instance.navigateIntent(
                             //위도 경도를 장소이름으로 바꿔주기
-                            Location("회사", latitude.toString(), longitude.toString()),
+                            Location(name, longitude.toString(), latitude.toString()),
                             NaviOption(coordType = CoordType.WGS84)
                         )
                     )
