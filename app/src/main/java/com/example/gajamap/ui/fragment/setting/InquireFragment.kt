@@ -22,6 +22,8 @@ class InquireFragment: BaseFragment<FragmentInquireBinding>(R.layout.fragment_in
     }
 
     override fun onCreateAction() {
-
+        binding.topBackBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        }
     }
 }

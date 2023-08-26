@@ -26,6 +26,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.data.model.*
 import com.example.gajamap.databinding.FragmentListBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
@@ -72,30 +73,20 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
-        /*viewModel.getGroupAllClient(10)
-        viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
-            GroupClientSearchRV(it)
-        })*/
-        viewModel.getAllClient()
+
+        /*viewModel.getAllClient()
         viewModel.getAllClient.observe(this, Observer {
             ListRv(it)
-        })
-        /*if(groupIdLogin != null){
-            viewModel.getAllClient()
-            viewModel.getAllClient.observe(this, Observer {
-                ListRv(it)
-            })
+        })*/
+        // 자동 로그인 response 데이터 값 받아오기
+        val clientList = UserData.clientListResponse
+        val groupInfo = UserData.groupinfo
+        if (clientList != null) {
+            ListRv(clientList)
         }
-        else {
-            viewModel.getGroupAllClient(groupIdLogin)
-            viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
-                GroupClientSearchRV(it)
-            })
-        }*/
-
         binding.fragmentEditBtn.setOnClickListener {
             // 고객 편집하기 activity로 이동
-            val intent = Intent(getActivity(), EditListActivity::class.java)
+            val intent = Intent(activity, EditListActivity::class.java)
             startActivity(intent)
         }
 
@@ -448,14 +439,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
                 // 고객 상세 정보 activity로 이동
-                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                val intent = Intent(activity, CustomerInfoActivity::class.java)
                 startActivity(intent)
             }
         })
 
         //내비게이션
         customerListAdapter.setItemClickListener(object :
-        CustomerListAdapter.ItemClickListener{
+            CustomerListAdapter.ItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
@@ -534,7 +525,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
                 // 고객 상세 정보 activity로 이동
-                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                val intent = Intent(activity, CustomerInfoActivity::class.java)
                 startActivity(intent)
             }
         })
