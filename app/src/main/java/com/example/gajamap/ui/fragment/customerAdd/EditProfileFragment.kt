@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -59,14 +60,16 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     override fun onCreateAction() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+            }
+        })
+
         binding.topBackBtn.setOnClickListener {
             // todo: editprofilefragment도 activity로 변경 후 아래 코드 수정해야 함
             // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
-        }
-
-        binding.btnSubmit.setOnClickListener {
-            // todo: editprofilefragment도 activity로 변경 후 아래 코드 수정해야 함
-            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, CustomerInfoFragment()).addToBackStack(null).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
         //스피너
@@ -239,7 +242,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("postAddDirect", it.toString())
             })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
     }
@@ -269,7 +274,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("postAddDirect", it.toString())
             })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
+            //parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
     }

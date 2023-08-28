@@ -124,9 +124,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
-        binding.tvSearch.text = groupInfo!!.groupName
-        sheetView!!.tvAddgroupMain.text = groupInfo.groupName
-
+        if (groupInfo != null) {
+            binding.tvSearch?.text = groupInfo.groupName
+            sheetView.tvAddgroupMain?.text = groupInfo.groupName
+        }
         binding.mapView.setMapViewEventListener(this)
         binding.mapView.setPOIItemEventListener(this)
 
