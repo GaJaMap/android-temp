@@ -122,7 +122,7 @@
             app:layout_constraintTop_toBottomOf="@+id/info_profile_name_et"
             app:layout_constraintStart_toStartOf="@+id/info_profile_name_et"/>
 
-        <Spinner
+        <!--<Spinner
             android:id="@+id/info_profile_group"
             android:layout_width="104dp"
             android:layout_height="30dp"
@@ -134,17 +134,6 @@
             app:layout_constraintTop_toBottomOf="@+id/info_profile_name_et_warning"
             app:layout_constraintStart_toStartOf="@+id/info_profile_name_et"/>
 
-        <!--<TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/direct_group_select"
-            android:textSize="11sp"
-            android:layout_marginStart="11dp"
-            android:textColor="@color/black"
-            app:layout_constraintStart_toStartOf="@+id/info_profile_group"
-            app:layout_constraintTop_toTopOf="@+id/info_profile_group"
-            app:layout_constraintBottom_toBottomOf="@+id/info_profile_group"/>-->
-
         <TextView
             android:id="@+id/info_profile_group_warning"
             android:layout_width="wrap_content"
@@ -155,7 +144,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginStart="5dp"
             app:layout_constraintTop_toBottomOf="@+id/info_profile_group"
-            app:layout_constraintStart_toStartOf="@+id/info_profile_group"/>
+            app:layout_constraintStart_toStartOf="@+id/info_profile_group"/>-->
 
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -166,7 +155,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/info_profile_group_warning"/>
+            app:layout_constraintTop_toBottomOf="@+id/info_profile_name_et_warning"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/info_profile_address_tv_back"
