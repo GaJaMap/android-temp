@@ -1,6 +1,6 @@
 package com.example.gajamap.data.model
 
-import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
 
 data class AutoLoginResponse(
     var clientListResponse : GetAllClientResponse,
@@ -21,7 +21,7 @@ data class GetGroupClientResponse(
     var groupInfo: GroupInfo,
     var image: Image,
     var location: Location,
-    var createdAt : String,
+    var createdAt : LocalDateTime,
     var phoneNumber: String
 )
 
@@ -49,7 +49,7 @@ data class Client(
     var image: Image,
     var location: Location,
     var phoneNumber: String,
-    var createdAt : String,
+    var createdAt : LocalDateTime,
     var imageUrlPrefix : String
 )
 
