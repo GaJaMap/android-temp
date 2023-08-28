@@ -26,6 +26,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.databinding.ActivityAddDirectBinding
 import com.example.gajamap.ui.fragment.map.MapFragment
@@ -47,7 +48,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         binding.viewModel = this.viewModel
     }
 
-    var imageFile : File? = null
     private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
     private var isCamera = false
 
@@ -91,7 +91,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                     textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
                     return textView
                 }
-
             }
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -189,6 +188,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             }
         }
     }
+
     // 이미지 실제 경로 반환
     fun getRealPathFromURI(uri: Uri): String {
         val buildName = Build.MANUFACTURER
@@ -226,8 +226,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
 
     }
 
-
-
     private fun sendImage(clientImage: MultipartBody.Part){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
@@ -255,9 +253,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                 Log.d("postAddDirect", it.body().toString())
             })
             finish()
-            //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
-
     }
 
     private fun sendImage1(){
@@ -266,11 +262,11 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
-            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
-            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
@@ -283,9 +279,12 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
+                Log.d("확인", groupId1)
+                if(groupId1.toInt() == UserData.groupinfo?.groupId){
+
+                }
             })
             finish()
-            // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }
