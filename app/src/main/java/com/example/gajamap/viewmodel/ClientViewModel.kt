@@ -24,8 +24,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     val deleteClient : LiveData<BaseResponse>
     get() = _deleteClient
 
-    private val _postClient = MutableLiveData<Response<Int>>()
-    val postClient : LiveData<Response<Int>>
+    private val _postClient = MutableLiveData<Response<GetAllClientResponse>>()
+    val postClient : LiveData<Response<GetAllClientResponse>>
     get() = _postClient
 
     private val _postKakaoPhoneClient = MutableLiveData<Response<List<Int>>>()

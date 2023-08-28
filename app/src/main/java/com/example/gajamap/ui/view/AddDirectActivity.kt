@@ -280,9 +280,12 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
                 Log.d("확인", groupId1)
-                if(groupId1.toInt() == UserData.groupinfo?.groupId){
-
-                }
+//                if (viewModel.postClient.value == null){
+//                    Log.d("확인전체", "postClient")
+//                }
+//                if(groupId1.toInt() == UserData.groupinfo?.groupId){
+//
+//                }
             })
             finish()
         }

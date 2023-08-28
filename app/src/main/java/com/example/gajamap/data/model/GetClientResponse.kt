@@ -21,7 +21,7 @@ data class GetGroupClientResponse(
     var groupInfo: GroupInfo,
     var image: Image,
     var location: Location,
-    var createdAt : LocalDateTime,
+    var createdAt : String,
     var phoneNumber: String
 )
 
@@ -49,7 +49,7 @@ data class Client(
     var image: Image,
     var location: Location,
     var phoneNumber: String,
-    var createdAt : LocalDateTime,
+    var createdAt : String,
     var imageUrlPrefix : String
 )
 

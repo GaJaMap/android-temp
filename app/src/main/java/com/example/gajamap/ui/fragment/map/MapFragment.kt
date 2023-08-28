@@ -122,12 +122,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.mapView.addPOIItem(point)
         }
 
-
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
         if (groupInfo != null) {
-            binding.tvSearch?.text = groupInfo.groupName
-            sheetView.tvAddgroupMain?.text = groupInfo.groupName
+            binding.tvSearch.text = groupInfo.groupName
+            sheetView!!.tvAddgroupMain.text = groupInfo.groupName
         }
+
         binding.mapView.setMapViewEventListener(this)
         binding.mapView.setPOIItemEventListener(this)
 
@@ -652,9 +652,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val data = viewModel.allClients.value!!.clients
             val num = data.count()
 
-            Log.d("deleteResponse", UserData.clientListResponse.toString())
-            // 우선 clientListResponse값 전체를 비운다
-            UserData.clientListResponse = null
+            // UserData 값 갱신
+            UserData.clientListResponse = viewModel.allClients.value
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -667,10 +666,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
                 binding.mapView.addPOIItem(point)
-                // for문을 돌면서 response 값인 itemdata를 하나씩 추가한다
-                UserData.clientListResponse?.clients?.add(i, itemdata)
             }
-
         })
     }
 
@@ -686,9 +682,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-            binding.tvCardDistance.text = String.format("%.2f",
-                itemdata!!.distance?.times(0.001)
-            )
+            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
         })
     }
 
