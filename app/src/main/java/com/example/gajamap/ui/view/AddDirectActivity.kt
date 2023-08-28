@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -62,6 +63,9 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         //주소 데이터 가져오기
         val address = GajaMapApplication.prefs.getString("address", "")
         binding.infoProfileAddressTv1.text = address
+
+        // 전화번호 작성 시 자동으로 하이픈 추가
+        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         //스피너
         viewModel.checkGroup()
@@ -232,11 +236,11 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
-            val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
-            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
@@ -271,7 +275,9 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
             val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            Log.d("latitudesend", latitude1.toString())
             val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
+            Log.d("longitudesend", longitude1.toString())
             val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -279,7 +285,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
-                Log.d("확인", groupId1)
+                //Log.d("확인", groupId1)
 //                if (viewModel.postClient.value == null){
 //                    Log.d("확인전체", "postClient")
 //                }

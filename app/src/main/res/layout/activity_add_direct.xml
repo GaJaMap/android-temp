@@ -242,6 +242,7 @@
             android:layout_marginStart="18dp"
             android:layout_marginEnd="34dp"
             android:layout_marginTop="10dp"
+            android:inputType="phone"
             app:layout_constraintTop_toTopOf="@+id/info_profile_phone"
             app:layout_constraintBottom_toBottomOf="@+id/info_profile_phone"
             app:layout_constraintStart_toEndOf="@+id/info_profile_phone"

@@ -307,6 +307,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                Log.d("검색", binding.etSearch.text.toString())
+                //UserData.clientListResponse.clients.
                 searchResultList.add(SearchResultData("조예진"))
                 searchResultList.add(SearchResultData("하이하이"))
                 binding.rvSearch.adapter = searchResultAdapter
