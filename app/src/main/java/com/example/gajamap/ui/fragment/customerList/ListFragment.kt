@@ -12,9 +12,12 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,6 +29,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.data.model.*
 import com.example.gajamap.databinding.FragmentListBinding
 import com.example.gajamap.ui.adapter.CustomerListAdapter
@@ -38,12 +42,18 @@ import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
 import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
     //var searchList : Array<String> = emptyArray()
     private var groupId : Int = -1
     private var radius = 0
+    private var clientList = UserData.clientListResponse
+    private var groupInfo = UserData.groupinfo
 
     private val ACCESS_FINE_LOCATION = 1000
     private val CALL_PHONE_PERMISSION_CODE = 101
@@ -69,33 +79,16 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateAction() {
+        CoroutineScope(Dispatchers.IO).launch {
+            setView()
+        }
 
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
-        /*viewModel.getGroupAllClient(10)
-        viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
-            GroupClientSearchRV(it)
-        })*/
-        viewModel.getAllClient()
-        viewModel.getAllClient.observe(this, Observer {
-            ListRv(it)
-        })
-        /*if(groupIdLogin != null){
-            viewModel.getAllClient()
-            viewModel.getAllClient.observe(this, Observer {
-                ListRv(it)
-            })
-        }
-        else {
-            viewModel.getGroupAllClient(groupIdLogin)
-            viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
-                GroupClientSearchRV(it)
-            })
-        }*/
 
         binding.fragmentEditBtn.setOnClickListener {
             // 고객 편집하기 activity로 이동
-            val intent = Intent(getActivity(), EditListActivity::class.java)
+            val intent = Intent(activity, EditListActivity::class.java)
             startActivity(intent)
         }
 
@@ -106,7 +99,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
 
         // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
-        viewModel.checkGroup()
+        /*viewModel.checkGroup()
         viewModel.checkGroup.observe(this, Observer {
             // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
             val groupNames = mutableListOf<String>()
@@ -120,9 +113,10 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerSearch.adapter = adapter
-        })
+        })*/
 
-        binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+        // todo: 스피너 없앤 버전으로 바꾸기
+        /*binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
                 if(position != 0){
@@ -180,97 +174,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
-        }
-
-        //반경 스피너
-        /*val userLatitude = GajaMapApplication.prefs.getString("userLatitude", "")
-        val userLongitude = GajaMapApplication.prefs.getString("userLongitude", "")
-
-        val itemList = listOf("반경", "3KM", "5KM")
-        val adapterRadius = ArrayAdapter(requireContext(), R.layout.item_spinner, itemList)
-        binding.radiusSpinner.adapter = adapterRadius
-        adapterRadius.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.radiusSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
-                if(position != 0){
-                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(position - 1) ?: return
-                    groupId = selectedGroupInfoResponse.groupId
-                    Log.d("groupId", groupId.toString())
-                }
-                if(position != 0){
-                    binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-                    binding.radiusSpinner.setBackgroundResource(R.drawable.list_distance_purple)
-                }
-
-                if(position == 1){
-                    radius = 3000
-                }
-                if(position == 2){
-                    radius = 5000
-                }
-
-                binding.etSearch.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {
-                        //입력이 끝날 때 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupNameRadius(groupId, searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                    }
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //입력 하기 전에 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allRadius( radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupRadius(groupId, radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-
-                    }
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.allNameRadius(searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.allNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.groupNameRadius(groupId, searchName.toString(), radius.toDouble(), userLatitude.toDouble(), userLongitude.toDouble())
-                            viewModel.groupNameRadius.observe(viewLifecycleOwner, Observer {
-                                listRadius(it)
-                            })
-                        }
-                    }
-                })
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
         }*/
@@ -405,6 +308,44 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         })
     }*/
 
+    private suspend fun setView(){
+        withContext(Dispatchers.Main){
+            /*viewModel.getAllClient()
+        viewModel.getAllClient.observe(this, Observer {
+            ListRv(it)
+        })*/
+            // 자동 로그인 response 데이터 값 받아오기
+            //clientList = UserData.clientListResponse
+            //groupInfo = UserData.groupinfo
+            clientList?.let { ListRv(it) }
+
+            if (groupInfo != null) {
+                binding.spinnerSearch.text = groupInfo!!.groupName
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        CoroutineScope(Dispatchers.IO).launch {
+            updateData()
+        }
+    }
+
+    private suspend fun updateData() {
+        withContext(Dispatchers.Main) {
+            // 자동 로그인 response 데이터 값 받아오기
+            clientList = UserData.clientListResponse
+            groupInfo = UserData.groupinfo
+            clientList?.let { ListRv(it) }
+
+            if (groupInfo != null) {
+                binding.spinnerSearch.text = groupInfo!!.groupName
+            }
+            Log.d("deleteupdate", clientList.toString())
+        }
+    }
+
     fun ListRv(it : GetAllClientResponse){
         GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         //고객 리스트
@@ -434,6 +375,10 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         customerListAdapter.setOnItemClickListener(object :
             CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
+                val clientId = it.clients[position].clientId
+                val groupId = it.clients[position].groupInfo.groupId
+                GajaMapApplication.prefs.setString("clientId", clientId.toString())
+                GajaMapApplication.prefs.setString("groupId", groupId.toString())
                 val name = it.clients[position].clientName
                 val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail
@@ -448,17 +393,18 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
                 // 고객 상세 정보 activity로 이동
-                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                val intent = Intent(activity, CustomerInfoActivity::class.java)
                 startActivity(intent)
             }
         })
 
         //내비게이션
         customerListAdapter.setItemClickListener(object :
-        CustomerListAdapter.ItemClickListener{
+            CustomerListAdapter.ItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
+                val name = it.clients[position].clientName
                 Log.d("navi", latitude.toString())
                 Log.d("navi", longitude.toString())
                 //카카오내비
@@ -468,7 +414,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                     startActivity(
                         NaviClient.instance.navigateIntent(
                             //위도 경도를 장소이름으로 바꿔주기
-                            Location("회사", latitude.toString(), longitude.toString()),
+                            Location(name, longitude.toString(), latitude.toString()),
                             NaviOption(coordType = CoordType.WGS84)
                         )
                     )
@@ -534,7 +480,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
 
                 // 고객 상세 정보 activity로 이동
-                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
+                val intent = Intent(activity, CustomerInfoActivity::class.java)
                 startActivity(intent)
             }
         })
@@ -545,6 +491,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
+                val name = it.clients[position].clientName
                 //카카오내비
                 // 카카오내비 앱으로 길 안내
                 if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
@@ -552,7 +499,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                     startActivity(
                         NaviClient.instance.navigateIntent(
                             //위도 경도를 장소이름으로 바꿔주기
-                            Location("회사", latitude.toString(), longitude.toString()),
+                            Location(name, longitude.toString(), latitude.toString()),
                             NaviOption(coordType = CoordType.WGS84)
                         )
                     )
