@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModel
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.Client
 import com.example.gajamap.databinding.FragmentCustomerInfoBinding
 import com.example.gajamap.ui.view.CustomerInfoActivity
 import com.example.gajamap.viewmodel.GetClientViewModel
@@ -32,10 +34,13 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
 
     val clientId = GajaMapApplication.prefs.getString("clientId", "")
     val groupId = GajaMapApplication.prefs.getString("groupId", "")
+
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
+        Log.d("deleteId", clientId.toString())
         viewModel.deleteClient(groupId.toInt(), clientId.toInt())
         viewModel.deleteClient.observe(this, Observer {
-            Log.d("delete", it.toString())
+            removeClientWithClientId(clientId.toInt())
+            //Log.d("delete", it.toString())
             customerInfoActivity!!.finish()
         })
         // 액티비티 꺼지게 하는 코드 추가
@@ -94,6 +99,23 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
     override fun onAttach(context: Context) {
         super.onAttach(context)
         customerInfoActivity = context as CustomerInfoActivity
+    }
+
+    private fun removeClientWithClientId(clientIdToRemove: Int) {
+        // 자동 로그인 response 데이터 값 받아오기
+        val clientList = UserData.clientListResponse?.clients as? MutableList<Client>
+
+        if (clientList != null) {
+            val iterator = clientList.iterator()
+            while (iterator.hasNext()) {
+                val client = iterator.next()
+                if (client.clientId == clientIdToRemove) {
+                    iterator.remove()
+                    Log.d("delete", clientList.toString())
+                    break  // 원하는 클라이언트를 찾고 삭제 후 반복문 종료
+                }
+            }
+        }
     }
 
 }

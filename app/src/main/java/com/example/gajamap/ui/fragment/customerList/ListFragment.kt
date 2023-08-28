@@ -42,12 +42,18 @@ import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
 import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
     // 검색창 dropdown list
     //var searchList : Array<String> = emptyArray()
     private var groupId : Int = -1
     private var radius = 0
+    private var clientList = UserData.clientListResponse
+    private var groupInfo = UserData.groupinfo
 
     private val ACCESS_FINE_LOCATION = 1000
     private val CALL_PHONE_PERMISSION_CODE = 101
@@ -71,31 +77,15 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.fragment = this@ListFragment
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        Log.d("hi", "hi")
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateAction() {
+        CoroutineScope(Dispatchers.IO).launch {
+            setView()
+        }
 
         //리사이클러뷰
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
 
-        /*viewModel.getAllClient()
-        viewModel.getAllClient.observe(this, Observer {
-            ListRv(it)
-        })*/
-        // 자동 로그인 response 데이터 값 받아오기
-        val clientList = UserData.clientListResponse
-        val groupInfo = UserData.groupinfo
-        if (clientList != null) {
-            ListRv(clientList)
-        }
         binding.fragmentEditBtn.setOnClickListener {
             // 고객 편집하기 activity로 이동
             val intent = Intent(activity, EditListActivity::class.java)
@@ -124,9 +114,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerSearch.adapter = adapter
         })*/
-        if (groupInfo != null) {
-            binding.spinnerSearch.text = groupInfo.groupName
-        }
 
         // todo: 스피너 없앤 버전으로 바꾸기
         /*binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
@@ -321,6 +308,44 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         })
     }*/
 
+    private suspend fun setView(){
+        withContext(Dispatchers.Main){
+            /*viewModel.getAllClient()
+        viewModel.getAllClient.observe(this, Observer {
+            ListRv(it)
+        })*/
+            // 자동 로그인 response 데이터 값 받아오기
+            //clientList = UserData.clientListResponse
+            //groupInfo = UserData.groupinfo
+            clientList?.let { ListRv(it) }
+
+            if (groupInfo != null) {
+                binding.spinnerSearch.text = groupInfo!!.groupName
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        CoroutineScope(Dispatchers.IO).launch {
+            updateData()
+        }
+    }
+
+    private suspend fun updateData() {
+        withContext(Dispatchers.Main) {
+            // 자동 로그인 response 데이터 값 받아오기
+            clientList = UserData.clientListResponse
+            groupInfo = UserData.groupinfo
+            clientList?.let { ListRv(it) }
+
+            if (groupInfo != null) {
+                binding.spinnerSearch.text = groupInfo!!.groupName
+            }
+            Log.d("deleteupdate", clientList.toString())
+        }
+    }
+
     fun ListRv(it : GetAllClientResponse){
         GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         //고객 리스트
@@ -350,6 +375,10 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         customerListAdapter.setOnItemClickListener(object :
             CustomerListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
+                val clientId = it.clients[position].clientId
+                val groupId = it.clients[position].groupInfo.groupId
+                GajaMapApplication.prefs.setString("clientId", clientId.toString())
+                GajaMapApplication.prefs.setString("groupId", groupId.toString())
                 val name = it.clients[position].clientName
                 val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail

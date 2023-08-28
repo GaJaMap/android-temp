@@ -102,8 +102,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val clientList = UserData.clientListResponse
         val groupInfo = UserData.groupinfo
 
-        binding.tvSearch.text = groupInfo!!.groupName
-        sheetView.tvAddgroupMain.text = groupInfo.groupName
+        if (groupInfo != null) {
+            binding.tvSearch?.text = groupInfo.groupName
+            sheetView.tvAddgroupMain?.text = groupInfo.groupName
+        }
 
         binding.mapView.setMapViewEventListener(this)
         binding.mapView.setPOIItemEventListener(this)
