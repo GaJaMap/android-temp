@@ -24,8 +24,11 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     val deleteClient : LiveData<BaseResponse>
     get() = _deleteClient
 
-    private val _postClient = MutableLiveData<Response<Int>>()
-    val postClient : LiveData<Response<Int>>
+    private val _postClient = MutableLiveData<Response<GetAllClientResponse>>()
+    val postClient : LiveData<Response<GetAllClientResponse>>
+
+//    private val _postClient = MutableLiveData<Response<Int>>()
+//    val postClient : LiveData<Response<Int>>
     get() = _postClient
 
     private val _postKakaoPhoneClient = MutableLiveData<Response<List<Int>>>()
@@ -110,7 +113,7 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 _postClient.postValue(response)
                 Log.d("postClientSuccess", "${response.body()}")
             }else {
-                Log.d("postClientError", "postClient : ${response.errorBody()}")
+                Log.d("postClientError", "postClient : ${response.errorBody()?.string()}")
             }
         }
     }
