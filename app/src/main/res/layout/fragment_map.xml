@@ -85,7 +85,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_search_result"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/fragment_list_tool"
             android:visibility="invisible"
             android:elevation="15dp"
@@ -98,8 +98,8 @@
                 android:id="@+id/rv_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:overScrollMode="never"
                 tools:listitem="@layout/item_search_result"
                 app:layout_constraintEnd_toEndOf="parent"

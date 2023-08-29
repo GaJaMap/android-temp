@@ -19,6 +19,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
@@ -54,6 +55,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Integer.min
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -72,7 +74,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
-    private val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -100,6 +101,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onCreateAction() {
         val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
         sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+        // 검색결과 recyclerview 크기 아이템 개수에 따라 조절
+        val maxRecyclerViewHeight = resources.getDimensionPixelSize(R.dimen.max_recycler_view_height)
+        val itemHeight = resources.getDimensionPixelSize(R.dimen.item_height)
 
         // 자동 로그인 response 데이터 값 받아오기
         val clientList = UserData.clientListResponse
@@ -307,11 +312,23 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                Log.d("검색", binding.etSearch.text.toString())
-                //UserData.clientListResponse.clients.
-                searchResultList.add(SearchResultData("조예진"))
-                searchResultList.add(SearchResultData("하이하이"))
+
+                searchResultList.clear()
+                val size = UserData.clientListResponse?.clients!!.size
+                for (i in 0..size-1){
+                    val name = UserData.clientListResponse?.clients!!.get(i).clientName
+                    if(name.contains(binding.etSearch.text.toString())){
+                        searchResultList.add(SearchResultData(name))
+                    }
+                }
+
+                val searchResultAdapter = SearchResultAdapter(searchResultList)
                 binding.rvSearch.adapter = searchResultAdapter
+                val itemCount = searchResultList.size
+                // 최대 크기와 비교하여 결정
+                val calculatedRecyclerViewHeight = min(itemHeight * itemCount, maxRecyclerViewHeight)
+                // RecyclerView의 높이를 동적으로 설정
+                binding.rvSearch.layoutParams.height = calculatedRecyclerViewHeight
                 searchResultAdapter.notifyDataSetChanged()
 
                 binding.clSearchResult.visibility = View.VISIBLE
@@ -862,6 +879,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.VISIBLE
         binding.ibGps.visibility = View.VISIBLE
         binding.ibKm.visibility = View.VISIBLE
+        // 검색창 없애기
+        binding.clSearchResult.visibility = View.GONE
 
         if(plusBtn){
             plusBtn = false
