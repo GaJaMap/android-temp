@@ -74,6 +74,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
+    val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -305,7 +306,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
-        // todo : 수정 필요
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -318,11 +318,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 for (i in 0..size-1){
                     val name = UserData.clientListResponse?.clients!!.get(i).clientName
                     if(name.contains(binding.etSearch.text.toString())){
-                        searchResultList.add(SearchResultData(name))
+                        searchResultList.add(SearchResultData(name, i))
                     }
                 }
 
-                val searchResultAdapter = SearchResultAdapter(searchResultList)
                 binding.rvSearch.adapter = searchResultAdapter
                 val itemCount = searchResultList.size
                 // 최대 크기와 비교하여 결정
@@ -336,6 +335,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             override fun afterTextChanged(p0: Editable?) {
 
+            }
+        })
+        // 검색 결과 recyclerview 아이템 클릭 시 해당 고객에 대한 마커 위치로 이동
+        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int, index: Int) {
+                val itemData = UserData.clientListResponse?.clients?.get(index)
+                val mapPoint = MapPoint.mapPointWithGeoCoord(itemData!!.location.latitude, itemData.location.longitude)
+                binding.mapView.setMapCenterPoint(mapPoint, true)
             }
         })
 
@@ -647,6 +654,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.groupClients.observe(this, Observer {
             val data = viewModel.groupClients.value!!.clients
             val num = data.count()
+
+            // UserData 값 갱신
+            UserData.clientListResponse = viewModel.groupClients.value
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -723,20 +733,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     itemdata.distance?.times(0.001)
                 )
             }
-//            val num = data.count()
-//            binding.mapView.removeAllPOIItems()
-//            for (i in 0..num-1) {
-//                val itemdata = data.get(i)
-//                // 지도에 마커 추가
-//                val point = MapPOIItem()
-//                point.apply {
-//                    itemName = itemdata.clientName
-//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-//                    markerType = MapPOIItem.MarkerType.BluePin
-//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-//                }
-//                binding.mapView.addPOIItem(point)
-//            }
         })
     }
 

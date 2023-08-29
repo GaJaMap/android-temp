@@ -138,8 +138,8 @@ class MapViewModel: ViewModel() {
     }
 
     // 특정 그룹 내 고객 전부 조회
-    private val _groupClients = MutableLiveData<GetGroupAllClientResponse>()
-    val groupClients : LiveData<GetGroupAllClientResponse>
+    private val _groupClients = MutableLiveData<GetAllClientResponse>()
+    val groupClients : LiveData<GetAllClientResponse>
         get() = _groupClients
 
     fun getGroupAllClient(groupId : Long){
