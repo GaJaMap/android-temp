@@ -105,10 +105,10 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                    isBasicImage : RequestBody){
         viewModelScope.launch(Dispatchers.IO) {
             val response = clientRepository.postClient(clientName,groupId,phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
-            Log.d("postClient", "${response.body()}\n${response.code()}")
+            Log.d("postClient", "${response}\n${response.code()}")
             if(response.isSuccessful){
                 _postClient.postValue(response)
-                Log.d("postClientSuccess", "${response.body()}")
+                Log.d("postClientSuccess", "$response")
             }else {
                 Log.d("postClientError", "postClient : ${response.errorBody()}")
             }

@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.example.gajamap.base.UserData
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -26,6 +27,8 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData.clientListResponse
+import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.databinding.FragmentEditProfileBinding
 import com.example.gajamap.ui.fragment.map.MapFragment
@@ -73,7 +76,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         }
 
         //스피너
-        viewModel.checkGroup()
+        /*viewModel.checkGroup()
         viewModel.checkGroup.observe(this, Observer {
             // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
             val groupNames = mutableListOf<String>()
@@ -131,7 +134,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
-        }
+        }*/
 
         val name = GajaMapApplication.prefs.getString("name", "")
         val address1 = GajaMapApplication.prefs.getString("address1", "")
@@ -222,7 +225,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.btnSubmit.setOnClickListener {
             val clientId = GajaMapApplication.prefs.getString("clientId", "")
             val clientName1 = binding.infoProfileNameEt.text
-            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            var clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
             val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
@@ -240,7 +243,30 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
             viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
-                Log.d("postAddDirect", it.toString())
+                // 클라이언트 리스트 가져오기
+                val clientList = UserData.clientListResponse?.clients as? MutableList<Client>
+
+                val targetClientId = GajaMapApplication.prefs.getString("clientId", "")
+
+                // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
+                clientList?.let { clients ->
+                    // 특정 clientId에 해당하는 클라이언트 찾기
+                    val targetClient = clients.find { it.clientId == targetClientId.toInt() }
+
+                    // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
+                    targetClient?.apply {
+
+                        // 변경할 내용 설정
+                        //address = Address(...) // 원하는 값으로 변경
+                        //clientName = "New Client Name" // 원하는 값으로 변경
+                        // 나머지 필드도 원하는 대로 변경
+
+                        // 변경된 클라이언트 정보를 클라이언트 리스트에 업데이트
+                        clientList.indexOf(this).let { index ->
+                            clientList[index] = this
+                        }
+                    }
+                }
             })
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
             parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()

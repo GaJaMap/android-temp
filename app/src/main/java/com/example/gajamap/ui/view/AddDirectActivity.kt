@@ -37,6 +37,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activity_add_direct) {
+    var latitude = 0.0
+    var longitude = 0.0
+
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
@@ -56,6 +59,9 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         const val REQ_GALLERY = 1
     }
     override fun onCreateAction() {
+        latitude = intent.getDoubleExtra("latitude",0.0)
+        longitude = intent.getDoubleExtra("longitude",0.0)
+
         binding.topBackBtn.setOnClickListener {
             finish()
         }
@@ -229,6 +235,8 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
 
 
     private fun sendImage(clientImage: MultipartBody.Part){
+        //latitude = intent.getDoubleExtra("latitude",0.0)
+        //longtitude = intent.getDoubleExtra("longtitude",0.0)
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
             val clientName1 = binding.infoProfileNameEt.text
@@ -241,26 +249,28 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
-            Log.d("send", latitude1.toString())
-            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
-            Log.d("send", longitude1.toString())
-            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            //val latitude1 = GajaMapApplication.prefs.getString("latitudeAdd", "")
+            //Log.d("send", latitude1.toString())
+            val latitude = latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            //val longitude1 = GajaMapApplication.prefs.getString("longtitudeAdd", "")
+            //Log.d("send", longitude1.toString())
+            val longitude = longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
+                finish()
             })
-            finish()
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
     }
 
     private fun sendImage1(){
+        //latitude = intent.getDoubleExtra("latitude",0.0)
+        //longtitude = intent.getDoubleExtra("longtitude",0.0)
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
             val clientName1 = binding.infoProfileNameEt.text
@@ -273,18 +283,20 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
-            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
-            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            //val latitude1 = GajaMapApplication.prefs.getString("latitudeAdd", "")
+            //Log.d("send", latitude1.toString())
+            val latitude = latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            //val longitude1 = GajaMapApplication.prefs.getString("longtitudeAdd", "")
+            //Log.d("send", longitude1.toString())
+            val longitude = longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
+                finish()
             })
-            finish()
             // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
         }
 
