@@ -19,7 +19,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
@@ -46,7 +45,6 @@ import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.view.AddDirectActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.kakao.sdk.user.model.User
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -337,6 +335,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             }
         })
+
         // 검색 결과 recyclerview 아이템 클릭 시 해당 고객에 대한 마커 위치로 이동
         searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int, index: Int) {
@@ -711,7 +710,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
+
+            if(itemdata!!.distance == null){
+                binding.tvCardDistance.text = "-"
+            }else{
+                binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
+            }
         })
     }
 
@@ -728,10 +732,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
 
-            if (itemdata != null) {
-                binding.tvCardDistance.text = String.format("%.2f",
-                    itemdata.distance?.times(0.001)
-                )
+            if(itemdata!!.distance == null){
+                binding.tvCardDistance.text = "-"
+            }else{
+                binding.tvCardDistance.text = String.format("%.2f", itemdata.distance?.times(0.001))
             }
         })
     }
