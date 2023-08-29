@@ -45,7 +45,6 @@ import com.example.gajamap.ui.adapter.SearchResultAdapter
 import com.example.gajamap.ui.view.AddDirectActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.kakao.sdk.user.model.User
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -54,6 +53,7 @@ import net.daum.mf.map.api.MapView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Integer.min
 
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
@@ -72,7 +72,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
-    private val searchResultAdapter = SearchResultAdapter(searchResultList)
+    val searchResultAdapter = SearchResultAdapter(searchResultList)
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -100,6 +100,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onCreateAction() {
         val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
         sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
+
+        // 검색결과 recyclerview 크기 아이템 개수에 따라 조절
+        val maxRecyclerViewHeight = resources.getDimensionPixelSize(R.dimen.max_recycler_view_height)
+        val itemHeight = resources.getDimensionPixelSize(R.dimen.item_height)
 
         // 자동 로그인 response 데이터 값 받아오기
         val clientList = UserData.clientListResponse
@@ -300,18 +304,28 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         }
 
-        // todo : 수정 필요
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                Log.d("검색", binding.etSearch.text.toString())
-                //UserData.clientListResponse.clients.
-                searchResultList.add(SearchResultData("조예진"))
-                searchResultList.add(SearchResultData("하이하이"))
+
+                searchResultList.clear()
+                val size = UserData.clientListResponse?.clients!!.size
+                for (i in 0..size-1){
+                    val name = UserData.clientListResponse?.clients!!.get(i).clientName
+                    if(name.contains(binding.etSearch.text.toString())){
+                        searchResultList.add(SearchResultData(name, i))
+                    }
+                }
+
                 binding.rvSearch.adapter = searchResultAdapter
+                val itemCount = searchResultList.size
+                // 최대 크기와 비교하여 결정
+                val calculatedRecyclerViewHeight = min(itemHeight * itemCount, maxRecyclerViewHeight)
+                // RecyclerView의 높이를 동적으로 설정
+                binding.rvSearch.layoutParams.height = calculatedRecyclerViewHeight
                 searchResultAdapter.notifyDataSetChanged()
 
                 binding.clSearchResult.visibility = View.VISIBLE
@@ -319,6 +333,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             override fun afterTextChanged(p0: Editable?) {
 
+            }
+        })
+
+        // 검색 결과 recyclerview 아이템 클릭 시 해당 고객에 대한 마커 위치로 이동
+        searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int, index: Int) {
+                val itemData = UserData.clientListResponse?.clients?.get(index)
+                val mapPoint = MapPoint.mapPointWithGeoCoord(itemData!!.location.latitude, itemData.location.longitude)
+                binding.mapView.setMapCenterPoint(mapPoint, true)
             }
         })
 
@@ -630,6 +653,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.groupClients.observe(this, Observer {
             val data = viewModel.groupClients.value!!.clients
             val num = data.count()
+
+            // UserData 값 갱신
+            UserData.clientListResponse = viewModel.groupClients.value
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -684,7 +710,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-            binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
+
+            if(itemdata!!.distance == null){
+                binding.tvCardDistance.text = "-"
+            }else{
+                binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
+            }
         })
     }
 
@@ -701,25 +732,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
             binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
 
-            if (itemdata != null) {
-                binding.tvCardDistance.text = String.format("%.2f",
-                    itemdata.distance?.times(0.001)
-                )
+            if(itemdata!!.distance == null){
+                binding.tvCardDistance.text = "-"
+            }else{
+                binding.tvCardDistance.text = String.format("%.2f", itemdata.distance?.times(0.001))
             }
-//            val num = data.count()
-//            binding.mapView.removeAllPOIItems()
-//            for (i in 0..num-1) {
-//                val itemdata = data.get(i)
-//                // 지도에 마커 추가
-//                val point = MapPOIItem()
-//                point.apply {
-//                    itemName = itemdata.clientName
-//                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-//                    markerType = MapPOIItem.MarkerType.BluePin
-//                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
-//                }
-//                binding.mapView.addPOIItem(point)
-//            }
         })
     }
 
@@ -862,6 +879,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.VISIBLE
         binding.ibGps.visibility = View.VISIBLE
         binding.ibKm.visibility = View.VISIBLE
+        // 검색창 없애기
+        binding.clSearchResult.visibility = View.GONE
 
         if(plusBtn){
             plusBtn = false
