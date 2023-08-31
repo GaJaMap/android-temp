@@ -46,7 +46,7 @@ interface ApiInterface {
                            @Part("longitude") longitude : RequestBody,
                            @Part clientImage : MultipartBody.Part?,
                            @Part("isBasicImage") isBasicImage : RequestBody
-    ) : Response<Int>
+    ) : Response<GetAllClientResponse>
 
     //카카오, 전화번호부 데이터 등록
     @POST("api/clients/bulk")

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="max_recycler_view_height">72dp</dimen>
+    <dimen name="item_height">36dp</dimen>
+<!--    <dimen name="max_recycler_view_height">60dp</dimen>-->
+<!--    <dimen name="item_height">20dp</dimen>-->
+</resources>

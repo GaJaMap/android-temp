@@ -1,5 +1,6 @@
 package com.example.gajamap.data.service
 
+import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.data.model.GetGroupAllClientResponse
 import com.example.gajamap.data.response.CheckGroupResponse
 import com.example.gajamap.data.response.CreateGroupRequest
@@ -27,7 +28,7 @@ interface GroupInterface {
 
     // 특정 그룹내에 고객
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClient(@Path("groupId")groupId : Long) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClient(@Path("groupId")groupId : Long) : Response<GetAllClientResponse>
 
     // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색
     @GET("/api/group/{groupId}/clients")

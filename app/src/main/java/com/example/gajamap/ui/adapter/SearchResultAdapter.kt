@@ -22,16 +22,9 @@ class SearchResultAdapter(val itemList: ArrayList<SearchResultData>): RecyclerVi
         holder.name.text = itemList[position].name
 
         // 아이템 클릭 이벤트
-//        holder.itemView.setOnClickListener {
-//            // 이전에 선택된 아이템의 배경을 변경
-//            val previousSelectedPosition = selectedPosition
-//            selectedPosition = holder.position
-//            notifyItemChanged(previousSelectedPosition)
-//            // 현재 클릭된 아이템의 배경을 변경
-//            notifyItemChanged(selectedPosition)
-//
-//            itemClickListener.onClick(it, position)
-//        }
+        holder.itemView.setOnClickListener {
+            itemClickListener.onClick(it, position, itemList[position].index)
+        }
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -39,7 +32,7 @@ class SearchResultAdapter(val itemList: ArrayList<SearchResultData>): RecyclerVi
     }
 
     interface OnItemClickListener {
-        fun onClick(v: View, position: Int)
+        fun onClick(v: View, position: Int, index: Int)
     }
 
     fun setItemClickListener(onItemClickListener: OnItemClickListener) {
