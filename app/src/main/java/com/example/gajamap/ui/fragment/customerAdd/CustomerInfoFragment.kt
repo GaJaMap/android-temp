@@ -11,6 +11,8 @@ import androidx.activity.viewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
@@ -19,6 +21,10 @@ import com.example.gajamap.data.model.Client
 import com.example.gajamap.databinding.FragmentCustomerInfoBinding
 import com.example.gajamap.ui.view.CustomerInfoActivity
 import com.example.gajamap.viewmodel.GetClientViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.fragment_customer_info) {
 
@@ -51,6 +57,10 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
     }
 
     override fun onCreateAction(){
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("set", "why")
+            setView()
+        }
         binding.topBackBtn.setOnClickListener {
             // 액티비티 꺼지게 하는 코드 추가
             customerInfoActivity!!.finish()
@@ -73,18 +83,6 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             alertDialog.show()
         }
 
-        val name = GajaMapApplication.prefs.getString("name", "")
-        val address1 = GajaMapApplication.prefs.getString("address1", "")
-        val address2 = GajaMapApplication.prefs.getString("address2", "")
-        val phone = GajaMapApplication.prefs.getString("phone", "")
-        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
-        val longitude = GajaMapApplication.prefs.getString("longitude1", "")
-
-
-        binding.infoProfileNameTv.text = name
-        binding.infoProfileAddressTv1.text = address1
-        binding.infoProfileAddressTv2.text = address2
-        binding.infoProfilePhoneTv.text = phone
 
 
         binding.topModifyBtn.setOnClickListener {
@@ -115,6 +113,75 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
                     break  // 원하는 클라이언트를 찾고 삭제 후 반복문 종료
                 }
             }
+        }
+    }
+
+    private suspend fun setView(){
+        withContext(Dispatchers.Main){
+            text()
+        }
+    }
+
+    fun text(){
+        val name = GajaMapApplication.prefs.getString("name", "")
+        val address1 = GajaMapApplication.prefs.getString("address1", "")
+        val address2 = GajaMapApplication.prefs.getString("address2", "")
+        val phone = GajaMapApplication.prefs.getString("phone", "")
+        val image =  GajaMapApplication.prefs.getString("image", null)
+        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
+        val longitude = GajaMapApplication.prefs.getString("longitude1", "")
+        if(image != null){
+            val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+            val file = imageUrl + image
+            // Log.d("img_file", file.toString())
+            Glide.with(binding.infoProfileImg.context)
+                .load(file)
+                .fitCenter()
+                .apply(RequestOptions().override(500,500))
+                .error(R.drawable.profile_img_origin)
+                .into(binding.infoProfileImg)
+        }
+
+        binding.infoProfileNameTv.text = name
+        binding.infoProfileAddressTv1.text = address1
+        binding.infoProfileAddressTv2.text = address2
+        binding.infoProfilePhoneTv.text = phone
+    }
+
+    override fun onResume() {
+        super.onResume()
+        CoroutineScope(Dispatchers.IO).launch {
+            updateData()
+        }
+    }
+
+    private suspend fun updateData() {
+        withContext(Dispatchers.Main) {
+            text()
+            /*val name = arguments?.getString("clientName")
+            val address1 = arguments?.getString("address1")
+            val address2 = arguments?.getString("address2")
+            val phone = arguments?.getString("phone")
+            val image = arguments?.getString("image")
+            if(image != null){
+                val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+                val file = imageUrl + image
+               // Log.d("img_file", file.toString())
+                Glide.with(binding.infoProfileImg.context)
+                    .load(file)
+                    .fitCenter()
+                    .apply(RequestOptions().override(500,500))
+                    .error(R.drawable.profile_img_origin)
+                    .into(binding.infoProfileImg)
+            }
+            val latitude = GajaMapApplication.prefs.getString("latitude1", "")
+            val longitude = GajaMapApplication.prefs.getString("longitude1", "")
+
+
+            binding.infoProfileNameTv.text = name
+            binding.infoProfileAddressTv1.text = address1
+            binding.infoProfileAddressTv2.text = address2
+            binding.infoProfilePhoneTv.text = phone*/
         }
     }
 

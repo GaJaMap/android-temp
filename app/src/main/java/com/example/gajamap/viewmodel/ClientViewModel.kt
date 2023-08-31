@@ -16,8 +16,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     private val clientRepository = ClientRespository()
 
 
-    private val _putClient = MutableLiveData<BaseResponse>()
-    val putClient : LiveData<BaseResponse>
+    private val _putClient = MutableLiveData<Client>()
+    val putClient : LiveData<Client>
     get() = _putClient
 
     private val _deleteClient = MutableLiveData<BaseResponse>()
@@ -59,8 +59,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun putClient(groupid : Int, client : Int, clientName: RequestBody,
-                  groupId : RequestBody,
+    fun putClient(groupId : Int, client : Int, clientName: RequestBody,
+                  group : RequestBody,
                   phoneNumber : RequestBody,
                   mainAddress : RequestBody,
                   detail : RequestBody,
@@ -69,8 +69,9 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                   clientImage : MultipartBody.Part?,
                   isBasicImage : RequestBody) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = clientRepository.putClient(groupid, client, clientName,groupId,phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            val response = clientRepository.putClient(groupId, client, clientName,group,phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             Log.d("putClient", "${response.body()}\n${response.code()}")
+            //val clientResponse = response.body() as? Client
             if(response.isSuccessful){
                 _putClient.postValue(response.body())
                 Log.d("putClientSuccess", "${response.body()}")

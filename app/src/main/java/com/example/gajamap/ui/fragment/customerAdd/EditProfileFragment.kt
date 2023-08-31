@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -13,7 +14,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import com.example.gajamap.base.UserData
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -27,6 +27,7 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.base.UserData.clientListResponse
 import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.GroupInfoResponse
@@ -34,6 +35,7 @@ import com.example.gajamap.databinding.FragmentEditProfileBinding
 import com.example.gajamap.ui.fragment.map.MapFragment
 import com.example.gajamap.ui.fragment.setting.SettingFragment
 import com.example.gajamap.viewmodel.ClientViewModel
+import com.kakao.sdk.user.model.User
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -47,6 +49,8 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
+    var clientList =  UserData.clientListResponse?.clients as? MutableList<Client>
+
     private var groupId : Int = -1
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
@@ -225,27 +229,33 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.btnSubmit.setOnClickListener {
             val clientId = GajaMapApplication.prefs.getString("clientId", "")
             val clientName1 = binding.infoProfileNameEt.text
-            var clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+            Log.d("edit", clientName1.toString())
+            val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val groupId1 = GajaMapApplication.prefs.getString("groupId", "")
+            Log.d("edit", groupId1.toString())
             val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
+            Log.d("edit", phoneNumber1.toString())
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
+            val mainAddress1 = GajaMapApplication.prefs.getString("address1", "")
+            Log.d("edit", mainAddress1.toString())
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
+            Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
+            val latitude1 = GajaMapApplication.prefs.getString("latitude1", "")
+            Log.d("edit", latitude1.toString())
             val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
+            val longitude1 = GajaMapApplication.prefs.getString("longitude1", "")
             val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
+                Log.d("editwhy", it.toString())
                 // 클라이언트 리스트 가져오기
-                val clientList = UserData.clientListResponse?.clients as? MutableList<Client>
-
+                //val clientList = UserData.clientListResponse
                 val targetClientId = GajaMapApplication.prefs.getString("clientId", "")
 
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
@@ -255,22 +265,41 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {
-
-                        // 변경할 내용 설정
-                        //address = Address(...) // 원하는 값으로 변경
-                        //clientName = "New Client Name" // 원하는 값으로 변경
-                        // 나머지 필드도 원하는 대로 변경
+                        this.clientId = it.clientId
+                        this.groupInfo.groupId = it.groupInfo.groupId
+                        this.groupInfo.groupName = it.groupInfo.groupName
+                        this.clientName = it.clientName
+                        this.phoneNumber = it.phoneNumber
+                        this.address.mainAddress = it.address.mainAddress
+                        this.address.detail = it.address.detail
+                        this.location.latitude = it.location.latitude
+                        this.location.longitude = it.location.longitude
+                        this.image.filePath = it.image.filePath
+                        this.image.originalFileName = it.image.originalFileName
+                        this.distance = it.distance
+                        this.createdAt = it.createdAt
 
                         // 변경된 클라이언트 정보를 클라이언트 리스트에 업데이트
-                        clientList.indexOf(this).let { index ->
-                            clientList[index] = this
+                        clientList!!.indexOf(this).let { index ->
+                            clientList!![index] = this
                         }
+                        val bundle = Bundle()
+                        bundle.putString("clientName", this.clientName)
+                        bundle.putString("address1", it.address.mainAddress)
+                        bundle.putString("address2", it.address.detail)
+                        bundle.putString("phone", it.phoneNumber)
+                        bundle.putString("image", it.image.filePath)
+
+                        val customerInfoFragment = CustomerInfoFragment()
+                        customerInfoFragment.arguments = bundle
+                        parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
                     }
                 }
+                Log.d("editlist", clientList.toString())
+                //parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
             })
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
-            parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
-            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+            //parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
         }
 
     }
@@ -280,29 +309,87 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.btnSubmit.setOnClickListener {
             val clientId = GajaMapApplication.prefs.getString("clientId", "")
             val clientName1 = binding.infoProfileNameEt.text
+            Log.d("edit", clientName1.toString())
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+            val groupId1 = GajaMapApplication.prefs.getString("groupId", "")
+            Log.d("edit", groupId1.toString())
             val groupId = groupId1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
+            Log.d("edit", phoneNumber1.toString())
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
+            val mainAddress1 = GajaMapApplication.prefs.getString("address1", "")
+            Log.d("edit", mainAddress1.toString())
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
+            Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.setString("latitude", "")
+            val latitude1 = GajaMapApplication.prefs.getString("latitude1", "")
+            Log.d("edit", latitude1.toString())
             val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.setString("longtitude", "")
+            val longitude1 = GajaMapApplication.prefs.getString("longitude1", "")
             val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
+                Log.d("editwhy", it.toString())
                 Log.d("postAddDirect", it.toString())
+                // 클라이언트 리스트 가져오기
+                //val clientList = UserData.clientListResponse
+                val targetClientId = GajaMapApplication.prefs.getString("clientId", "")
+
+                // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
+                clientList?.let { clients ->
+                    // 특정 clientId에 해당하는 클라이언트 찾기
+                    val targetClient = clients.find { it.clientId == targetClientId.toInt() }
+
+                    // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
+                    targetClient?.apply {
+                        this.clientId = it.clientId
+                        this.groupInfo.groupId = it.groupInfo.groupId
+                        this.groupInfo.groupName = it.groupInfo.groupName
+                        this.clientName = it.clientName
+                        this.phoneNumber = it.phoneNumber
+                        this.address.mainAddress = it.address.mainAddress
+                        this.address.detail = it.address.detail
+                        this.location.latitude = it.location.latitude
+                        this.location.longitude = it.location.longitude
+                        this.image.filePath = it.image.filePath
+                        this.image.originalFileName = it.image.originalFileName
+                        this.distance = it.distance
+                        this.createdAt = it.createdAt
+
+                        // 변경된 클라이언트 정보를 클라이언트 리스트에 업데이트
+                        clientList!!.indexOf(this).let { index ->
+                            clientList!![index] = this
+                        }
+                        GajaMapApplication.prefs.setString("name", this.clientName)
+                        GajaMapApplication.prefs.setString("address1", this.address.mainAddress)
+                        GajaMapApplication.prefs.setString("address2", this.address.detail)
+                        GajaMapApplication.prefs.setString("phone", this.phoneNumber)
+                        this.image.filePath?.let { it1 ->
+                            GajaMapApplication.prefs.setString("image",
+                                it1
+                            )
+                        }
+                        /*val bundle = Bundle()
+                        bundle.putString("clientName", this.clientName)
+                        bundle.putString("address1", it.address.mainAddress)
+                        bundle.putString("address2", it.address.detail)
+                        bundle.putString("phone", it.phoneNumber)
+                        bundle.putString("image", it.image.filePath)
+
+                        val customerInfoFragment = CustomerInfoFragment()
+                        customerInfoFragment.arguments = bundle
+                        parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()*/
+                    }
+                }
+                Log.d("editlist", clientList.toString())
+                parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
             })
             //parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
             //parentFragmentManager.beginTransaction().remove(EditProfileFragment()).commit()
-            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
         }
 
     }

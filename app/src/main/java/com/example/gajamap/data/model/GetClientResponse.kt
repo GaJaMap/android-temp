@@ -31,8 +31,8 @@ data class GroupInfo(
 )
 
 data class Image(
-    var filePath: String,
-    var originalFileName: String
+    var filePath: String?=null,
+    var originalFileName: String?=null
 )
 
 data class GetAllClientResponse(

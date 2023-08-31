@@ -60,9 +60,9 @@ interface ApiInterface {
     @Multipart
     @PUT("/api/group/{groupId}/clients/{clientId}")
     suspend fun putClient(
-        @Path("groupid")groupid : Int, @Path("clientId")clientId: Int,
+        @Path("groupId")groupId : Int, @Path("clientId")clientId: Int,
         @Part("clientName") clientName: RequestBody,
-        @Part("groupId") groupId : RequestBody,
+        @Part("group") group : RequestBody,
         @Part("phoneNumber") phoneNumber : RequestBody,
         @Part("mainAddress") mainAddress : RequestBody,
         @Part("detail") detail : RequestBody,
@@ -70,11 +70,11 @@ interface ApiInterface {
         @Part("longitude") longitude : RequestBody,
         @Part clientImage : MultipartBody.Part?,
         @Part("isBasicImage") isBasicImage : RequestBody
-    ): Response<BaseResponse>
+    ): Response<Client>
 
 
     // 다수 고객 삭제
-    @POST("/api/group/{groupId}/clients/bulk")
+    @POST("/api/group/{groupId}/clients/bulk-delete")
     suspend fun deleteAnyClient(@Path("groupId")groupId : Int, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
 
 
