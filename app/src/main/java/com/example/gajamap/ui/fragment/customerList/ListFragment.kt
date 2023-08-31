@@ -377,6 +377,13 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onClick(v: View, position: Int) {
                 val clientId = it.clients[position].clientId
                 val groupId = it.clients[position].groupInfo.groupId
+                val groupName = it.clients[position].groupInfo.groupName
+                it.clients[position].image.filePath?.let { it1 ->
+                    GajaMapApplication.prefs.setString("image",
+                        it1
+                    )
+                }
+                GajaMapApplication.prefs.setString("groupName", groupName.toString())
                 GajaMapApplication.prefs.setString("clientId", clientId.toString())
                 GajaMapApplication.prefs.setString("groupId", groupId.toString())
                 val name = it.clients[position].clientName
@@ -464,8 +471,15 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             override fun onClick(v: View, position: Int) {
                 val clientId = it.clients[position].clientId
                 val groupId = it.clients[position].groupInfo.groupId
+                val groupName = it.clients[position].groupInfo.groupName
+                GajaMapApplication.prefs.setString("groupName", groupName.toString())
                 GajaMapApplication.prefs.setString("clientId", clientId.toString())
                 GajaMapApplication.prefs.setString("groupId", groupId.toString())
+                it.clients[position].image.filePath?.let { it1 ->
+                    GajaMapApplication.prefs.setString("image",
+                        it1
+                    )
+                }
                 val name = it.clients[position].clientName
                 val address1 = it.clients[position].address.mainAddress
                 val address2 = it.clients[position].address.detail

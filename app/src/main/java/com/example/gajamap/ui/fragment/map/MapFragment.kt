@@ -84,7 +84,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
+
+    var latitude = 0.0
+    var longitude = 0.0
+
     var sheetView : DialogAddGroupBottomSheetBinding? = null
+
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -486,14 +491,20 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
-                GajaMapApplication.prefs.setString("latitude", locationSearchList[position].y.toString())
-                GajaMapApplication.prefs.setString("longtitude", locationSearchList[position].x.toString())
+                latitude = locationSearchList[position].y
+                longitude = locationSearchList[position].x
+                //val latitude = GajaMapApplication.prefs.setString("latitudeAdd", locationSearchList[position].y.toString())
+                //val longitude = GajaMapApplication.prefs.setString("longtitudeAdd", locationSearchList[position].x.toString())
+                Log.d("send1", latitude.toString())
+                Log.d("send1", longitude.toString())
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
                 btn.setOnClickListener {
                     // 고객 추가하기 activity로 이동
-                    val intent = Intent(getActivity(), AddDirectActivity::class.java)
+                    val intent = Intent(activity, AddDirectActivity::class.java)
+                    intent.putExtra("latitude", latitude)
+                    intent.putExtra("longitude", longitude)
                     startActivity(intent)
                 }
             }
@@ -528,6 +539,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.tvLocationBtn.setOnClickListener {
             // 고객 추가하기 activity로 이동
             val intent = Intent(getActivity(), AddDirectActivity::class.java)
+            intent.putExtra("latitude", latitude)
+            intent.putExtra("longitude", longitude)
             startActivity(intent)
         }
     }
@@ -837,8 +850,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             //위도 , 경도
             userLatitude = userNowLocation!!.latitude
             userLongitude = userNowLocation.longitude
-            GajaMapApplication.prefs.setString("userLatitude", userLatitude.toString())
-            GajaMapApplication.prefs.setString("userLongitude", userLongitude.toString())
+            GajaMapApplication.prefs.setString("UserLatitude", userLatitude.toString())
+            GajaMapApplication.prefs.setString("UserLongitude", userLongitude.toString())
         }
         return Pair(userLatitude, userLongitude)
     }
@@ -865,12 +878,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
             marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
-            GajaMapApplication.prefs.setString("latitude", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
-            GajaMapApplication.prefs.setString("longtitude", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
+            //val latitude = GajaMapApplication.prefs.setString("latitudeAdd", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
+            //val longitude = GajaMapApplication.prefs.setString("longtitudeAdd", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
+            latitude = p0.mapCenterPoint.mapPointGeoCoord.latitude
+            longitude = p0.mapCenterPoint.mapPointGeoCoord.longitude
+            Log.d("send1", latitude.toString())
+            Log.d("send1", longitude.toString())
         }
     }
 
     override fun onMapViewZoomLevelChanged(p0: MapView?, p1: Int) {
+
     }
 
     // MapView를 클릭하면 호출되는 콜백 메서드

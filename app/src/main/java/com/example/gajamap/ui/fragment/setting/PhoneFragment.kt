@@ -24,6 +24,7 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.base.GajaMapApplication
+import com.example.gajamap.base.UserData
 import com.example.gajamap.data.model.Clients
 import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.data.model.PostKakaoPhoneRequest
@@ -36,12 +37,17 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
     private var groupId : Int = -1
+    var client = UserData.clientListResponse
+    var clientList = UserData.clientListResponse?.clients
+    var groupInfo = UserData.groupinfo
+
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
     }
     private var contactsList = ArrayList<ContactsData>()
     private var phoneListAdapter : PhoneListAdapter? = null
     private val ACCESS_FINE_LOCATION = 1000
+
 
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
@@ -54,6 +60,8 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     }
 
     override fun onCreateAction() {
+
+        //var groupInfo = UserData.groupinfo
 
         //스피너
         viewModel.checkGroup()
@@ -210,6 +218,9 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
             Log.d("select", selectedClients.toString())
             viewModel.postKakaoPhoneClient.observe(this, Observer {
+                if(groupId1.toString() == groupInfo?.groupId.toString()){
+
+                }
 
             })
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()

@@ -27,16 +27,16 @@ class ClientRespository {
     suspend fun postKakaoPhoneClient(postKakaoPhoneRequest: PostKakaoPhoneRequest) = clientClient.postKakaoPhoneClient(postKakaoPhoneRequest)
 
     //고객 정보 변경
-    suspend fun putClient(groupid : Int, clientId: Int,
+    suspend fun putClient(groupId : Int, clientId: Int,
                           clientName: RequestBody,
-                          groupId : RequestBody,
+                          group : RequestBody,
                           phoneNumber : RequestBody,
                           mainAddress : RequestBody,
                           detail : RequestBody,
                           latitude : RequestBody,
                           longitude : RequestBody,
                           clientImage : MultipartBody.Part?,
-                          isBasicImage: RequestBody) = clientClient.putClient(groupid, clientId, clientName,groupId,phoneNumber, mainAddress, detail, latitude, longitude, clientImage, isBasicImage)
+                          isBasicImage: RequestBody) = clientClient.putClient(groupId, clientId, clientName,group,phoneNumber, mainAddress, detail, latitude, longitude, clientImage, isBasicImage)
 
 
     // 그룹 조회
