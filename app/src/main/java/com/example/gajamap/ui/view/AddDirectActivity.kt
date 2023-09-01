@@ -298,12 +298,8 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.postClient.observe(this, Observer {
                 Log.d("postAddDirect", it.body().toString())
-
                 finish()
             })
-            // parentFragmentManager.beginTransaction().replace(R.id.nav_fl, MapFragment()).commit()
-
         }
-
     }
 }

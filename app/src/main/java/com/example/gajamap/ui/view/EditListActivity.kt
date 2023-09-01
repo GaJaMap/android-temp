@@ -1,7 +1,6 @@
 package com.example.gajamap.ui.view
 
-import android.app.Activity
-import android.content.Intent
+import com.example.gajamap.data.model.Client
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
@@ -71,7 +70,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                // Log.d("new", newClientList.toString())
 
                 if (newClientList != null) {
-                    val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList, it1.imageUrlPrefix) }
+                    val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList as MutableList<Client>, it1.imageUrlPrefix) }
                     if (newResponse != null) {
                         ListRv(newResponse)
                     }

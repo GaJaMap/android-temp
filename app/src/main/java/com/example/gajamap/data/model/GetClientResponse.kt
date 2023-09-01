@@ -1,7 +1,5 @@
 package com.example.gajamap.data.model
 
-import java.time.LocalDateTime
-
 data class AutoLoginResponse(
     var clientListResponse : GetAllClientResponse,
     var groupInfo : AutoLoginGroupInfo
