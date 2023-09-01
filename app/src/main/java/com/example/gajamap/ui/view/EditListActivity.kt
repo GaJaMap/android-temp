@@ -14,6 +14,7 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.DeleteRequest
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ActivityEditListBinding
@@ -71,7 +72,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                // Log.d("new", newClientList.toString())
 
                 if (newClientList != null) {
-                    val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList, it1.imageUrlPrefix) }
+                    val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList as MutableList<Client>, it1.imageUrlPrefix) }
                     if (newResponse != null) {
                         ListRv(newResponse)
                     }
@@ -92,7 +93,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
 
     private fun ListRv(it : GetAllClientResponse){
         // 리스트를 저장할 변수
-        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
+        //GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
 
         //고객 리스트
         binding.topTvNumber2.text = it.clients.size.toString()

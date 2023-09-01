@@ -718,7 +718,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val data = viewModel.allClientsName.value?.clients
             val itemdata = data?.get(0)
             if(itemdata?.image?.filePath != null){
-                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+                //Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
@@ -739,7 +739,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val data = viewModel.groupClientsName.value?.clients
             val itemdata = data?.get(0)
             if(itemdata?.image?.filePath != null){
-                Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+                //itemdata.imageUrlPrefix 오류떠서 주석처리 했어요..! 나중에 data class 바뀐거 참조해서 바꾸면 될 거 같아요
+                //Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
