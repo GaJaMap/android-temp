@@ -1,7 +1,6 @@
 package com.example.gajamap.ui.view
 
-import android.app.Activity
-import android.content.Intent
+import com.example.gajamap.data.model.Client
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
@@ -12,9 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
-import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.UserData
-import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.DeleteRequest
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ActivityEditListBinding
@@ -23,8 +20,8 @@ import com.example.gajamap.ui.fragment.customerList.CustomerListVerticalItemDeco
 import com.example.gajamap.viewmodel.GetClientViewModel
 
 class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity_edit_list) {
-    var selectedClientIds = mutableListOf<Int>()
-    var groupId = 0
+    var selectedClientIds = mutableListOf<Long>()
+    var groupId : Long = 0
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo

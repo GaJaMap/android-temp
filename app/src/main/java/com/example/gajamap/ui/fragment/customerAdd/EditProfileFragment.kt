@@ -251,7 +251,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            viewModel.putClient( groupId1.toLong(), clientId.toLong(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("editwhy", it.toString())
                 // 클라이언트 리스트 가져오기
@@ -261,7 +261,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
                     // 특정 clientId에 해당하는 클라이언트 찾기
-                    val targetClient = clients.find { it.clientId == targetClientId.toInt() }
+                    val targetClient = clients.find { it.clientId == targetClientId.toLong() }
 
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {
@@ -331,7 +331,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient( groupId1.toInt(), clientId.toInt(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+            viewModel.putClient( groupId1.toLong(), clientId.toLong(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("editwhy", it.toString())
                 Log.d("postAddDirect", it.toString())
@@ -342,7 +342,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
                     // 특정 clientId에 해당하는 클라이언트 찾기
-                    val targetClient = clients.find { it.clientId == targetClientId.toInt() }
+                    val targetClient = clients.find { it.clientId == targetClientId.toLong() }
 
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {

@@ -27,7 +27,7 @@ class ClientRespository {
     suspend fun postKakaoPhoneClient(postKakaoPhoneRequest: PostKakaoPhoneRequest) = clientClient.postKakaoPhoneClient(postKakaoPhoneRequest)
 
     //고객 정보 변경
-    suspend fun putClient(groupId : Int, clientId: Int,
+    suspend fun putClient(groupId : Long, clientId: Long,
                           clientName: RequestBody,
                           group : RequestBody,
                           phoneNumber : RequestBody,

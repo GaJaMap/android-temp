@@ -36,7 +36,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
 
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
-    private var groupId : Int = -1
+    private var groupId : Long = -1
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
