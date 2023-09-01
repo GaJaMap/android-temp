@@ -58,15 +58,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     private val ACCESS_FINE_LOCATION = 1000
     private val CALL_PHONE_PERMISSION_CODE = 101
 
-    private var cate1 = false
-    private var cate2 = false
-    private val cate3 = false
-
-    /*val viewModel2 by viewModels<MapViewModel> {
-        //ClientViewModel.SettingViewModelFactory("tmp")
-        MapViewModel.MapViewModelFactory("tmp")
-    }*/
-
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
     }
@@ -98,85 +89,21 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
         //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
 
-        // todo: 나중에 서버 연동 후 값 받아와서 넣어주는 것으로 수정 예정
-        /*viewModel.checkGroup()
-        viewModel.checkGroup.observe(this, Observer {
-            // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
-            val groupNames = mutableListOf<String>()
-            // "전체"를 리스트의 첫 번째 요소로 추가합니다.
-            groupNames.add("전체")
-            // groupResponse의 groupInfos에서 각 GroupInfoResponse의 groupName을 추출하여 리스트에 추가합니다.
-            it.groupInfos.forEach { groupInfo ->
-                groupNames.add(groupInfo.groupName)
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                //입력이 끝날 때 작동됩니다.
+                val searchText = editable.toString().trim()
+                filterClientList(searchText)
             }
-            //그룹 스피너
-            val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerSearch.adapter = adapter
-        })*/
-
-        // todo: 스피너 없앤 버전으로 바꾸기
-        /*binding.spinnerSearch.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-               // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
-                if(position != 0){
-                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(position - 1) ?: return
-                    groupId = selectedGroupInfoResponse.groupId
-                    Log.d("groupId", groupId.toString())
-                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
-                }
-
-                binding.etSearch.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {
-                        //입력이 끝날 때 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.getAllClientName(searchName.toString())
-                            viewModel.getAllClientName.observe(viewLifecycleOwner, Observer {
-                                ListRv(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.getGroupAllClientName(searchName.toString(), groupId)
-                            viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
-                                GroupClientSearchRV(it)
-                            })
-                        }
-                    }
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //입력 하기 전에 작동됩니다.
-                        if(position == 0){
-                            viewModel.getGroupAllClient(groupId)
-                            viewModel.getGroupAllClient.observe(viewLifecycleOwner, Observer {
-                                GroupClientSearchRV(it)
-                            })
-                        }
-                    }
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
-                        if(position == 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.getAllClientName(searchName.toString())
-                            viewModel.getAllClientName.observe(viewLifecycleOwner, Observer {
-                                ListRv(it)
-                            })
-                        }
-                        if(position != 0){
-                            val searchName = binding.etSearch.text
-                            viewModel.getGroupAllClientName(searchName.toString(), groupId)
-                            viewModel.getGroupAllClientName.observe(viewLifecycleOwner, Observer {
-                                GroupClientSearchRV(it)
-                            })
-                        }
-                    }
-                })
-                Toast.makeText(requireContext(), "클릭클릭클릭", Toast.LENGTH_SHORT).show()
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //입력 하기 전에 작동됩니다.
 
             }
-        }*/
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
+
+            }
+        })
 
         //GPS 위치권한
         binding.fragmentListCategory3.setOnClickListener {
@@ -258,55 +185,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }
     }
 
-    /*fun listRadius(it : GetRadiusResponse){
-        //고객 리스트
-        val customerListAdapter = CustomerListAdapter(it.clients)
-        binding.listRv.apply {
-            adapter = customerListAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        }
-
-        binding.fragmentListCategory1.setOnClickListener {view->
-            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
-            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
-            customerListAdapter.updateData(it.clients)
-        }
-        binding.fragmentListCategory2.setOnClickListener {view->
-            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
-            //binding.radiusSpinner.setBackgroundResource(R.drawable.fragment_list_category_background)
-            val reversedList = it.clients.reversed()
-            customerListAdapter.updateData(reversedList)
-        }
-
-        //리사이클러뷰 클릭
-        customerListAdapter.setOnItemClickListener(object :
-            CustomerListAdapter.OnItemClickListener{
-            override fun onClick(v: View, position: Int) {
-                val clientId = it.clients[position].clientId
-                GajaMapApplication.prefs.setString("clientId", clientId.toString())
-                val name = it.clients[position].clientName
-                val address1 = it.clients[position].address.mainAddress
-                val address2 = it.clients[position].address.detail
-                val phone = it.clients[position].phoneNumber
-                val latitude = it.clients[position].location.latitude
-                val longitude = it.clients[position].location.longitude
-                GajaMapApplication.prefs.setString("name", name)
-                GajaMapApplication.prefs.setString("address1", address1)
-                GajaMapApplication.prefs.setString("address2", address2)
-                GajaMapApplication.prefs.setString("phone", phone)
-                GajaMapApplication.prefs.setString("latitude1", latitude.toString())
-                GajaMapApplication.prefs.setString("longitude1", longitude.toString())
-
-                // 고객 상세 정보 activity로 이동
-                val intent = Intent(getActivity(), CustomerInfoActivity::class.java)
-                startActivity(intent)
-            }
-        })
-    }*/
 
     private suspend fun setView(){
         withContext(Dispatchers.Main){
@@ -347,8 +225,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
     fun ListRv(it : GetAllClientResponse){
-        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
-        //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
             adapter = customerListAdapter
@@ -442,7 +318,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
 
-    fun GroupClientSearchRV(it : GetGroupAllClientResponse){
+    /*fun GroupClientSearchRV(it : GetGroupAllClientResponse){
         GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
         //고객 리스트
         val customerListAdapter = CustomerListAdapter(it.clients)
@@ -530,5 +406,22 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             }
 
         })
+    }*/
+
+    fun filterClientList(searchText: String) {
+
+        val filteredList = clientList?.clients?.filter { client ->
+            // 여기에서 clientName을 검색합니다. 대소문자를 무시하려면 equals를 equalsIgnoreCase로 바꿀 수 있습니다.
+            client.clientName.contains(searchText, ignoreCase = true)
+        }
+        val customerListAdapter = clientList?.let { CustomerListAdapter(it.clients) }
+        binding.listRv.apply {
+            adapter = customerListAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+        // 필터링된 결과를 리사이클러뷰 어댑터에 설정합니다.
+        if (filteredList != null) {
+            customerListAdapter?.updateData(filteredList)
+        }
     }
 }

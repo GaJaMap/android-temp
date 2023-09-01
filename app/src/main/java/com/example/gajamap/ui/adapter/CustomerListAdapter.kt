@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -20,6 +22,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 
+    //private val diffCallback = ClientDiffCallback()
+    //private val differ = AsyncListDiffer(this, diffCallback)
     inner class ViewHolder(private val binding: ItemListBinding):
             RecyclerView.ViewHolder(binding.root){
         val button1 : CircleImageView = binding.itemProfileImg
@@ -30,6 +34,8 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
         val button6 : TextView = binding.itemProfilePhone
         val buttonNavi : ConstraintLayout = binding.itemProfileCarBtn
         init {
+            //setHasStableIds(true)
+            //differ.submitList(dataList)
             binding.itemProfilePhoneBtn.setOnClickListener {
                 Log.d("phone", "why")
                 val position = absoluteAdapterPosition
@@ -130,7 +136,20 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
     private lateinit var naviClickListener : ItemClickListener
 
     fun updateData(newDataList: List<Client>) {
+        //differ.submitList(newDataList)
         dataList = newDataList
         notifyDataSetChanged()
     }
+
+    /*class ClientDiffCallback : DiffUtil.ItemCallback<Client>() {
+        override fun areItemsTheSame(oldItem: Client, newItem: Client): Boolean {
+            return oldItem.clientId == newItem.clientId
+        }
+
+        override fun areContentsTheSame(oldItem: Client, newItem: Client): Boolean {
+            // 여기에서 데이터 항목 내용의 변경 여부를 결정합니다.
+            return oldItem == newItem
+        }
+    }*/
 }
+

@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 data class AutoLoginResponse(
     var clientListResponse : GetAllClientResponse,
+    var imageUrlPrefix : String,
     var groupInfo : AutoLoginGroupInfo
 )
 
@@ -37,7 +38,7 @@ data class Image(
 
 data class GetAllClientResponse(
     var clients: MutableList<Client>,
-    var imageUrlPrefix : String
+    var imageUrlPrefix : String?=null
 )
 
 data class Client(
@@ -50,13 +51,13 @@ data class Client(
     var location: Location,
     var phoneNumber: String,
     var createdAt : String,
-    var imageUrlPrefix : String
+    //var imageUrlPrefix : String
 )
 
 
 data class GetGroupAllClientResponse(
     var clients: List<Client>,
-    var imageUrlPrefix : String
+    //var imageUrlPrefix : String
 )
 
 data class GetRadiusResponse(
