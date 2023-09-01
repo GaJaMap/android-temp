@@ -32,5 +32,5 @@ interface GroupInterface {
 
     // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClientName(@Path("groupId")groupId : Long, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClientName(@Path("groupId")groupId : Long, @Query("wordCond")wordCond : String) : Response<GetAllClientResponse>
 }

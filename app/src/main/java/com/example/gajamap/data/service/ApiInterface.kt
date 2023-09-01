@@ -16,7 +16,7 @@ interface ApiInterface {
 
     // 특정 그룹내에 특정 고객 조회
     @GET("/api/group/{groupId}/clients/{clientId}")
-    suspend fun getGroupClient(@Path("groupId")groupId : Int, @Path("clientId")clientId: Int) : Response<GetGroupClientResponse>
+    suspend fun getGroupClient(@Path("groupId")groupId : Long, @Path("clientId")clientId: Long) : Response<GetGroupClientResponse>
 
     //전체 고객 검색
     @GET("/api/clients")
@@ -28,11 +28,11 @@ interface ApiInterface {
 
     //특정 그룹내에 고객 전부 조회 -> 이름 검색
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClientName(@Path("groupId")groupId : Int, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClientName(@Path("groupId")groupId : Long, @Query("wordCond")wordCond : String) : Response<GetGroupAllClientResponse>
 
     //특정 그룹내에 고객
     @GET("/api/group/{groupId}/clients")
-    suspend fun getGroupAllClient(@Path("groupId")groupId : Int) : Response<GetGroupAllClientResponse>
+    suspend fun getGroupAllClient(@Path("groupId")groupId : Long) : Response<GetGroupAllClientResponse>
 
     //고객 등록
     @Multipart
@@ -46,7 +46,7 @@ interface ApiInterface {
                            @Part("longitude") longitude : RequestBody,
                            @Part clientImage : MultipartBody.Part?,
                            @Part("isBasicImage") isBasicImage : RequestBody
-    ) : Response<GetAllClientResponse>
+    ) : Response<Client>
 
     //카카오, 전화번호부 데이터 등록
     @POST("api/clients/bulk")
@@ -54,13 +54,13 @@ interface ApiInterface {
 
     //고객 삭제
     @DELETE("/api/group/{groupId}/clients/{clientId}")
-    suspend fun deleteClient(@Path("groupId")groupId : Int, @Path("clientId")clientId: Int) : Response<BaseResponse>
+    suspend fun deleteClient(@Path("groupId")groupId : Long, @Path("clientId")clientId: Long) : Response<BaseResponse>
 
     //고객 정보 변경
     @Multipart
     @PUT("/api/group/{groupId}/clients/{clientId}")
     suspend fun putClient(
-        @Path("groupId")groupId : Int, @Path("clientId")clientId: Int,
+        @Path("groupId")groupId : Long, @Path("clientId")clientId: Long,
         @Part("clientName") clientName: RequestBody,
         @Part("group") group : RequestBody,
         @Part("phoneNumber") phoneNumber : RequestBody,
@@ -75,7 +75,7 @@ interface ApiInterface {
 
     // 다수 고객 삭제
     @POST("/api/group/{groupId}/clients/bulk-delete")
-    suspend fun deleteAnyClient(@Path("groupId")groupId : Int, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
+    suspend fun deleteAnyClient(@Path("groupId")groupId : Long, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
 
 
     // 전체 고객 반경 검색 - 이름
@@ -88,11 +88,11 @@ interface ApiInterface {
 
     //특정 그룹내에 고객 반경 검색 - 이름
     @GET("/api/group/{groupId}/clients/nearby")
-    suspend fun groupNameRadius(@Path("groupId") groupId : Int, @Query("wordCond")wordCond: String, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+    suspend fun groupNameRadius(@Path("groupId") groupId : Long, @Query("wordCond")wordCond: String, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
 
     //특정 그룹내에 고객 반경 검색 - 이름
     @GET("/api/group/{groupId}/clients/nearby")
-    suspend fun groupRadius(@Path("groupId") groupId : Int, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
+    suspend fun groupRadius(@Path("groupId") groupId : Long, @Query("radius") radius: Double, @Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Response<GetRadiusResponse>
 
     // 그룹 조회
     @GET("/api/group/?page=0")

@@ -35,5 +35,5 @@ data class PutClientRequest(
 )
 
 data class DeleteRequest(
-    val clientIds : List<Int>
+    val clientIds : List<Long>
 )

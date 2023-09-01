@@ -42,10 +42,10 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
     val groupId = GajaMapApplication.prefs.getString("groupId", "")
 
     val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Log.d("deleteId", clientId.toString())
-        viewModel.deleteClient(groupId.toInt(), clientId.toInt())
+        Log.d("deleteId", clientId)
+        viewModel.deleteClient(groupId.toLong(), clientId.toLong())
         viewModel.deleteClient.observe(this, Observer {
-            removeClientWithClientId(clientId.toInt())
+            removeClientWithClientId(clientId.toLong())
             //Log.d("delete", it.toString())
             customerInfoActivity!!.finish()
         })
@@ -99,7 +99,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         customerInfoActivity = context as CustomerInfoActivity
     }
 
-    private fun removeClientWithClientId(clientIdToRemove: Int) {
+    private fun removeClientWithClientId(clientIdToRemove: Long) {
         // 자동 로그인 response 데이터 값 받아오기
         val clientList = UserData.clientListResponse?.clients as? MutableList<Client>
 

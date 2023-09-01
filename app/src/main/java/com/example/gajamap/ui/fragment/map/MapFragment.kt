@@ -114,22 +114,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val clientList = UserData.clientListResponse
         val groupInfo = UserData.groupinfo
 
-        // MapFragment 띄우자마자 현재 선택된 고객들의 위치 마커 찍기
-        binding.mapView.removeAllPOIItems()
-        val clientNum = clientList!!.clients.size
-        for (i in 0..clientNum-1){
-            val itemdata = clientList.clients.get(i)
-            // 지도에 마커 추가
-            val point = MapPOIItem()
-            point.apply {
-                itemName = itemdata.clientName
-                mapPoint =
-                    MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
-                markerType = MapPOIItem.MarkerType.BluePin
-                selectedMarkerType = MapPOIItem.MarkerType.RedPin
-            }
-            binding.mapView.addPOIItem(point)
-        }
+        clientMarker()
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
         if (groupInfo != null) {
@@ -369,6 +354,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     bgShape.setColor(resources.getColor(R.color.main))
                     binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
 
+                    binding.mapView.removeAllPOIItems()
                     // 화면 변경
                     binding.clSearchWhole.visibility = View.GONE
                     binding.clSearchLocation.visibility = View.VISIBLE
@@ -383,8 +369,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     binding.mapView.setMapCenterPoint(centerPoint, true)
                     marker.itemName = "Marker"
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(37.5665, 126.9780)
-                    GajaMapApplication.prefs.setString("latitude", 37.5665.toString())
-                    GajaMapApplication.prefs.setString("longtitude", 126.9780.toString())
+                    latitude = 37.5665
+                    longitude = 126.9780
                     marker.markerType = MapPOIItem.MarkerType.RedPin
                     binding.mapView.addPOIItem(marker)
                     val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
@@ -493,10 +479,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
                 latitude = locationSearchList[position].y
                 longitude = locationSearchList[position].x
-                //val latitude = GajaMapApplication.prefs.setString("latitudeAdd", locationSearchList[position].y.toString())
-                //val longitude = GajaMapApplication.prefs.setString("longtitudeAdd", locationSearchList[position].x.toString())
-                Log.d("send1", latitude.toString())
-                Log.d("send1", longitude.toString())
 
                 binding.mapView.setMapCenterPoint(mapPoint, true)
                 val btn: Button = v.findViewById(R.id.btn_plus)
@@ -718,7 +700,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val data = viewModel.allClientsName.value?.clients
             val itemdata = data?.get(0)
             if(itemdata?.image?.filePath != null){
-                //Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+                Glide.with(this).load(UserData.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
@@ -739,8 +721,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val data = viewModel.groupClientsName.value?.clients
             val itemdata = data?.get(0)
             if(itemdata?.image?.filePath != null){
-                //itemdata.imageUrlPrefix 오류떠서 주석처리 했어요..! 나중에 data class 바뀐거 참조해서 바꾸면 될 거 같아요
-                //Glide.with(this).load(itemdata.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
+                Glide.with(this).load(UserData.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
             }
             binding.tvCardName.text = itemdata?.clientName
             binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
@@ -754,6 +735,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(plusBtn){
+            plusBtnInactivation()
+            clientMarker()
+        }
+    }
     // 키워드 검색 함수
     private fun searchKeyword(keyword: String) {
         // API 서버에 요청
@@ -863,6 +851,39 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
+    private fun clientMarker(){
+        // MapFragment 띄우자마자 현재 선택된 고객들의 위치 마커 찍기
+        val clientNum = UserData.clientListResponse!!.clients.size
+        for (i in 0..clientNum-1){
+            val itemdata = UserData.clientListResponse!!.clients.get(i)
+            // 지도에 마커 추가
+            val point = MapPOIItem()
+            point.apply {
+                itemName = itemdata.clientName
+                mapPoint =
+                    MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                markerType = MapPOIItem.MarkerType.BluePin
+                selectedMarkerType = MapPOIItem.MarkerType.RedPin
+            }
+            binding.mapView.addPOIItem(point)
+        }
+    }
+
+    private fun plusBtnInactivation(){
+        plusBtn = false
+        val bgShape = binding.ibPlus.background as GradientDrawable
+        bgShape.setColor(resources.getColor(R.color.white))
+        binding.ibPlus.setImageResource(R.drawable.ic_plus)
+        binding.clSearchWhole.visibility = View.VISIBLE
+        binding.clSearchLocation.visibility = View.GONE
+        binding.clLocation.visibility = View.GONE
+        binding.ibPlus.visibility = View.VISIBLE
+        binding.ibGps.visibility = View.VISIBLE
+        binding.ibKm.visibility = View.VISIBLE
+        markerCheck = false
+        binding.mapView.removePOIItem(marker)
+    }
+
     // 위치추적 시작
     fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
@@ -879,12 +900,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
         if (markerCheck){
             marker.mapPoint = MapPoint.mapPointWithGeoCoord(p0!!.mapCenterPoint.mapPointGeoCoord.latitude, p0.mapCenterPoint.mapPointGeoCoord.longitude)
-            //val latitude = GajaMapApplication.prefs.setString("latitudeAdd", p0.mapCenterPoint.mapPointGeoCoord.latitude.toString())
-            //val longitude = GajaMapApplication.prefs.setString("longtitudeAdd", p0.mapCenterPoint.mapPointGeoCoord.longitude.toString())
             latitude = p0.mapCenterPoint.mapPointGeoCoord.latitude
             longitude = p0.mapCenterPoint.mapPointGeoCoord.longitude
-            Log.d("send1", latitude.toString())
-            Log.d("send1", longitude.toString())
         }
     }
 
@@ -902,14 +919,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.clSearchResult.visibility = View.GONE
 
         if(plusBtn){
-            plusBtn = false
-            val bgShape = binding.ibPlus.background as GradientDrawable
-            bgShape.setColor(resources.getColor(R.color.white))
-            binding.ibPlus.setImageResource(R.drawable.ic_plus)
-            binding.clSearchWhole.visibility = View.VISIBLE
-            binding.clSearchLocation.visibility = View.GONE
-            binding.clLocation.visibility = View.GONE
-            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+            plusBtnInactivation()
         }
     }
 

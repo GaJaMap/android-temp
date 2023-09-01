@@ -7,14 +7,14 @@ data class AutoLoginResponse(
 )
 
 data class AutoLoginGroupInfo(
-    var groupId : Int,
+    var groupId : Long,
     var clientCount : Int,
     var groupName : String
 )
 //특정 그룹내에 특정 고객 조회
 data class GetGroupClientResponse(
     var address: Address,
-    var clientId: Int,
+    var clientId: Long,
     var clientName: String,
     var distance: Double?=null,
     var groupInfo: GroupInfo,
@@ -25,7 +25,7 @@ data class GetGroupClientResponse(
 )
 
 data class GroupInfo(
-    var groupId: Int,
+    var groupId: Long,
     var groupName: String
 )
 
@@ -41,7 +41,7 @@ data class GetAllClientResponse(
 
 data class Client(
     var address: Address,
-    var clientId: Int,
+    var clientId: Long,
     var clientName: String,
     var distance: Double?=null,
     var groupInfo: GroupInfo,
@@ -68,7 +68,7 @@ data class GroupResponse(
     var groupInfos: List<GroupInfoResponse>
 )
 data class GroupInfoResponse(
-    var groupId: Int,
+    var groupId: Long,
     var clientCount: Int,
     var groupName: String
 )

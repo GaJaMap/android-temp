@@ -74,7 +74,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
             }
         }
     }
-    fun deleteClient(groupId : Int, client : Int){
+    fun deleteClient(groupId : Long, client : Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.deleteClient(groupId, client)
             Log.d("deleteClient", "${response.body()}\n${response.code()}")
@@ -87,7 +87,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun deleteAnyClient(groupId : Int, deleteRequest: DeleteRequest){
+    fun deleteAnyClient(groupId : Long, deleteRequest: DeleteRequest){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.deleteAnyClient(groupId, deleteRequest)
             Log.d("deleteAnyClient", "${response.body()}\n${response.code()}")
@@ -100,7 +100,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun getGroupClient(groupId : Int, client : Int){
+    fun getGroupClient(groupId : Long, client : Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.getGroupClient(groupId, client)
             Log.d("getGroupClient", "${response.body()}\n${response.code()}")
@@ -139,7 +139,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun getGroupAllClientName(wordCond : String, groupId : Int){
+    fun getGroupAllClientName(wordCond : String, groupId : Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.getGroupAllClientName(groupId, wordCond)
             Log.d("getGroupAllClientName", "${response.body()}\n${response.code()}")
@@ -152,7 +152,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun getGroupAllClient(groupId : Int){
+    fun getGroupAllClient(groupId : Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.getGroupAllClient(groupId)
             Log.d("getGroupAllClient", "${response.body()}\n${response.code()}")
@@ -194,7 +194,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     }
 
     //특정 그룹 반경 - 이름
-    fun groupNameRadius(groupId : Int, wordCond : String, radius: Double, latitude: Double, longitude: Double){
+    fun groupNameRadius(groupId : Long, wordCond : String, radius: Double, latitude: Double, longitude: Double){
         viewModelScope.launch(Dispatchers.IO){
             val response = getClientRepository.groupNameRadius(groupId,wordCond,radius,latitude,longitude)
             Log.d("groupNameRadius", "${response.body()}\n${response.code()}")
@@ -208,7 +208,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     }
 
     //특정 그룹 반경
-    fun groupRadius(groupId : Int, radius: Double, latitude: Double, longitude: Double){
+    fun groupRadius(groupId : Long, radius: Double, latitude: Double, longitude: Double){
         viewModelScope.launch(Dispatchers.IO){
             val response = getClientRepository.groupRadius(groupId,radius,latitude,longitude)
             Log.d("groupRadius", "${response.body()}\n${response.code()}")

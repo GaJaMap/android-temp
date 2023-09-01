@@ -192,8 +192,8 @@ class MapViewModel: ViewModel() {
     }
 
     // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색
-    private val _groupClientsName = MutableLiveData<GetGroupAllClientResponse>()
-    val groupClientsName : LiveData<GetGroupAllClientResponse>
+    private val _groupClientsName = MutableLiveData<GetAllClientResponse>()
+    val groupClientsName : LiveData<GetAllClientResponse>
         get() = _groupClientsName
 
     fun getGroupAllClientName(wordCond : String, groupId : Long){

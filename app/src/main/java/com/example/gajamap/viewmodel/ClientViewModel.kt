@@ -24,8 +24,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     val deleteClient : LiveData<BaseResponse>
     get() = _deleteClient
 
-    private val _postClient = MutableLiveData<Response<GetAllClientResponse>>()
-    val postClient : LiveData<Response<GetAllClientResponse>>
+    private val _postClient = MutableLiveData<Response<Client>>()
+    val postClient : LiveData<Response<Client>>
 
 //    private val _postClient = MutableLiveData<Response<Int>>()
 //    val postClient : LiveData<Response<Int>>
@@ -62,7 +62,7 @@ class ClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun putClient(groupId : Int, client : Int, clientName: RequestBody,
+    fun putClient(groupId : Long, client : Long, clientName: RequestBody,
                   group : RequestBody,
                   phoneNumber : RequestBody,
                   mainAddress : RequestBody,
