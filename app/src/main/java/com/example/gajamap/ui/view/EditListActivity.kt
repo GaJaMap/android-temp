@@ -13,6 +13,7 @@ import com.example.gajamap.R
 import com.example.gajamap.base.BaseActivity
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.Client
 import com.example.gajamap.data.model.DeleteRequest
 import com.example.gajamap.data.model.GetAllClientResponse
 import com.example.gajamap.databinding.ActivityEditListBinding
@@ -91,7 +92,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
 
     private fun ListRv(it : GetAllClientResponse){
         // 리스트를 저장할 변수
-        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
+        //GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
 
         //고객 리스트
         binding.topTvNumber2.text = it.clients.size.toString()

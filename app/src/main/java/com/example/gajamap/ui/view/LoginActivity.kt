@@ -54,6 +54,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             UserData.clientListResponse = it.clientListResponse
             UserData.groupinfo = it.groupInfo
 //            GajaMapApplication.prefs.saveAutoLoginResponse(it)
+            GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix)
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
@@ -106,10 +107,12 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         }
 
-        viewModel.login.observe(this, Observer {
+        viewModel.login.observe(this, Observer { it ->
             viewModel.autoLogin.observe(this@LoginActivity, Observer {
                 GajaMapApplication.prefs.saveAutoLoginResponse(it)
                 // autoLogin이 완료된 후에 MainActivity로 이동합니다.
+                    GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix)
+
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()
             })
