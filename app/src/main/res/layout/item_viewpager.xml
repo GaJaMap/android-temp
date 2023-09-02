@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_card_profile"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:src="@drawable/profile_img_origin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_card_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/list_item_name"
+        android:fontFamily="@font/nanumsquareneo_bold"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_card_profile"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_card_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/list_item_address"
+        android:fontFamily="@font/nanumsquareneo_bold"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_card_profile"
+        app:layout_constraintTop_toBottomOf="@+id/tv_card_name"/>
+
+    <TextView
+        android:id="@+id/tv_card_address_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/list_item_address_detail"
+        android:fontFamily="@font/nanumsquareneo_regular"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="25dp"
+        app:layout_constraintStart_toEndOf="@+id/tv_card_address"
+        app:layout_constraintTop_toTopOf="@+id/tv_card_address"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_card_address"/>
+
+    <TextView
+        android:id="@+id/tv_card_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/list_item_phone"
+        android:fontFamily="@font/nanumsquareneo_bold"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_card_profile"
+        app:layout_constraintTop_toBottomOf="@+id/tv_card_address"/>
+
+    <TextView
+        android:id="@+id/tv_card_phone_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/list_item_phone_detail"
+        android:fontFamily="@font/nanumsquareneo_regular"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="13dp"
+        app:layout_constraintStart_toEndOf="@+id/tv_card_phone"
+        app:layout_constraintTop_toTopOf="@+id/tv_card_phone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_card_phone"/>
+
+    <TextView
+        android:id="@+id/tv_card_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cardview_distance"
+        android:fontFamily="@font/nanumsquareneo_bold"
+        android:textSize="13sp"
+        android:textColor="@color/main"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_card_profile"
+        app:layout_constraintTop_toBottomOf="@+id/tv_card_phone"/>
+
+    <TextView
+        android:id="@+id/tv_card_km"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cardview_km"
+        android:fontFamily="@font/nanumsquareneo_bold"
+        android:textSize="13sp"
+        android:textColor="@color/main"
+        app:layout_constraintStart_toEndOf="@+id/tv_card_distance"
+        app:layout_constraintTop_toTopOf="@id/tv_card_distance"
+        app:layout_constraintBottom_toBottomOf="@id/tv_card_distance"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_card_carBtn"
+        android:layout_width="48dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/ic_item_car_background"
+        app:layout_constraintTop_toTopOf="@+id/tv_card_km"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_card_km"
+        app:layout_constraintStart_toEndOf="@+id/tv_card_km">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_item_car"
+            android:paddingTop="2dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_card_phoneBtn"
+        android:layout_width="48dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ic_item_car_background"
+        app:layout_constraintTop_toTopOf="@+id/tv_card_distance"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_card_distance"
+        app:layout_constraintStart_toEndOf="@+id/cl_card_carBtn">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_item_phone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

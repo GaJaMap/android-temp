@@ -61,8 +61,6 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
 
-        Log.d("pos", position.toString())
-
         // 아이템의 배경 설정
         if(datalist[position].isSelected && selectedPosition == position){
             holder.itemView.setBackgroundResource(R.color.inform)

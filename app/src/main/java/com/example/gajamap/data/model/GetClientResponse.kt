@@ -11,6 +11,7 @@ data class AutoLoginGroupInfo(
     var clientCount : Int,
     var groupName : String
 )
+
 //특정 그룹내에 특정 고객 조회
 data class GetGroupClientResponse(
     var address: Address,
@@ -49,13 +50,10 @@ data class Client(
     var location: Location,
     var phoneNumber: String,
     var createdAt : String,
-    //var imageUrlPrefix : String
 )
-
 
 data class GetGroupAllClientResponse(
     var clients: List<Client>,
-    //var imageUrlPrefix : String
 )
 
 data class GetRadiusResponse(
@@ -67,6 +65,7 @@ data class GroupResponse(
     var hasNext : Boolean,
     var groupInfos: List<GroupInfoResponse>
 )
+
 data class GroupInfoResponse(
     var groupId: Long,
     var clientCount: Int,
