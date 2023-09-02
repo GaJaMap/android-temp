@@ -80,6 +80,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // viewpager 설정
     private val viewpagerList = arrayListOf<ViewPagerData>()
     val viewpagerAdapter = ViewPagerAdapter(viewpagerList)
+    var sheetView : DialogAddGroupBottomSheetBinding? = null
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -93,7 +94,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var GPSBtn = false
     var latitude = 0.0
     var longitude = 0.0
-    var sheetView : DialogAddGroupBottomSheetBinding? = null
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -289,7 +289,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
-                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                //Log.d("ReverseGeocoding", "도로명 주소: $addressString")
                 GajaMapApplication.prefs.setString("address", addressString)
                 binding.tvLocationAddress.text = addressString
             }
@@ -604,6 +604,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val point = MapPOIItem()
                     point.apply {
                         itemName = itemdata.clientName
+                        tag = itemdata.clientId.toInt()
                         mapPoint =
                             MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
@@ -637,6 +638,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val point = MapPOIItem()
                     point.apply {
                         itemName = itemdata.clientName
+                        tag = itemdata.clientId.toInt()
                         mapPoint =
                             MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
@@ -664,6 +666,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
+                    tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
@@ -690,6 +693,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
+                    tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
@@ -747,7 +751,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
             }
         }
-        //viewpagerList.add(ViewPagerData("null", "조예진","서초구", "010-2323-3243", 1.2))
 
         binding.vpClient.adapter = viewpagerAdapter
         searchResultAdapter.notifyDataSetChanged()
@@ -871,6 +874,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val point = MapPOIItem()
             point.apply {
                 itemName = itemdata.clientName
+                tag = itemdata.clientId.toInt()
                 mapPoint =
                     MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                 markerType = MapPOIItem.MarkerType.BluePin
