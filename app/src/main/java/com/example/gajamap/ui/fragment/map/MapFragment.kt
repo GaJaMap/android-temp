@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.gajamap.BR
 import com.example.gajamap.BuildConfig
@@ -35,6 +36,9 @@ import com.example.gajamap.api.retrofit.KakaoSearchClient
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.Client
+import com.example.gajamap.data.model.GetAllClientResponse
+import com.example.gajamap.data.model.ViewPagerData
 import com.example.gajamap.data.response.*
 import com.example.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.example.gajamap.databinding.DialogGroupBinding
@@ -42,6 +46,7 @@ import com.example.gajamap.databinding.FragmentMapBinding
 import com.example.gajamap.ui.adapter.GroupListAdapter
 import com.example.gajamap.ui.adapter.LocationSearchAdapter
 import com.example.gajamap.ui.adapter.SearchResultAdapter
+import com.example.gajamap.ui.adapter.ViewPagerAdapter
 import com.example.gajamap.ui.view.AddDirectActivity
 import com.example.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -54,7 +59,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.Integer.min
-
 
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
@@ -73,6 +77,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
     val searchResultAdapter = SearchResultAdapter(searchResultList)
+    // viewpager 설정
+    private val viewpagerList = arrayListOf<ViewPagerData>()
+    val viewpagerAdapter = ViewPagerAdapter(viewpagerList)
+    var sheetView : DialogAddGroupBottomSheetBinding? = null
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -84,12 +92,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
-
     var latitude = 0.0
     var longitude = 0.0
-
-    var sheetView : DialogAddGroupBottomSheetBinding? = null
-
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -124,6 +128,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         binding.mapView.setMapViewEventListener(this)
         binding.mapView.setPOIItemEventListener(this)
+
+        binding.vpClient.orientation = ViewPager2.ORIENTATION_HORIZONTAL // 방향을 가로로
 
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
@@ -283,7 +289,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
-                Log.d("ReverseGeocoding", "도로명 주소: $addressString")
+                //Log.d("ReverseGeocoding", "도로명 주소: $addressString")
                 GajaMapApplication.prefs.setString("address", addressString)
                 binding.tvLocationAddress.text = addressString
             }
@@ -598,6 +604,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val point = MapPOIItem()
                     point.apply {
                         itemName = itemdata.clientName
+                        tag = itemdata.clientId.toInt()
                         mapPoint =
                             MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
@@ -631,6 +638,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val point = MapPOIItem()
                     point.apply {
                         itemName = itemdata.clientName
+                        tag = itemdata.clientId.toInt()
                         mapPoint =
                             MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
@@ -658,6 +666,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
+                    tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
@@ -684,6 +693,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
+                    tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
@@ -697,20 +707,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun getAllClientName(name : String){
         viewModel.getAllClientName(name)
         viewModel.allClientsName.observe(this, Observer {
-            val data = viewModel.allClientsName.value?.clients
-            val itemdata = data?.get(0)
-            if(itemdata?.image?.filePath != null){
-                Glide.with(this).load(UserData.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
-            }
-            binding.tvCardName.text = itemdata?.clientName
-            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
-            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-
-            if(itemdata!!.distance == null){
-                binding.tvCardDistance.text = "-"
-            }else{
-                binding.tvCardDistance.text = String.format("%.2f", itemdata!!.distance?.times(0.001))
-            }
+            getClientList(viewModel.allClientsName.value!!)
         })
     }
 
@@ -718,20 +715,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun getGroupAllClientName(name : String, groupId: Long){
         viewModel.getGroupAllClientName(name, groupId)
         viewModel.groupClientsName.observe(this, Observer {
-            val data = viewModel.groupClientsName.value?.clients
-            val itemdata = data?.get(0)
-            if(itemdata?.image?.filePath != null){
-                Glide.with(this).load(UserData.imageUrlPrefix+itemdata.image.filePath).into(binding.ivCardProfile)
-            }
-            binding.tvCardName.text = itemdata?.clientName
-            binding.tvCardAddressDetail.text = itemdata?.address?.mainAddress
-            binding.tvCardPhoneDetail.text = itemdata?.phoneNumber
-
-            if(itemdata!!.distance == null){
-                binding.tvCardDistance.text = "-"
-            }else{
-                binding.tvCardDistance.text = String.format("%.2f", itemdata.distance?.times(0.001))
-            }
+            getClientList(viewModel.groupClientsName.value!!)
         })
     }
 
@@ -742,6 +726,36 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             clientMarker()
         }
     }
+
+    // ViewPager에 들어갈 아이템
+    private fun getClientList(data : GetAllClientResponse) {
+        viewpagerList.clear()
+        val size = data.clients.size
+
+        for (i in 0..size-1){
+            val itemdata = data.clients.get(i)
+            if(itemdata.image.filePath != null){
+                if(itemdata.distance == null){
+                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+
+                }else{
+                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                }
+            }
+            else{
+                if(itemdata.distance == null){
+                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+
+                }else{
+                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                }
+            }
+        }
+
+        binding.vpClient.adapter = viewpagerAdapter
+        searchResultAdapter.notifyDataSetChanged()
+    }
+
     // 키워드 검색 함수
     private fun searchKeyword(keyword: String) {
         // API 서버에 요청
@@ -860,6 +874,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val point = MapPOIItem()
             point.apply {
                 itemName = itemdata.clientName
+                tag = itemdata.clientId.toInt()
                 mapPoint =
                     MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                 markerType = MapPOIItem.MarkerType.BluePin

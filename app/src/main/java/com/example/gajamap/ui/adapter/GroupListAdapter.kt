@@ -36,6 +36,8 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
             // 삭제, 수정 버튼 눌렀을 때의 이벤트
             binding.ivDelete.setOnClickListener {
                 groupDeleteListener.click(datalist[position].id, datalist[position].name, position)
+                selectedPosition = 0
+                datalist[0].isSelected = true
             }
             binding.ivModify.setOnClickListener {
                 groupEditListener.click2(datalist[position].id, datalist[position].name, position)
@@ -56,12 +58,12 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
         holder.bind(datalist[position])
 
+        Log.d("pos", position.toString())
+
         if(datalist[position].whole && position == 0) {
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
-
-        Log.d("pos", position.toString())
 
         // 아이템의 배경 설정
         if(datalist[position].isSelected && selectedPosition == position){
