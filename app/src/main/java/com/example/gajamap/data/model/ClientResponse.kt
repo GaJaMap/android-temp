@@ -12,12 +12,12 @@ data class PostClientRequest(
 
 data class PostKakaoPhoneRequest(
     val clients: MutableList<Clients?>,
-    val groupId: Int
+    val groupId: Long
 )
 
 data class Clients(
     val clientName: String,
-    val phoneNumber: String
+    val phoneNumber: String?
 )
 
 data class BaseResponse(

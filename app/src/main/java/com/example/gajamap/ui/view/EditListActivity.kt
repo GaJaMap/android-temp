@@ -63,7 +63,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
 
                 // 선택된 클라이언트들 삭제 후, 클라이언트 목록 업데이트
                 val newClientList = clientList?.filter { client ->
-                    client.clientId !in selectedClientIds
+                    client.clientId.toLong() !in selectedClientIds
                 }
                 Log.d("newdelete", clientList.toString())
                // Log.d("new", newClientList.toString())
@@ -106,7 +106,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
             selectedClientIds.clear() // 기존 선택한 아이템들 초기화
 
             if(isChecked){
-                selectedClientIds.addAll(it.clients.map { client -> client.clientId })
+                selectedClientIds.addAll(it.clients.map { client -> client.clientId.toLong() })
                 // 배경색 변경
                 val backgroundDrawable: Drawable? by lazy {ContextCompat.getDrawable(this, R.drawable.fragment_list_tool_purple) }
                 customerAnyListAdapter.updateItemBackground(backgroundDrawable)
@@ -123,7 +123,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
         customerAnyListAdapter.setOnItemClickListener(object :
             CustomerAnyListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
-                val selectedClientId = it.clients[position].clientId
+                val selectedClientId = it.clients[position].clientId.toLong()
                 binding.topTvNumber1.text = selectedClientIds.size.toString()
                 // 리스트에 클릭한 아이템의 clientId 추가 또는 삭제
                 if (selectedClientIds.contains(selectedClientId)) {

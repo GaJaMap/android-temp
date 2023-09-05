@@ -261,7 +261,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
                     // 특정 clientId에 해당하는 클라이언트 찾기
-                    val targetClient = clients.find { it.clientId == targetClientId.toLong() }
+                    val targetClient = clients.find { it.clientId.toLong() == targetClientId.toLong() }
 
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {
@@ -342,7 +342,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
                     // 특정 clientId에 해당하는 클라이언트 찾기
-                    val targetClient = clients.find { it.clientId == targetClientId.toLong() }
+                    val targetClient = clients.find { it.clientId.toLong() == targetClientId.toLong() }
 
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {
@@ -365,8 +365,16 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                             clientList!![index] = this
                         }
                         GajaMapApplication.prefs.setString("name", this.clientName)
-                        GajaMapApplication.prefs.setString("address1", this.address.mainAddress)
-                        GajaMapApplication.prefs.setString("address2", this.address.detail)
+                        this.address.mainAddress?.let { it1 ->
+                            GajaMapApplication.prefs.setString("address1",
+                                it1
+                            )
+                        }
+                        this.address.detail?.let { it1 ->
+                            GajaMapApplication.prefs.setString("address2",
+                                it1
+                            )
+                        }
                         GajaMapApplication.prefs.setString("phone", this.phoneNumber)
                         this.image.filePath?.let { it1 ->
                             GajaMapApplication.prefs.setString("image",

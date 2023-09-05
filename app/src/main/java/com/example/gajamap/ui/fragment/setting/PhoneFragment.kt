@@ -23,12 +23,10 @@ import android.widget.AdapterView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.gajamap.base.GajaMapApplication
 import com.example.gajamap.base.UserData
 import com.example.gajamap.data.model.Clients
 import com.example.gajamap.data.model.GroupInfoResponse
 import com.example.gajamap.data.model.PostKakaoPhoneRequest
-import com.example.gajamap.ui.adapter.KakaoFriendAdapter
 import com.example.gajamap.ui.adapter.PhoneListAdapter
 import com.example.gajamap.viewmodel.ClientViewModel
 
@@ -40,6 +38,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
+    //var groupSpinner : Int = -1
 
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
@@ -115,7 +114,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                     val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                     groupId = selectedGroupInfoResponse.groupId
                     Log.d("groupId", groupId.toString())
-                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                    //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                 }
             }
 
@@ -213,12 +212,15 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                 }*/
             }
         })
-        val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+        //val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+        Log.d("selectGroup", groupId.toString())
         binding.btnSubmit.setOnClickListener {
-            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
+            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId))
+
             Log.d("select", selectedClients.toString())
             viewModel.postKakaoPhoneClient.observe(this, Observer {
-                if(groupId1.toString() == groupInfo?.groupId.toString()){
+                Log.d("selectRes", it.toString())
+                if(groupId.toString() == groupInfo?.groupId.toString()){
 
                 }
 

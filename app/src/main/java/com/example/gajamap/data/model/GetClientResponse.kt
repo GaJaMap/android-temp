@@ -42,14 +42,14 @@ data class GetAllClientResponse(
 
 data class Client(
     var address: Address,
-    var clientId: Long,
+    var clientId: Int,
     var clientName: String,
     var distance: Double?=null,
     var groupInfo: GroupInfo,
     var image: Image,
     var location: Location,
     var phoneNumber: String,
-    var createdAt : String,
+    var createdAt: String,
 )
 
 data class GetGroupAllClientResponse(

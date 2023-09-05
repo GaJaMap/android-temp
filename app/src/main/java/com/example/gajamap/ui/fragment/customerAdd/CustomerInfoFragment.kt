@@ -107,7 +107,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             val iterator = clientList.iterator()
             while (iterator.hasNext()) {
                 val client = iterator.next()
-                if (client.clientId == clientIdToRemove) {
+                if (client.clientId.toLong() == clientIdToRemove) {
                     iterator.remove()
                     Log.d("delete", clientList.toString())
                     break  // 원하는 클라이언트를 찾고 삭제 후 반복문 종료

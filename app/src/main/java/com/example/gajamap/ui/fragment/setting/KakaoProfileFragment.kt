@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,9 +18,8 @@ import com.example.gajamap.BR
 import com.example.gajamap.R
 import com.example.gajamap.base.BaseFragment
 import com.example.gajamap.base.GajaMapApplication
-import com.example.gajamap.data.model.Clients
-import com.example.gajamap.data.model.GroupInfoResponse
-import com.example.gajamap.data.model.PostKakaoPhoneRequest
+import com.example.gajamap.base.UserData
+import com.example.gajamap.data.model.*
 import com.example.gajamap.databinding.FragmentKakaoProfileBinding
 import com.example.gajamap.ui.adapter.KakaoFriendAdapter
 import com.example.gajamap.viewmodel.ClientViewModel
@@ -30,6 +31,12 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
     private var groupId : Long = -1
+    var groupInfo = UserData.groupinfo
+    var groupName : String ?= null
+    var client = UserData.clientListResponse
+    var clientList = UserData.clientListResponse?.clients
+
+
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
@@ -92,7 +99,10 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                 if(pos != 0){
                     val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                     groupId = selectedGroupInfoResponse.groupId
-                    Log.d("groupId", groupId.toString())
+                    groupName = selectedGroupInfoResponse.groupName
+
+                    Log.d("selectGroup", groupId.toString())
+                    Log.d("selectGroupName", groupName.toString())
                     GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                 }
             }
@@ -194,12 +204,12 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
                         item?.let {
                             if (kakaoFriendAdapter.isChecked(position)) {
                                 it.profileNickname?.let { nickname ->
-                                    selectedClients.add(Clients(nickname, ""))
+                                    selectedClients.add(Clients(nickname, null))
                                 }
                                 Log.d("selected", selectedClients.toString())
                             } else {
                                 it.profileNickname?.let { nickname ->
-                                    selectedClients.remove(Clients(nickname, ""))
+                                    selectedClients.remove(Clients(nickname, null))
                                     Log.d("selected", selectedClients.toString())
                                 }
                             }
@@ -211,15 +221,60 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
 
             }
         }
-        val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+        val groupId = GajaMapApplication.prefs.getString("groupIdSpinner", "").toLong()
+        Log.d("selectGroup", groupId.toString())
         binding.btnSubmit.setOnClickListener {
-            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
+            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId))
             Log.d("select", selectedClients.toString())
-            viewModel.postKakaoPhoneClient.observe(this, Observer {
-
-            })
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
         }
+
+        viewModel.postKakaoPhoneClient.observe(this@KakaoProfileFragment, Observer { response ->
+            Log.d("selectRes", response.body().toString())
+
+            val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
+            if (ids != null) {
+                Log.d("selectId", ids.size.toString())
+            }
+            if (ids != null) {
+                val newClients = mutableListOf<Client>()
+
+                for (i in ids.size.toString()) {
+                    val clientId = ids[i.toInt()] // List에서 현재 순서의 Int 값을 가져옵니다.
+                    val selectedClient = selectedClients.getOrNull(i.toInt()) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
+
+                    if (selectedClient != null) {
+                        val newClient = selectedClient.phoneNumber?.let { it1 ->
+                            groupName?.let { it2 -> GroupInfo(groupId, it2) }?.let { it3 ->
+                                Client(
+                                    address = Address(null, null), // 적절한 값으로 대체하세요
+                                    clientId = clientId, // List에서 가져온 clientId 값을 할당합니다.
+                                    clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
+                                    distance = null, // 적절한 값으로 대체하세요
+                                    groupInfo = it3, // 적절한 값으로 대체하세요
+                                    image = Image(null, null), // 적절한 값으로 대체하세요
+                                    location = Location(0.0, 0.0), // 적절한 값으로 대체하세요
+                                    phoneNumber = it1, // 선택된 클라이언트의 전화번호를 사용합니다
+                                    createdAt = "" // 적절한 값으로 대체하세요
+                                )
+                            }
+                        }
+                        Log.d("selectNew", newClient.toString())
+                        if (newClient != null) {
+                            newClients.add(newClient)
+                        }
+                    }
+                }
+
+                // 새로운 Clients를 기존 clientList에 추가합니다.
+                clientList?.addAll(newClients)
+                Log.d("selectList", clientList.toString())
+            }
+
+            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+        })
+        /*binding.btnSubmit.setOnClickListener {
+            Toast.makeText(context, "그룹을 선택하세요",Toast.LENGTH_SHORT).show()
+        }*/
 
 
     }

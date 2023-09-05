@@ -336,7 +336,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int, index: Int) {
                 val itemData = UserData.clientListResponse?.clients?.get(index)
-                val mapPoint = MapPoint.mapPointWithGeoCoord(itemData!!.location.latitude, itemData.location.longitude)
+                val mapPoint =
+                    itemData!!.location.latitude?.let { itemData.location.longitude?.let { it1 ->
+                        MapPoint.mapPointWithGeoCoord(it,
+                            it1
+                        )
+                    } }
                 binding.mapView.setMapCenterPoint(mapPoint, true)
             }
         })
@@ -667,7 +672,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 point.apply {
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    mapPoint = itemdata.location.latitude?.let { it1 ->
+                        itemdata.location.longitude?.let { it2 ->
+                            MapPoint.mapPointWithGeoCoord(
+                                it1, it2
+                            )
+                        }
+                    }
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -694,7 +705,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 point.apply {
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    mapPoint = itemdata.location.latitude?.let { it1 ->
+                        itemdata.location.longitude?.let { it2 ->
+                            MapPoint.mapPointWithGeoCoord(
+                                it1, it2
+                            )
+                        }
+                    }
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -736,18 +753,30 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             val itemdata = data.clients.get(i)
             if(itemdata.image.filePath != null){
                 if(itemdata.distance == null){
-                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+                    itemdata.address.mainAddress?.let {
+                        ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName,
+                            it, itemdata.phoneNumber, null)
+                    }?.let { viewpagerList.add(it) }
 
                 }else{
-                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                    itemdata.address.mainAddress?.let {
+                        ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName,
+                            it, itemdata.phoneNumber, itemdata.distance)
+                    }?.let { viewpagerList.add(it) }
                 }
             }
             else{
                 if(itemdata.distance == null){
-                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+                    itemdata.address.mainAddress?.let {
+                        ViewPagerData("null", itemdata.clientName,
+                            it, itemdata.phoneNumber, null)
+                    }?.let { viewpagerList.add(it) }
 
                 }else{
-                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                    itemdata.address.mainAddress?.let {
+                        ViewPagerData("null", itemdata.clientName,
+                            it, itemdata.phoneNumber, itemdata.distance)
+                    }?.let { viewpagerList.add(it) }
                 }
             }
         }

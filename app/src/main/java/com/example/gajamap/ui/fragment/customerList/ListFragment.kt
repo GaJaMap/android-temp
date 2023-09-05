@@ -269,8 +269,12 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
                 GajaMapApplication.prefs.setString("name", name)
-                GajaMapApplication.prefs.setString("address1", address1)
-                GajaMapApplication.prefs.setString("address2", address2)
+                if (address1 != null) {
+                    GajaMapApplication.prefs.setString("address1", address1)
+                }
+                if (address2 != null) {
+                    GajaMapApplication.prefs.setString("address2", address2)
+                }
                 GajaMapApplication.prefs.setString("phone", phone)
                 GajaMapApplication.prefs.setString("latitude1", latitude.toString())
                 GajaMapApplication.prefs.setString("longitude1", longitude.toString())
