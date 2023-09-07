@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.MapViewModel" />
+            type="com.pg.gajamap.viewmodel.MapViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
