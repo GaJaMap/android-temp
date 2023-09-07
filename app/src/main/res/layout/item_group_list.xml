@@ -6,7 +6,7 @@
     <data>
         <variable
             name="item"
-            type="com.example.gajamap.data.model.GroupListData" />
+            type="com.pg.gajamap.data.model.GroupListData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

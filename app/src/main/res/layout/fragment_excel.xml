@@ -7,10 +7,10 @@
         <import type="android.view.View"/>
         <variable
             name="fragment"
-            type="com.example.gajamap.ui.fragment.setting.ExcelFragment" />
+            type="com.pg.gajamap.ui.fragment.setting.ExcelFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.ClientViewModel" />
+            type="com.pg.gajamap.viewmodel.ClientViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout

@@ -6,13 +6,14 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.MainViewModel" />
+            type="com.pg.gajamap.viewmodel.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.view.MainActivity">
+        tools:context=".ui.view.MainActivity"
+        android:fitsSystemWindows="true">
 
         <FrameLayout
             android:id="@+id/nav_fl"

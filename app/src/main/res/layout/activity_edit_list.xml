@@ -8,7 +8,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.GetClientViewModel" />
+            type="com.pg.gajamap.viewmodel.GetClientViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

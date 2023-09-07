@@ -10,11 +10,11 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 def kakaoApiKey = properties.getProperty('kakao_native_key')
 
 android {
-    namespace 'com.example.gajamap'
+    namespace 'com.pg.gajamap'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.gajamap"
+        applicationId "com.pg.gajamap"
         minSdk 23
         targetSdk 33
         versionCode 1

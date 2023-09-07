@@ -7,10 +7,10 @@
         <import type="android.view.View"/>
         <variable
             name="fragment"
-            type="com.example.gajamap.ui.fragment.customerList.ListFragment" />
+            type="com.pg.gajamap.ui.fragment.customerList.ListFragment" />
         <variable
             name="viewModel"
-            type="com.example.gajamap.viewmodel.GetClientViewModel" />
+            type="com.pg.gajamap.viewmodel.GetClientViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
